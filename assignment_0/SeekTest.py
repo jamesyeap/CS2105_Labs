@@ -43,6 +43,5 @@ def readPacket():
 if __name__ == "__main__":
 	main()
 
-
 # Max header-case:
 	# 	"Size: 1048576B"
