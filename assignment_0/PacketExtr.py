@@ -19,7 +19,7 @@ def readPacket():
 
 	# find the size of the packet from the header
 	packetSize = 0
-	headerSizeStart = header.find(b' ')
+	headerSizeStart = header.find(b' ') + 1
 	headerSizeEnd = header.find(b'B')
 	if headerSizeStart >= 0 & headerSizeEnd >= 0:
 		packetSize = int(header[headerSizeStart : headerSizeEnd].decode());
@@ -30,7 +30,7 @@ def readPacket():
 		sys.stdout.buffer.flush()
 		
 		packetSize = packetSize - len(payload)
-		
+
 		if packetSize == 0:
 			break
 
