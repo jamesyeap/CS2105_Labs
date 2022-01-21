@@ -22,21 +22,19 @@ def readPacket():
 	headerSizeStart = header.find(b' ')
 	headerSizeEnd = header.find(b'B')
 	if headerSizeStart >= 0 & headerSizeEnd >= 0:
-		packetSize = int(header[headerSizeStart : headerSizeEnd]);
-
-	# write-out any excess bytes that may have been read-in
-	sys.stdout.buffer.write(data[headerEnd+1:])
-	sys.stdout.buffer.flush()
-	packetSize = packetSize - headerEnd;
+		packetSize = int(header[headerSizeStart : headerSizeEnd].decode());
 
 	# write-out the rest of the bytes in the payload
 	while packetSize > 0:
-		payload = sys.stdin.buffer.read1()
-
-		sys.stdout.buffer.write(payload)
+		sys.stdout.buffer.write(payload)	
 		sys.stdout.buffer.flush()
-
+		
 		packetSize = packetSize - len(payload)
+		
+		if packetSize == 0:
+			break
+
+		payload = sys.stdin.buffer.read1(packetSize)
 
 	return True
 		
