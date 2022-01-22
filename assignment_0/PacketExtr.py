@@ -2,11 +2,16 @@ import sys
 
 def main():
 	while True:
+		# get the size of the packet (in bytes)
+		#	from the packet-header
 		packetSize = readHeader()
 
+		# if no packet-header is found,
+		#	stop processing data
 		if (packetSize == -1):
 			break
 
+		# read the packet-payload
 		readPayload(packetSize)
 
 def readHeader():
@@ -50,6 +55,3 @@ def readPayload(packetSize):
 		
 if __name__ == "__main__":
 	main()
-
-# Max header-case:
-	# 	"Size: 1048576B"
