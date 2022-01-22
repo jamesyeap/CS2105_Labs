@@ -1,42 +1,52 @@
 import sys
 
 def main():
-	hasNextPacket = True
+	while True:
+		packetSize = readHeader()
 
-	while hasNextPacket == True:
-		hasNextPacket = readPacket()
-
-def readPacket():
-	data = sys.stdin.buffer.read1(14)
-
-	if (len(data) == 0):
-		return False
-
-	# find the header and payload segments of the header
-	headerEnd = data.find(b'B')
-	header = data[0:headerEnd+1]
-	payload = data[headerEnd+1:]
-
-	# find the size of the packet from the header
-	packetSize = 0
-	headerSizeStart = header.find(b' ') + 1
-	headerSizeEnd = header.find(b'B')
-	if headerSizeStart >= 0 & headerSizeEnd >= 0:
-		packetSize = int(header[headerSizeStart : headerSizeEnd].decode());
-
-	# write-out the rest of the bytes in the payload
-	while packetSize > 0:
-		sys.stdout.buffer.write(payload)	
-		sys.stdout.buffer.flush()
-		
-		packetSize = packetSize - len(payload)
-
-		if packetSize == 0:
+		if (packetSize == -1):
 			break
 
-		payload = sys.stdin.buffer.read1(packetSize)
+		readPayload(packetSize)
 
-	return True
+def readHeader():
+	# read-in "Size: " first
+	data = sys.stdin.buffer.read1(6)	
+
+	# if the start of a packet-header cannot be found,
+	#	then there are no more packets to read
+	if (len(data) == 0):
+		return -1
+
+	# read-in "______B", where "______" is an integer
+	#	that ranges from 0 to 1048576
+	x = sys.stdin.buffer.read1(1)
+	y = b''
+
+	# read-in a single byte, x, at a time,
+	# 	appending the x to the
+	# 	bytes-object y that represents the size of the packet
+	# 	until 'B' is reached 
+	#	(note: don't append 'B' to the bytes-object)
+	while (x != b'B'):
+		y += x 
+		x = sys.stdin.buffer.read1(1)		
+
+	# convert the byte-representation of the
+	#	packet size into a decimal number
+	packetSize = int(y)
+
+	return packetSize
+
+def readPayload(packetSize):
+	numBytesLeft = packetSize
+
+	while (numBytesLeft > 0):
+		payload = sys.stdin.buffer.read1(numBytesLeft)
+		numBytesLeft -= len(payload)
+
+		sys.stdout.buffer.write(payload)	
+		sys.stdout.buffer.flush()
 		
 if __name__ == "__main__":
 	main()
