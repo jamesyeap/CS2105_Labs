@@ -36,9 +36,9 @@ def request_connection(student_key):
 	clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key))
 
 	if (get_response_code() == HANDSHAKE_SUCCESSFUL):
-		return true
+		return True
 
-	return false
+	return False
 
 def login(password):
 	clientSocket.send(create_request_message(LOGIN_REQUEST, password))
@@ -65,9 +65,9 @@ def get_file():
 def validate_hash(hash):
 	clientSocket.send(create_request_message(SEND, hash))
 	if (get_response_code() == HASH_MATCHED):
-		return true
+		return True
 
-	return false
+	return False
 
 # ------- UTIL METHODS -------------------------------------------------------------
 
