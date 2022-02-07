@@ -149,6 +149,7 @@ while (num_success < 8):
 				print("successful file validation")
 
 				request_logout(clientSocket)
+				
 				break
 
 		except ConnectionError:
