@@ -123,6 +123,7 @@ while (num_success < 8):
 		request_validate_hash(clientSocket, md5_hash)
 
 		num_success += 1
+		print(num_success)
 		request_logout(clientSocket)
 
 	current_password += 1
