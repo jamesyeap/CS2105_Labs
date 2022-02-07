@@ -98,7 +98,7 @@ def create_socket(student_key):
 
 	return clientSocket
 
-# ------ MAIN ---------------------------------------------------------------
+# ------ MAIN ----------------------------------------------------------------
 
 # get student key to establish connection with server
 student_key = (sys.argv[1]).encode()
