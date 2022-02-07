@@ -125,9 +125,6 @@ last_tried_password = 0 # all possible password combinations (0000-9999)
 clientSocket = create_socket(student_key)
 
 while (num_success < 8):
-	request_get_file(clientSocket)
-	exit(1)
-
 	# try to login using all possible password combinations (0000-9999)
 	for i in range(last_tried_password, 10000):
 		try:
