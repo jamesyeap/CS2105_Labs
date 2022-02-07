@@ -88,7 +88,7 @@ def extract_file_size(clientSocket):
 	return file_size
 
 def generate_MD5_hash(data):
-	return hashlib.md5(data).hexdigest()
+	return str(hashlib.md5(data).hexdigest()).encode()
 
 # returns a local socket that is connected to the specified server
 def create_socket(student_key):
