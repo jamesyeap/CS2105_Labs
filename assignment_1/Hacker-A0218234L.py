@@ -1,12 +1,10 @@
 from socket import *
 import hashlib
+import sys
 
 # server details
 SERVER_IP_ADDRESS = '137.132.92.111'
 SERVER_PORT = 4444
-
-# lab details
-STUDENT_ID = 651723
 
 # request message - request method codes
 REQUEST_CONNECTION = 'STID_'
@@ -34,7 +32,8 @@ clientSocket = socket(AF_INET, SOCK_STREAM)
 clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
 
 # request for connection to server
-can_connect = request_connection()
+student_key = sys.argv(1)
+can_connect = request_connection(student_key)
 
 if (not can_connect):
 	print("Handshake could not be established due to invalid student id")
@@ -57,8 +56,8 @@ for i in range(0, 1000):
 
 # ------- SEND REQUEST METHODS ---------------------------------------------------
 
-def request_connection():
-	clientSocket.send(create_request_message(REQUEST_CONNECTION, STUDENT_ID))
+def request_connection(student_key):
+	clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key))
 
 	if (get_response_code() == HANDSHAKE_SUCCESSFUL):
 		return true
@@ -118,4 +117,3 @@ def get_file_size():
 
 def get_MD5_hash(data):
 	return str(hashlib.md5(data).hexdigest())
-	
