@@ -35,7 +35,7 @@ clientSocket = socket(AF_INET, SOCK_STREAM)
 clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
 
 # request for connection to server
-student_key = sys.argv(1)
+student_key = sys.argv[1]
 can_connect = request_connection(student_key)
 
 if (not can_connect):
