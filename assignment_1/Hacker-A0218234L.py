@@ -71,7 +71,7 @@ def request_validate_hash(clientSocket, hash):
 
 def create_request_message(method_code, data=""):
 	request_message = method_code + str(data)
-	print("request_message sent: " + request_message)
+	# print("request_message sent: " + request_message)
 	return (request_message).encode();
 
 def get_response_code(clientSocket):
@@ -81,7 +81,7 @@ def get_response_code(clientSocket):
 		time.sleep(1)
 		response_code = clientSocket.recv(4).decode();
 
-	print("response_code received: " + response_code)
+	# print("response_code received: " + response_code)
 	return response_code
 
 """ note: get_file_size() should only be called inside the function get_file() """
@@ -131,7 +131,7 @@ while (num_success < 8):
 	for i in range(last_tried_password, 10000):
 		try:
 			can_login = request_login(clientSocket, str(i).zfill(4))
-			print("--- trying password: " + str(i).zfill(4)) # FOR DEBUGGING ONLY: see how far we could get
+			# print("--- trying password: " + str(i).zfill(4)) # FOR DEBUGGING ONLY: see how far we could get
 
 			if (can_login):
 				print("--- CORRECT PASSWORD: " + str(i).zfill(4)) # FOR DEBUGGING ONLY: see how far we could get
@@ -149,7 +149,7 @@ while (num_success < 8):
 				print("successful file validation")
 
 				request_logout(clientSocket)
-				
+
 				break
 
 		except ConnectionError:
