@@ -30,6 +30,9 @@ INVALID_HASH = '404_'
 PERMISSION_DENIED = '405_'
 INVALID_REQUEST_METHOD = '406_'
 
+# fields
+clientSocket
+
 # ------- SEND REQUEST METHODS ---------------------------------------------------
 
 def request_connection(student_key):
