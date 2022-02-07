@@ -138,12 +138,7 @@ while (num_success < 8 and current_password < 10000):
 
 			target_file = request_get_file(clientSocket)
 			md5_hash = generate_MD5_hash(target_file)
-			is_valid_hash = request_validate_hash(clientSocket, md5_hash)
-
-			if (not is_valid_hash):
-				# print("hash generated from the file is not valid")
-				# clientSocket.close()
-				# exit(1)
+			request_validate_hash(clientSocket, md5_hash)
 
 			num_success += 1
 			# print("number of successful file-retrievals: " + str(num_success))
