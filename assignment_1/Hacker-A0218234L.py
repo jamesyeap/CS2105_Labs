@@ -72,7 +72,9 @@ def request_validate_hash(clientSocket, hash):
 # ------- UTIL METHODS -------------------------------------------------------------
 
 def create_request_message(method_code, data=""):
-	return (method_code + str(data)).encode();
+	request_message = method_code + str(data);
+	print(request_message)
+	return (request_message).encode();
 
 def get_response_code(clientSocket):
 	return clientSocket.recv(4).decode()
