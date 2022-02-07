@@ -42,11 +42,11 @@ def request_connection(clientSocket, student_key):
 
 def request_login(clientSocket, password):
 	clientSocket.send(create_request_message(LOGIN_REQUEST, password))
-	return get_response_code() == LOGIN_SUCCESSFUL
+	return get_response_code(clientSocket) == LOGIN_SUCCESSFUL
 
 def request_logout(clientSocket):
 	clientSocket.send(create_request_message(LOGOUT_REQUEST))
-	return get_response_code() == LOGOUT_SUCCESSFUL
+	return get_response_code(clientSocket) == LOGOUT_SUCCESSFUL
 
 """ returns the file received from server in byte-format """
 def request_get_file(clientSocket):
@@ -64,7 +64,7 @@ def request_get_file(clientSocket):
 
 def request_validate_hash(clientSocket, hash):
 	clientSocket.send(create_request_message(SEND, hash))
-	if (get_response_code() == HASH_MATCHED):
+	if (get_response_code(clientSocket) == HASH_MATCHED):
 		return True
 
 	return False
