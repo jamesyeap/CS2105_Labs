@@ -117,8 +117,6 @@ while (num_success < 8):
 	padded_password = str(current_password).zfill(4).encode()
 	can_login = request_login(clientSocket, padded_password)
 
-	print(padded_password)
-
 	if (can_login):
 		target_file = request_get_file(clientSocket)
 		md5_hash = generate_MD5_hash(target_file)
