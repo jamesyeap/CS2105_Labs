@@ -106,7 +106,7 @@ student_key = (sys.argv[1]).encode()
 # pre-compute padded password combinations
 padded_passwords = []
 for i in range(0, 10000):
-	padded_passwords[i] = str(i).encode().rjust(4, b'0')
+	padded_passwords.append(str(i).encode().rjust(4, b'0'))
 
 # request for connection to server
 clientSocket = create_socket(student_key)
