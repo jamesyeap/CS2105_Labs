@@ -130,9 +130,11 @@ while (num_success < 8):
 	for i in range(last_tried_password, 10000):
 		try:
 			can_login = request_login(clientSocket, str(i).zfill(4))
-			print("--- tried password: " + str(i).zfill(4)) # FOR DEBUGGING ONLY: see how far we could get
+			print("--- trying password: " + str(i).zfill(4)) # FOR DEBUGGING ONLY: see how far we could get
 
 			if (can_login):
+				print("--- CORRECT PASSWORD: " + str(i).zfill(4)) # FOR DEBUGGING ONLY: see how far we could get
+
 				target_file = request_get_file(clientSocket)
 				md5_hash = generate_MD5_hash(target_file)
 				is_valid_hash = request_validate_hash(clientSocket, md5_hash)
