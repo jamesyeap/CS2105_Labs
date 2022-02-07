@@ -149,10 +149,6 @@ while (num_success < 8):
 				print("successful file validation")
 
 				request_logout(clientSocket)
-<<<<<<< HEAD
-=======
-
->>>>>>> de4d63d2b085608db6f31131d829e569a3f97412
 				break
 		except ConnectionError:
 			last_tried_password = i-1
