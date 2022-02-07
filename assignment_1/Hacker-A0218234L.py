@@ -34,11 +34,7 @@ INVALID_REQUEST_METHOD = '406_'
 
 def request_connection(clientSocket, student_key):
 	clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key))
-
-	if (get_response_code(clientSocket) == HANDSHAKE_SUCCESSFUL):
-		return True
-
-	return False
+	return get_response_code(clientSocket) == HANDSHAKE_SUCCESSFUL	
 
 def request_login(clientSocket, password):
 	clientSocket.send(create_request_message(LOGIN_REQUEST, password))
@@ -78,6 +74,11 @@ def create_request_message(method_code, data=""):
 
 def get_response_code(clientSocket):
 	response_code = clientSocket.recv(4).decode();
+
+	if (response_code.length == 0):
+		print("no response received :( exiting now...")
+		exit(1)
+		
 	print("response_code received: " + response_code)
 	return response_code
 
