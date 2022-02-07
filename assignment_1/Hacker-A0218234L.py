@@ -135,7 +135,7 @@ while (num_success < 8 and current_password < 10000):
 
 		target_file = request_get_file(receiveSocket)
 		md5_hash = generate_MD5_hash(target_file)
-		request_validate_hash(sendSocket, md5_hash)
+		request_validate_hash(receiveSocket, md5_hash)
 
 		num_success += 1
 		# print("number of successful file-retrievals: " + str(num_success))
