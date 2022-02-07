@@ -130,7 +130,7 @@ clientSocket = create_socket(student_key)
 num_success = 0
 
 # try to login using all possible password combinations (0000-9999)
-for i in range(last_tried_password, 10000):
+for i in range(0, 10000):
 		password = str(i).zfill(4)
 		can_login = request_login(clientSocket, password)
 
