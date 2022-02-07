@@ -123,7 +123,7 @@ while (num_success < 8):
 	# try to login using all possible password combinations (0000-9999)
 	for i in range(last_tried_password, 1000):
 		try:
-			can_login = login(i)
+			can_login = request_login(clientSocket, i)
 			print(i) # FOR DEBUGGING ONLY: see how far we could get
 
 			if (can_login):
@@ -138,6 +138,8 @@ while (num_success < 8):
 
 				num_success += 1
 				print("successful file validation")
+
+				request_logout(clientSocket)
 				continue
 
 		except ConnectionError:
