@@ -42,9 +42,7 @@ def request_connection(clientSocket, student_key):
 
 def request_login(clientSocket, password):
 	clientSocket.send(create_request_message(LOGIN_REQUEST, password))
-	response_code = get_response_code(clientSocket)
-	print(response_code)
-	return response_code == LOGIN_SUCCESSFUL
+	return get_response_code(clientSocket) == LOGIN_SUCCESSFUL
 
 def request_logout(clientSocket):
 	clientSocket.send(create_request_message(LOGOUT_REQUEST))
@@ -75,11 +73,13 @@ def request_validate_hash(clientSocket, hash):
 
 def create_request_message(method_code, data=""):
 	request_message = method_code + str(data);
-	print(request_message)
+	print("request_message sent: " + request_message)
 	return (request_message).encode();
 
 def get_response_code(clientSocket):
-	return clientSocket.recv(4).decode()
+	response_code = clientSocket.recv(4).decode();
+	print("response_code received: " + response_code)
+	return response_code.decode()
 
 """ note: get_file_size() should only be called inside the function get_file() """
 def extract_file_size(clientSocket):
