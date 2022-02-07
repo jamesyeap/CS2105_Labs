@@ -124,5 +124,7 @@ def main():
 				clientSocket.close()
 				exit(1)
 
+			print("successful file validation")
+
 if __name__ == "__main__":
 	main()
