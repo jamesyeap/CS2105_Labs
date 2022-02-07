@@ -106,7 +106,7 @@ student_key = (sys.argv[1]).encode()
 # pre-compute password combinations
 precomputed_passwords = []
 for i in range(0, 10000):
-	padded_passwords.append(str(i).encode().rjust(4, b'0'))
+	precomputed_passwords.append(str(i).encode().rjust(4, b'0'))
 
 # pre-computed login requests
 precomputed_login_requests = []
@@ -125,7 +125,7 @@ current_password = 0
 # try to login using all possible password combinations (0000-9999)
 while (num_success < 8 and current_password < 10000):
 	# padded_password = str(current_password).encode().rjust(4, b'0')
-	padded_password = precomputed_passwords[current_password]
+	# padded_password = precomputed_passwords[current_password]
 
 	# can_login = request_login(clientSocket, padded_password)
 	clientSocket.send(precomputed_login_requests[current_password])
