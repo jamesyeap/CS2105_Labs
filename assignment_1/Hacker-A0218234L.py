@@ -30,37 +30,6 @@ INVALID_HASH = '404_'
 PERMISSION_DENIED = '405_'
 INVALID_REQUEST_METHOD = '406_'
 
-def main():
-	# create local socket
-	clientSocket = socket(AF_INET, SOCK_STREAM)
-	clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
-
-	# request for connection to server
-	student_key = sys.argv[1]
-	can_connect = request_connection(student_key)
-
-	if (not can_connect):
-		print("Handshake could not be established due to invalid student id")
-		clientSocket.close()
-		exit(1)
-
-	# try to login using all possible password combinations (0000-9999)
-	for i in range(0, 1000):
-		can_login = login(i)
-
-		if (can_login):
-			target_file = get_file()
-			md5_hash = get_MD5_hash(target_file)
-			is_valid_hash = validate_hash(md5_hash)
-
-			if (not is_valid_hash):
-				print("hash generated from the file is not valid")
-				clientSocket.close()
-				exit(1)
-
-if __name__ == "__main__":
-	main()
-
 # ------- SEND REQUEST METHODS ---------------------------------------------------
 
 def request_connection(student_key):
@@ -124,3 +93,36 @@ def get_file_size():
 
 def get_MD5_hash(data):
 	return str(hashlib.md5(data).hexdigest())
+
+
+# ------ MAIN METHOD ----------
+def main():
+	# create local socket
+	clientSocket = socket(AF_INET, SOCK_STREAM)
+	clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
+
+	# request for connection to server
+	student_key = sys.argv[1]
+	can_connect = request_connection(student_key)
+
+	if (not can_connect):
+		print("Handshake could not be established due to invalid student id")
+		clientSocket.close()
+		exit(1)
+
+	# try to login using all possible password combinations (0000-9999)
+	for i in range(0, 1000):
+		can_login = login(i)
+
+		if (can_login):
+			target_file = get_file()
+			md5_hash = get_MD5_hash(target_file)
+			is_valid_hash = validate_hash(md5_hash)
+
+			if (not is_valid_hash):
+				print("hash generated from the file is not valid")
+				clientSocket.close()
+				exit(1)
+
+if __name__ == "__main__":
+	main()
