@@ -129,8 +129,8 @@ while (num_success < 8):
 	# try to login using all possible password combinations (0000-9999)
 	for i in range(last_tried_password, 10000):
 		try:
-			can_login = request_login(clientSocket, i)
-			print("--- tried password: " + str(i)) # FOR DEBUGGING ONLY: see how far we could get
+			can_login = request_login(clientSocket, i.zfill(4))
+			print("--- tried password: " + str(i.zfill(4))) # FOR DEBUGGING ONLY: see how far we could get
 
 			if (can_login):
 				target_file = request_get_file(clientSocket)
