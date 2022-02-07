@@ -75,10 +75,10 @@ def create_request_message(method_code, data=""):
 def get_response_code(clientSocket):
 	response_code = clientSocket.recv(4).decode();
 
-	if (response_code.length == 0):
+	if (len(response_code) == 0):
 		print("no response received :( exiting now...")
 		exit(1)
-		
+
 	print("response_code received: " + response_code)
 	return response_code
 
