@@ -134,19 +134,19 @@ while (num_success < 8 and current_password < 10000):
 		can_login = request_login(clientSocket, padded_password)
 
 		if (can_login):
-			print("--- CORRECT PASSWORD: " + padded_password) # FOR DEBUGGING ONLY: see how far we could get
+			# print("--- CORRECT PASSWORD: " + padded_password) # FOR DEBUGGING ONLY: see how far we could get
 
 			target_file = request_get_file(clientSocket)
 			md5_hash = generate_MD5_hash(target_file)
 			is_valid_hash = request_validate_hash(clientSocket, md5_hash)
 
 			if (not is_valid_hash):
-				print("hash generated from the file is not valid")
+				# print("hash generated from the file is not valid")
 				# clientSocket.close()
 				# exit(1)
 
 			num_success += 1
-			print("number of successful file-retrievals: " + str(num_success))
+			# print("number of successful file-retrievals: " + str(num_success))
 			request_logout(clientSocket)
 
 		current_password += 1
