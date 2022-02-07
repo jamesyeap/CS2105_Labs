@@ -11,25 +11,25 @@ SERVER_IP_ADDRESS = '137.132.92.111'
 SERVER_PORT = 4444
 
 # request message - request method codes
-REQUEST_CONNECTION = 'STID_'
-LOGIN_REQUEST = 'LGIN_'
-LOGOUT_REQUEST = 'LOUT_'
-GET_REQUEST = 'GET__'
-SEND = 'PUT__'
-CLOSE_CONNECTION = 'BYE__'
+REQUEST_CONNECTION = b'STID_'
+LOGIN_REQUEST = b'LGIN_'
+LOGOUT_REQUEST = b'LOUT_'
+GET_REQUEST = b'GET__'
+SEND = b'PUT__'
+CLOSE_CONNECTION = b'BYE__'
 
 # response message - response codes
-FILE_DATA = '100_'
-HANDSHAKE_SUCCESSFUL = '200_'
-LOGIN_SUCCESSFUL = '201_'
-LOGOUT_SUCCESSFUL = '202_'
-HASH_MATCHED = '203_'
-HANDSHAKE_FAILED_INVALIDSTUDENTKEY = '401_'
-INVALID_OPERATION = '402_'
-INVALID_PASSWORD = '403_'
-INVALID_HASH = '404_'
-PERMISSION_DENIED = '405_'
-INVALID_REQUEST_METHOD = '406_'
+FILE_DATA = b'100_'
+HANDSHAKE_SUCCESSFUL = b'200_'
+LOGIN_SUCCESSFUL = b'201_'
+LOGOUT_SUCCESSFUL = b'202_'
+HASH_MATCHED = b'203_'
+HANDSHAKE_FAILED_INVALIDSTUDENTKEY = b'401_'
+INVALID_OPERATION = b'402_'
+INVALID_PASSWORD = b'403_'
+INVALID_HASH = b'404_'
+PERMISSION_DENIED = b'405_'
+INVALID_REQUEST_METHOD = b'406_'
 
 # ------- SEND REQUEST METHODS ---------------------------------------------------
 
@@ -63,9 +63,9 @@ def request_close_connection(clientSocket):
 
 # ------- UTIL METHODS -------------------------------------------------------------
 
-def create_request_message(method_code, data=""):
+def create_request_message(method_code, data=b''):
 	request_message = method_code + data
-	return (request_message).encode();
+	return request_message;
 
 def get_response_code(clientSocket):
 	response_code = clientSocket.recv(4).decode();
@@ -94,21 +94,14 @@ def generate_MD5_hash(data):
 def create_socket(student_key):
 	clientSocket = socket(AF_INET, SOCK_STREAM)
 	clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
-	# can_connect = request_connection(clientSocket, student_key)
-	request_connection(clientSocket, student_key)
-
-	# if (not can_connect):
-	# 	print("Handshake could not be established due to invalid student id")
-	# 	clientSocket.close()
-	# 	exit(1)
+	request_connection(clientSocket, student_key)	
 
 	return clientSocket
-
 
 # ------ MAIN ---------------------------------------------------------------
 
 # get student key to establish connection with server
-student_key = sys.argv[1]
+student_key = (sys.argv[1]).encode()
 
 # request for connection to server
 clientSocket = create_socket(student_key)
@@ -120,7 +113,7 @@ num_success = 0
 current_password = 0
 
 # try to login using all possible password combinations (0000-9999)
-while (num_success < 8 and current_password < 10000):
+while (num_success < 8):
 	padded_password = str(current_password).zfill(4)
 	can_login = request_login(clientSocket, padded_password)
 
