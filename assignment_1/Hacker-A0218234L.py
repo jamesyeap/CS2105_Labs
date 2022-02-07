@@ -40,8 +40,7 @@ def request_connection(clientSocket, student_key):
 
 def request_login(clientSocket, password):
 	clientSocket.send(create_request_message(LOGIN_REQUEST, password))
-	# return get_response_code(clientSocket) == LOGIN_SUCCESSFUL
-	get_response_code(clientSocket)
+	return get_response_code(clientSocket) == LOGIN_SUCCESSFUL
 
 def request_logout(clientSocket):
 	clientSocket.send(create_request_message(LOGOUT_REQUEST))
