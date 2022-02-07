@@ -1,6 +1,7 @@
 from socket import *
 import hashlib
 import sys
+import time
 
 # my own notes:
 #  student-key is 651723
@@ -76,7 +77,7 @@ def get_response_code(clientSocket):
 	response_code = clientSocket.recv(4).decode();
 
 	while (len(response_code) == 0):
-		sleep(1)
+		time.sleep(1)
 		response_code = clientSocket.recv(4).decode();
 
 	print("response_code received: " + response_code)
