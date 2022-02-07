@@ -126,26 +126,22 @@ current_password = 0
 
 # try to login using all possible password combinations (0000-9999)
 while (num_success < 8 and current_password < 10000):
-	try:
-		padded_password = str(current_password).zfill(4)
-		can_login = request_login(clientSocket, padded_password)
+	padded_password = str(current_password).zfill(4)
+	can_login = request_login(clientSocket, padded_password)
 
-		if (can_login):
-			# print("--- CORRECT PASSWORD: " + padded_password) # FOR DEBUGGING ONLY: see how far we could get
+	if (can_login):
+		# print("--- CORRECT PASSWORD: " + padded_password) # FOR DEBUGGING ONLY: see how far we could get
 
-			target_file = request_get_file(clientSocket)
-			md5_hash = generate_MD5_hash(target_file)
-			request_validate_hash(clientSocket, md5_hash)
+		target_file = request_get_file(clientSocket)
+		md5_hash = generate_MD5_hash(target_file)
+		request_validate_hash(clientSocket, md5_hash)
 
-			num_success += 1
-			# print("number of successful file-retrievals: " + str(num_success))
-			request_logout(clientSocket)
+		num_success += 1
+		# print("number of successful file-retrievals: " + str(num_success))
+		request_logout(clientSocket)
 
-		current_password += 1
-		# print("num_success: " + str(num_success) + "current_password: " + str(current_password))
-
-	except ConnectionError:
-		clientSocket = create_socket(student_key)
+	current_password += 1
+	# print("num_success: " + str(num_success) + "current_password: " + str(current_password))
 
 # close the connection to the server
 request_close_connection(clientSocket)
