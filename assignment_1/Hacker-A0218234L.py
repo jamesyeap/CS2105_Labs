@@ -56,10 +56,8 @@ def request_get_file(clientSocket):
 
 def request_validate_hash(clientSocket, hash):
 	clientSocket.send(create_request_message(SEND, hash))
-	response_code = get_response_code(clientSocket)
-	print(response_code)
-	if (response_code == HASH_MATCHED):
-		print("File validated!")
+	if (get_response_code(clientSocket) == HASH_MATCHED):
+		# print("File validated!")
 		return True
 
 	return False
@@ -92,7 +90,6 @@ def extract_file_size(clientSocket):
 		x = clientSocket.recv(1)
 
 	file_size = int(encodedFileSize)
-	print(file_size)
 
 	return file_size
 
