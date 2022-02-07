@@ -95,36 +95,35 @@ def get_MD5_hash(data):
 	return str(hashlib.md5(data).hexdigest())
 
 
-# ------ MAIN METHOD ----------
-def main():
-	# create local socket
-	clientSocket = socket(AF_INET, SOCK_STREAM)
-	clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
+# ------ MAIN ---------------------------------------------------------------
 
-	# request for connection to server
-	student_key = sys.argv[1]
-	can_connect = request_connection(student_key)
+# create local socket
+clientSocket = socket(AF_INET, SOCK_STREAM)
+clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
 
-	if (not can_connect):
-		print("Handshake could not be established due to invalid student id")
-		clientSocket.close()
-		exit(1)
+# request for connection to server
+student_key = sys.argv[1]
+can_connect = request_connection(student_key)
 
-	# try to login using all possible password combinations (0000-9999)
-	for i in range(0, 1000):
-		can_login = login(i)
+if (not can_connect):
+	print("Handshake could not be established due to invalid student id")
+	clientSocket.close()
+	exit(1)
 
-		if (can_login):
-			target_file = get_file()
-			md5_hash = get_MD5_hash(target_file)
-			is_valid_hash = validate_hash(md5_hash)
+# try to login using all possible password combinations (0000-9999)
+for i in range(0, 1000):
+	can_login = login(i)
 
-			if (not is_valid_hash):
-				print("hash generated from the file is not valid")
-				clientSocket.close()
-				exit(1)
+	if (can_login):
+		target_file = get_file()
+		md5_hash = get_MD5_hash(target_file)
+		is_valid_hash = validate_hash(md5_hash)
 
-			print("successful file validation")
+		if (not is_valid_hash):
+			print("hash generated from the file is not valid")
+			clientSocket.close()
+			exit(1)
 
-if __name__ == "__main__":
-	main()
+		print("successful file validation")
+
+
