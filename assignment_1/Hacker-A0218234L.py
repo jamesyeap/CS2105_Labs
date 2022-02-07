@@ -113,7 +113,7 @@ if (not can_connect):
 # try to login using all possible password combinations (0000-9999)
 for i in range(0, 1000):
 	can_login = login(i)
-	print(i) # FOR DEBUGGING ONLY: delete later
+	print(i) # FOR DEBUGGING ONLY: see how far we could get
 
 	if (can_login):
 		target_file = get_file()
