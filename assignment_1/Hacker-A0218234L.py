@@ -56,11 +56,11 @@ def request_get_file(clientSocket):
 
 def request_validate_hash(clientSocket, hash):
 	clientSocket.send(create_request_message(SEND, hash))
-	if (get_response_code(clientSocket) == HASH_MATCHED):
+	# if (get_response_code(clientSocket) == HASH_MATCHED):
 		# print("File validated!")
-		return True
+	#	return True
 
-	return False
+	# return False
 
 def request_close_connection(clientSocket):
 	clientSocket.send(create_request_message(CLOSE_CONNECTION))
