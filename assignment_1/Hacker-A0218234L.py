@@ -52,11 +52,6 @@ def request_get_file(clientSocket):
 
 	file = clientSocket.recv(file_size)
 
-	if (len(clientSocket.recv(1024)) != 0):
-		print("seems like there are still some bytes to be read; perhaps the file_size in packet header was incorrect");
-		clientSocket.close()
-		exit(1)		
-
 	return file
 
 def request_validate_hash(clientSocket, hash):
@@ -96,7 +91,10 @@ def extract_file_size(clientSocket):
 		encodedFileSize += x
 		x = clientSocket.recv(1)
 
-	return int(encodedFileSize)
+	file_size = int(encodedFileSize)
+	print(file_size)
+
+	return file_size
 
 def generate_MD5_hash(data):
 	return str(hashlib.md5(data).hexdigest())
@@ -140,8 +138,8 @@ for i in range(0, 10000):
 
 			if (not is_valid_hash):
 				print("hash generated from the file is not valid")
-				clientSocket.close()
-				exit(1)
+				# clientSocket.close()
+				# exit(1)
 
 			num_success += 1
 			print("number of successful file-retrievals: " + str(num_success))
