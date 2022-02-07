@@ -79,7 +79,7 @@ def create_request_message(method_code, data=""):
 def get_response_code(clientSocket):
 	response_code = clientSocket.recv(4).decode();
 	print("response_code received: " + response_code)
-	return response_code.decode()
+	return response_code
 
 """ note: get_file_size() should only be called inside the function get_file() """
 def extract_file_size(clientSocket):
