@@ -94,7 +94,7 @@ def get_file_size():
 def get_MD5_hash(data):
 	return str(hashlib.md5(data).hexdigest())
 
-def request_handshake(student_key):
+def create_socket(student_key):
 	# create local socket
 	clientSocket = socket(AF_INET, SOCK_STREAM)
 	clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
@@ -117,7 +117,7 @@ num_success = 0
 last_tried_password = 0 # all possible password combinations (0000-9999)
 
 # request for connection to server
-clientSocket = request_handshake(student_key)
+clientSocket = create_socket(student_key)
 
 while (num_success < 8):
 	# try to login using all possible password combinations (0000-9999)
@@ -142,7 +142,7 @@ while (num_success < 8):
 
 		except ConnectionError:
 			last_tried_password = i
-			clientSocket = request_handshake(student_key)
+			clientSocket = create_socket(student_key)
 
 
 
