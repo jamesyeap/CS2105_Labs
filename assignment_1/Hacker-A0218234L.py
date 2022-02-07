@@ -124,13 +124,17 @@ clientSocket = create_socket(student_key)
 # keep track of the number of successful file-retrievals
 num_success = 0
 
+# keep track of passwords attempted
+current_password = 0
+
 # try to login using all possible password combinations (0000-9999)
-for i in range(0, 10000):
-		password = str(i).zfill(4)
-		can_login = request_login(clientSocket, password)
+while (num_success < 8 && current_password < 10000)
+	try:
+		padded_password = str(i).zfill(4)
+		can_login = request_login(clientSocket, padded_password)
 
 		if (can_login):
-			print("--- CORRECT PASSWORD: " + password) # FOR DEBUGGING ONLY: see how far we could get
+			print("--- CORRECT PASSWORD: " + padded_password) # FOR DEBUGGING ONLY: see how far we could get
 
 			target_file = request_get_file(clientSocket)
 			md5_hash = generate_MD5_hash(target_file)
@@ -145,9 +149,10 @@ for i in range(0, 10000):
 			print("number of successful file-retrievals: " + str(num_success))
 			request_logout(clientSocket)
 
-			if (num_success == 8):
-				print("done")
-				break
+		current_password += 1
+
+	except ConnectionError:
+		clientSocket = create_socket(student_key)
 
 # close the connection to the server
 request_close_connection(clientSocket)
