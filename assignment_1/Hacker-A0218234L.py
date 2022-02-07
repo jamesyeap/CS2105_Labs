@@ -30,12 +30,9 @@ INVALID_HASH = '404_'
 PERMISSION_DENIED = '405_'
 INVALID_REQUEST_METHOD = '406_'
 
-# fields
-clientSocket
-
 # ------- SEND REQUEST METHODS ---------------------------------------------------
 
-def request_connection(student_key):
+def request_connection(clientSocket, student_key):
 	clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key))
 
 	if (get_response_code() == HANDSHAKE_SUCCESSFUL):
@@ -43,18 +40,18 @@ def request_connection(student_key):
 
 	return False
 
-def login(password):
+def request_login(clientSocket, password):
 	clientSocket.send(create_request_message(LOGIN_REQUEST, password))
 	return get_response_code() == LOGIN_SUCCESSFUL
 
-def logout():
+def request_logout(clientSocket):
 	clientSocket.send(create_request_message(LOGOUT_REQUEST))
 	return get_response_code() == LOGOUT_SUCCESSFUL
 
 """ returns the file received from server in byte-format """
-def get_file():
+def request_get_file(clientSocket):
 	clientSocket.send(create_request_message(GET_REQUEST))
-	file_size = get_file_size()
+	file_size = extract_file_size(clientSocket)
 
 	file = clientSocket.recv(file_size)
 
@@ -65,7 +62,7 @@ def get_file():
 
 	return file
 
-def validate_hash(hash):
+def request_validate_hash(clientSocket, hash):
 	clientSocket.send(create_request_message(SEND, hash))
 	if (get_response_code() == HASH_MATCHED):
 		return True
@@ -77,13 +74,13 @@ def validate_hash(hash):
 def create_request_message(method_code, data=""):
 	return (method_code + str(data)).encode();
 
-def get_response_code():
+def get_response_code(clientSocket):
 	return clientSocket.recv(4).decode()
 
 """ note: get_file_size() should only be called inside the function get_file() """
-def get_file_size():
+def extract_file_size(clientSocket):
 	# can ignore the status code because
-	get_response_code() # can assume always successful according to the FSM
+	get_response_code(clientSocket) # can assume always successful according to the FSM
 
 	encodedFileSize = b''
 	x = clientSocket.recv(1)
@@ -94,14 +91,14 @@ def get_file_size():
 
 	return int(encodedFileSize)
 
-def get_MD5_hash(data):
+def generate_MD5_hash(data):
 	return str(hashlib.md5(data).hexdigest())
 
-def create_socket(student_key):
+def create_socket(clientSocket, student_key):
 	# create local socket
 	clientSocket = socket(AF_INET, SOCK_STREAM)
 	clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
-	can_connect = request_connection(student_key)
+	can_connect = request_connection(clientSocket, student_key)
 
 	if (not can_connect):
 		print("Handshake could not be established due to invalid student id")
@@ -130,9 +127,9 @@ while (num_success < 8):
 			print(i) # FOR DEBUGGING ONLY: see how far we could get
 
 			if (can_login):
-				target_file = get_file()
-				md5_hash = get_MD5_hash(target_file)
-				is_valid_hash = validate_hash(md5_hash)
+				target_file = request_get_file(clientSocket)
+				md5_hash = generate_MD5_hash(target_file)
+				is_valid_hash = request_validate_hash(clientSocket, md5_hash)
 
 				if (not is_valid_hash):
 					print("hash generated from the file is not valid")
