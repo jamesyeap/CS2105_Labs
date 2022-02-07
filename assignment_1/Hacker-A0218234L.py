@@ -103,10 +103,15 @@ def create_socket(student_key):
 # get student key to establish connection with server
 student_key = (sys.argv[1]).encode()
 
-# pre-compute padded password combinations
-padded_passwords = []
+# pre-compute password combinations
+precomputed_passwords = []
 for i in range(0, 10000):
 	padded_passwords.append(str(i).encode().rjust(4, b'0'))
+
+# pre-computed login requests
+precomputed_login_requests = []
+for i in range(0, 10000):
+	precomputed_login_requests.append(LOGIN_REQUEST + precomputed_passwords[i])
 
 # request for connection to server
 clientSocket = create_socket(student_key)
@@ -120,8 +125,11 @@ current_password = 0
 # try to login using all possible password combinations (0000-9999)
 while (num_success < 8 and current_password < 10000):
 	# padded_password = str(current_password).encode().rjust(4, b'0')
-	padded_password = padded_passwords[current_password]
-	can_login = request_login(clientSocket, padded_password)
+	padded_password = precomputed_passwords[current_password]
+
+	# can_login = request_login(clientSocket, padded_password)
+	clientSocket.send(precomputed_login_requests[current_password])
+	can_login = get_response_code(clientSocket) == LOGIN_SUCCESSFUL
 
 	if (can_login):
 		target_file = request_get_file(clientSocket)
