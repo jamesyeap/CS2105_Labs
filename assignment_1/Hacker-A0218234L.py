@@ -142,7 +142,7 @@ while (num_success < 8 and current_password < 10000):
 			request_logout(clientSocket)
 
 		current_password += 1
-		print("num_success: " + str(num_success) + "current_password: " + str(current_password))
+		# print("num_success: " + str(num_success) + "current_password: " + str(current_password))
 
 	except ConnectionError:
 		clientSocket = create_socket(student_key)
