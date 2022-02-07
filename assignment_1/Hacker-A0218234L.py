@@ -119,9 +119,6 @@ num_success = 0
 # keep track of passwords attempted
 current_password = 0
 
-# store files retrieved inside an array
-files = []
-
 # try to login using all possible password combinations (0000-9999)
 while (num_success < 8 and current_password < 10000):
 	padded_password = str(current_password).zfill(4)
@@ -129,16 +126,13 @@ while (num_success < 8 and current_password < 10000):
 
 	if (can_login):
 		target_file = request_get_file(clientSocket)
-		files.append(target_file)
+		md5_hash = generate_MD5_hash(target_file)
+		request_validate_hash(clientSocket, md5_hash)
+
 		num_success += 1
 		request_logout(clientSocket)
 
 	current_password += 1
-
-# send hashes of all files
-for i in range(0, len(files)):
-	md5_hash = generate_MD5_hash(files[i])
-	request_validate_hash(clientSocket, md5_hash)
 
 # close the connection to the server
 request_close_connection(clientSocket)
