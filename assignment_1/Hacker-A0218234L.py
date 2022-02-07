@@ -94,37 +94,60 @@ def get_file_size():
 def get_MD5_hash(data):
 	return str(hashlib.md5(data).hexdigest())
 
+def request_connection(student_key):
+	# create local socket
+	clientSocket = socket(AF_INET, SOCK_STREAM)
+	clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
+	can_connect = request_connection(student_key)
+
+	if (not can_connect):
+		print("Handshake could not be established due to invalid student id")
+		clientSocket.close()
+		exit(1)
+
+	return clientSocket
+
 
 # ------ MAIN ---------------------------------------------------------------
 
-# create local socket
-clientSocket = socket(AF_INET, SOCK_STREAM)
-clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
+# get student key to establish connection with server
+student_key = sys.argv[1]
+
+num_success = 0
+last_tried_password = 0 # all possible password combinations (0000-9999)
 
 # request for connection to server
-student_key = sys.argv[1]
-can_connect = request_connection(student_key)
+clientSocket = request_connection(student_key)
 
-if (not can_connect):
-	print("Handshake could not be established due to invalid student id")
-	clientSocket.close()
-	exit(1)
+while (num_success < 8):
+	# try to login using all possible password combinations (0000-9999)
+	for i in range(last_tried_password, 1000):
+		try:
+		can_login = login(i)
+		print(i) # FOR DEBUGGING ONLY: see how far we could get
 
-# try to login using all possible password combinations (0000-9999)
-for i in range(0, 1000):
-	can_login = login(i)
-	print(i) # FOR DEBUGGING ONLY: see how far we could get
+		if (can_login):
+			target_file = get_file()
+			md5_hash = get_MD5_hash(target_file)
+			is_valid_hash = validate_hash(md5_hash)
 
-	if (can_login):
-		target_file = get_file()
-		md5_hash = get_MD5_hash(target_file)
-		is_valid_hash = validate_hash(md5_hash)
+			if (not is_valid_hash):
+				print("hash generated from the file is not valid")
+				clientSocket.close()
+				exit(1)
 
-		if (not is_valid_hash):
-			print("hash generated from the file is not valid")
-			clientSocket.close()
-			exit(1)
+			num_success++
+			print("successful file validation")
+			continue
 
-		print("successful file validation")
+		except ConnectionError:
+			last_tried_password = i
+			clientSocket = request_connection(student_key)
+
+
+
+
+
+
 
 
