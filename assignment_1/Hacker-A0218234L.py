@@ -103,6 +103,11 @@ def create_socket(student_key):
 # get student key to establish connection with server
 student_key = (sys.argv[1]).encode()
 
+# pre-compute padded password combinations
+padded_passwords = []
+for i in range(0, 10000):
+	padded_passwords[i] = str(i).encode().rjust(4, b'0')
+
 # request for connection to server
 clientSocket = create_socket(student_key)
 
@@ -113,8 +118,9 @@ num_success = 0
 current_password = 0
 
 # try to login using all possible password combinations (0000-9999)
-while (num_success < 8):
-	padded_password = str(current_password).encode().rjust(4, b'0')
+while (num_success < 8 && current_password < 10000):
+	# padded_password = str(current_password).encode().rjust(4, b'0')
+	padded_password = padded_passwords[current_password]
 	can_login = request_login(clientSocket, padded_password)
 
 	if (can_login):
