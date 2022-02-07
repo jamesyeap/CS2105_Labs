@@ -56,6 +56,10 @@ def request_get_file(clientSocket):
 
 def request_validate_hash(clientSocket, hash):
 	clientSocket.send(create_request_message(SEND, hash))
+	if (get_response_code(clientSocket) == HASH_MATCHED):
+		# print("File validated!")
+		return True
+
 	return False
 
 def request_close_connection(clientSocket):
@@ -65,10 +69,12 @@ def request_close_connection(clientSocket):
 
 def create_request_message(method_code, data=""):
 	request_message = method_code + str(data)
+	# print("request_message sent: " + request_message)
 	return (request_message).encode();
 
 def get_response_code(clientSocket):
 	response_code = clientSocket.recv(4).decode();
+	# print("response_code received: " + response_code)
 	return response_code
 
 """ note: get_file_size() should only be called inside the function get_file() """
@@ -94,9 +100,15 @@ def generate_MD5_hash(data):
 def create_socket(student_key):
 	clientSocket = socket(AF_INET, SOCK_STREAM)
 	clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
-	request_connection(clientSocket, student_key)
+	can_connect = request_connection(clientSocket, student_key)
+
+	if (not can_connect):
+		print("Handshake could not be established due to invalid student id")
+		clientSocket.close()
+		exit(1)
 
 	return clientSocket
+
 
 # ------ MAIN ---------------------------------------------------------------
 
@@ -117,15 +129,19 @@ while (num_success < 8 and current_password < 10000):
 	padded_password = str(current_password).zfill(4)
 	can_login = request_login(clientSocket, padded_password)
 
-	if (can_login):		
+	if (can_login):
+		# print("--- CORRECT PASSWORD: " + padded_password) # FOR DEBUGGING ONLY: see how far we could get
+
 		target_file = request_get_file(clientSocket)
 		md5_hash = generate_MD5_hash(target_file)
 		request_validate_hash(clientSocket, md5_hash)
 
 		num_success += 1
+		# print("number of successful file-retrievals: " + str(num_success))
 		request_logout(clientSocket)
 
 	current_password += 1
+	# print("num_success: " + str(num_success) + "current_password: " + str(current_password))
 
 # close the connection to the server
 request_close_connection(clientSocket)
