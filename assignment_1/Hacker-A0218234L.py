@@ -123,22 +123,22 @@ while (num_success < 8):
 	# try to login using all possible password combinations (0000-9999)
 	for i in range(last_tried_password, 1000):
 		try:
-		can_login = login(i)
-		print(i) # FOR DEBUGGING ONLY: see how far we could get
+			can_login = login(i)
+			print(i) # FOR DEBUGGING ONLY: see how far we could get
 
-		if (can_login):
-			target_file = get_file()
-			md5_hash = get_MD5_hash(target_file)
-			is_valid_hash = validate_hash(md5_hash)
+			if (can_login):
+				target_file = get_file()
+				md5_hash = get_MD5_hash(target_file)
+				is_valid_hash = validate_hash(md5_hash)
 
-			if (not is_valid_hash):
-				print("hash generated from the file is not valid")
-				clientSocket.close()
-				exit(1)
+				if (not is_valid_hash):
+					print("hash generated from the file is not valid")
+					clientSocket.close()
+					exit(1)
 
-			num_success++
-			print("successful file validation")
-			continue
+				num_success++
+				print("successful file validation")
+				continue
 
 		except ConnectionError:
 			last_tried_password = i
