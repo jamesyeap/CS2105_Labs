@@ -56,8 +56,7 @@ def request_get_file(clientSocket):
 
 def request_validate_hash(clientSocket, hash):
 	clientSocket.send(create_request_message(SEND, hash))
-	if (get_response_code(clientSocket) == HASH_MATCHED):
-		# print("File validated!")
+	if (get_response_code(clientSocket) == HASH_MATCHED):		
 		return True
 
 	return False
@@ -69,12 +68,10 @@ def request_close_connection(clientSocket):
 
 def create_request_message(method_code, data=""):
 	request_message = method_code + str(data)
-	# print("request_message sent: " + request_message)
 	return (request_message).encode();
 
 def get_response_code(clientSocket):
 	response_code = clientSocket.recv(4).decode();
-	# print("response_code received: " + response_code)
 	return response_code
 
 """ note: get_file_size() should only be called inside the function get_file() """
@@ -129,19 +126,15 @@ while (num_success < 8 and current_password < 10000):
 	padded_password = str(current_password).zfill(4)
 	can_login = request_login(clientSocket, padded_password)
 
-	if (can_login):
-		# print("--- CORRECT PASSWORD: " + padded_password) # FOR DEBUGGING ONLY: see how far we could get
-
+	if (can_login):		
 		target_file = request_get_file(clientSocket)
 		md5_hash = generate_MD5_hash(target_file)
 		request_validate_hash(clientSocket, md5_hash)
 
 		num_success += 1
-		# print("number of successful file-retrievals: " + str(num_success))
 		request_logout(clientSocket)
 
 	current_password += 1
-	# print("num_success: " + str(num_success) + "current_password: " + str(current_password))
 
 # close the connection to the server
 request_close_connection(clientSocket)
