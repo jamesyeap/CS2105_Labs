@@ -68,16 +68,16 @@ def request_validate_hash(clientSocket, hash):
 # ------- UTIL METHODS -------------------------------------------------------------
 
 def create_request_message(method_code, data=""):
-	request_message = method_code + str(data);
+	request_message = method_code + str(data)
 	print("request_message sent: " + request_message)
 	return (request_message).encode();
 
 def get_response_code(clientSocket):
 	response_code = clientSocket.recv(4).decode();
 
-	if (len(response_code) == 0):
-		print("no response received :( exiting now...")
-		exit(1)
+	while (len(response_code) == 0):
+		sleep(1)
+		response_code = clientSocket.recv(4).decode();
 
 	print("response_code received: " + response_code)
 	return response_code
