@@ -131,7 +131,7 @@ while (num_success < 8 and current_password < 10000):
 		md5_hash = generate_MD5_hash(target_file)
 		request_validate_hash(clientSocket, md5_hash)
 
-		num_success += 1/
+		num_success += 1
 		request_logout(clientSocket)
 
 	current_password += 1
