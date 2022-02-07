@@ -116,8 +116,7 @@ def create_socket(student_key):
 student_key = sys.argv[1]
 
 # request for connection to server
-receiveSocket = create_socket(student_key)
-sendSocket = create_socket(student_key)
+clientSocket = create_socket(student_key)
 
 # keep track of the number of successful file-retrievals
 num_success = 0
@@ -133,9 +132,9 @@ while (num_success < 8 and current_password < 10000):
 	if (can_login):
 		# print("--- CORRECT PASSWORD: " + padded_password) # FOR DEBUGGING ONLY: see how far we could get
 
-		target_file = request_get_file(receiveSocket)
+		target_file = request_get_file(clientSocket)
 		md5_hash = generate_MD5_hash(target_file)
-		request_validate_hash(receiveSocket, md5_hash)
+		request_validate_hash(clientSocket, md5_hash)
 
 		num_success += 1
 		# print("number of successful file-retrievals: " + str(num_success))
