@@ -137,7 +137,7 @@ while (num_success < 8 and current_password < 10000):
 		request_validate_hash(clientSocket, md5_hash)
 
 		num_success += 1
-		print(padded_password)
+		# print(padded_password)
 		request_logout(clientSocket)
 
 	current_password += 1
