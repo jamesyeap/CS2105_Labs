@@ -49,7 +49,6 @@ def request_logout(clientSocket):
 def request_get_file(clientSocket):
 	clientSocket.send(create_request_message(GET_REQUEST))
 	file_size = extract_file_size(clientSocket)
-
 	file = clientSocket.recv(file_size)
 
 	return file
@@ -68,13 +67,11 @@ def request_close_connection(clientSocket):
 # ------- UTIL METHODS -------------------------------------------------------------
 
 def create_request_message(method_code, data=""):
-	request_message = method_code + str(data)
-	# print("request_message sent: " + request_message)
+	request_message = method_code + data
 	return (request_message).encode();
 
 def get_response_code(clientSocket):
 	response_code = clientSocket.recv(4).decode();
-	# print("response_code received: " + response_code)
 	return response_code
 
 """ note: get_file_size() should only be called inside the function get_file() """
@@ -130,18 +127,14 @@ while (num_success < 8 and current_password < 10000):
 	can_login = request_login(clientSocket, padded_password)
 
 	if (can_login):
-		# print("--- CORRECT PASSWORD: " + padded_password) # FOR DEBUGGING ONLY: see how far we could get
-
 		target_file = request_get_file(clientSocket)
 		md5_hash = generate_MD5_hash(target_file)
 		request_validate_hash(clientSocket, md5_hash)
 
-		num_success += 1
-		# print("number of successful file-retrievals: " + str(num_success))
+		num_success += 1/
 		request_logout(clientSocket)
 
 	current_password += 1
-	# print("num_success: " + str(num_success) + "current_password: " + str(current_password))
 
 # close the connection to the server
 request_close_connection(clientSocket)
