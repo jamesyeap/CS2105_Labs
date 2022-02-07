@@ -136,7 +136,7 @@ while (num_success < 8):
 					clientSocket.close()
 					exit(1)
 
-				num_success++
+				num_success += 1
 				print("successful file validation")
 				continue
 
