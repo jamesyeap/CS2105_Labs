@@ -118,7 +118,7 @@ num_success = 0
 current_password = 0
 
 # try to login using all possible password combinations (0000-9999)
-while (num_success < 8 && current_password < 10000):
+while (num_success < 8 and current_password < 10000):
 	# padded_password = str(current_password).encode().rjust(4, b'0')
 	padded_password = padded_passwords[current_password]
 	can_login = request_login(clientSocket, padded_password)
