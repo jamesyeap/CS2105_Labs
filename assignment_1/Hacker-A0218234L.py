@@ -2,6 +2,9 @@ from socket import *
 import hashlib
 import sys
 
+# my own notes:
+#  student-key is 651723
+
 # server details
 SERVER_IP_ADDRESS = '137.132.92.111'
 SERVER_PORT = 4444
