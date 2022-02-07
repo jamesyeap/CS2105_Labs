@@ -101,12 +101,13 @@ def generate_MD5_hash(data):
 def create_socket(student_key):
 	clientSocket = socket(AF_INET, SOCK_STREAM)
 	clientSocket.connect((SERVER_IP_ADDRESS, SERVER_PORT))
-	can_connect = request_connection(clientSocket, student_key)
+	# can_connect = request_connection(clientSocket, student_key)
+	request_connection(clientSocket, student_key)
 
-	if (not can_connect):
-		print("Handshake could not be established due to invalid student id")
-		clientSocket.close()
-		exit(1)
+	# if (not can_connect):
+	# 	print("Handshake could not be established due to invalid student id")
+	# 	clientSocket.close()
+	# 	exit(1)
 
 	return clientSocket
 
