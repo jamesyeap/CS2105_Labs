@@ -52,7 +52,7 @@ def request_get_file(clientSocket):
 
 	file = clientSocket.recv(file_size)
 
-	if (clientSocket.recv(1024).length != 0):
+	if (len(clientSocket.recv(1024)) != 0):
 		print("seems like there are still some bytes to be read; perhaps the file_size in packet header was incorrect");
 		clientSocket.close()
 		exit(1)		
