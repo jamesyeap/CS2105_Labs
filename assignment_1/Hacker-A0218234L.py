@@ -62,6 +62,7 @@ def request_get_file(clientSocket):
 def request_validate_hash(clientSocket, hash):
 	clientSocket.send(create_request_message(SEND, hash))
 	if (get_response_code(clientSocket) == HASH_MATCHED):
+		print("File validated!")
 		return True
 
 	return False
@@ -148,7 +149,7 @@ while (num_success < 8):
 				print("successful file validation")
 
 				request_logout(clientSocket)
-				continue
+				break
 
 		except ConnectionError:
 			last_tried_password = i-1
