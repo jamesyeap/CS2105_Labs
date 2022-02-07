@@ -68,7 +68,7 @@ def create_request_message(method_code, data=b''):
 	return request_message;
 
 def get_response_code(clientSocket):
-	response_code = clientSocket.recv(4).decode();
+	response_code = clientSocket.recv(4)
 	return response_code
 
 """ note: get_file_size() should only be called inside the function get_file() """
@@ -116,6 +116,8 @@ current_password = 0
 while (num_success < 8):
 	padded_password = str(current_password).zfill(4).encode()
 	can_login = request_login(clientSocket, padded_password)
+
+	print(padded_password)
 
 	if (can_login):
 		target_file = request_get_file(clientSocket)
