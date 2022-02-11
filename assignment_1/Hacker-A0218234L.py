@@ -3,6 +3,9 @@ import hashlib
 import sys
 import time
 
+# my own notes:
+#  student-key is 651723
+
 # server details
 SERVER_IP_ADDRESS = '137.132.92.111'
 SERVER_PORT = 4444
@@ -32,7 +35,8 @@ INVALID_REQUEST_METHOD = b'406_'
 
 def request_connection(clientSocket, student_key):
 	clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key))
-	return get_response_code(clientSocket) == HANDSHAKE_SUCCESSFUL		
+	# return get_response_code(clientSocket) == HANDSHAKE_SUCCESSFUL	
+	get_response_code(clientSocket)
 
 def request_login(clientSocket, password):
 	clientSocket.send(create_request_message(LOGIN_REQUEST, password))
@@ -40,7 +44,7 @@ def request_login(clientSocket, password):
 
 def request_logout(clientSocket):
 	clientSocket.send(create_request_message(LOGOUT_REQUEST))
-	return get_response_code(clientSocket) == LOGOUT_SUCCESSFUL
+	get_response_code(clientSocket)
 
 """ returns the file received from server in byte-format """
 def request_get_file(clientSocket):
@@ -52,7 +56,7 @@ def request_get_file(clientSocket):
 
 def request_validate_hash(clientSocket, hash):
 	clientSocket.send(create_request_message(SEND, hash))
-	return get_response_code(clientSocket) == HASH_MATCHED
+	get_response_code(clientSocket)
 
 def request_close_connection(clientSocket):
 	clientSocket.send(create_request_message(CLOSE_CONNECTION))
@@ -115,20 +119,19 @@ current_password = 0
 
 # try to login using all possible password combinations (0000-9999)
 while (num_success < 8 and current_password < 10000):
+	# padded_password = str(current_password).encode().rjust(4, b'0')
 	padded_password = precomputed_passwords[current_password]
 
 	can_login = request_login(clientSocket, padded_password)
 
 	if (can_login):
-		can_validate_hash = False
+		target_file = request_get_file(clientSocket)
+		md5_hash = generate_MD5_hash(target_file)
+		request_validate_hash(clientSocket, md5_hash)
 
-		while (can_validate_hash == False):			
-			target_file = request_get_file(clientSocket)
-			md5_hash = generate_MD5_hash(target_file)
-			can_validate_hash = request_validate_hash(clientSocket, md5_hash)
-		
-		request_logout(clientSocket)
 		num_success += 1
+		# print(padded_password)
+		request_logout(clientSocket)
 
 	current_password += 1
 
