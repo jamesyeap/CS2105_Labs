@@ -32,8 +32,7 @@ INVALID_REQUEST_METHOD = b'406_'
 
 def request_connection(clientSocket, student_key):
 	clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key))
-	# return get_response_code(clientSocket) == HANDSHAKE_SUCCESSFUL	
-	get_response_code(clientSocket)
+	return get_response_code(clientSocket) == HANDSHAKE_SUCCESSFUL		
 
 def request_login(clientSocket, password):
 	clientSocket.send(create_request_message(LOGIN_REQUEST, password))
@@ -41,7 +40,7 @@ def request_login(clientSocket, password):
 
 def request_logout(clientSocket):
 	clientSocket.send(create_request_message(LOGOUT_REQUEST))
-	get_response_code(clientSocket)
+	return get_response_code(clientSocket) == LOGOUT_SUCCESSFUL
 
 """ returns the file received from server in byte-format """
 def request_get_file(clientSocket):
@@ -53,7 +52,7 @@ def request_get_file(clientSocket):
 
 def request_validate_hash(clientSocket, hash):
 	clientSocket.send(create_request_message(SEND, hash))
-	get_response_code(clientSocket)
+	return get_response_code(clientSocket) == HASH_MATCHED
 
 def request_close_connection(clientSocket):
 	clientSocket.send(create_request_message(CLOSE_CONNECTION))
@@ -122,13 +121,15 @@ while (num_success < 8 and current_password < 10000):
 	can_login = request_login(clientSocket, padded_password)
 
 	if (can_login):
-		target_file = request_get_file(clientSocket)
-		md5_hash = generate_MD5_hash(target_file)
-		request_validate_hash(clientSocket, md5_hash)
+		can_validate_hash = False
 
-		num_success += 1
-		# print(padded_password)
+		while (!can_validate_hash):
+			target_file = request_get_file(clientSocket)
+			md5_hash = generate_MD5_hash(target_file)
+			can_validate_hash = request_validate_hash(clientSocket, md5_hash)
+		
 		request_logout(clientSocket)
+		num_success += 1
 
 	current_password += 1
 
