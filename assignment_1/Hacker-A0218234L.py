@@ -35,7 +35,6 @@ INVALID_REQUEST_METHOD = b'406_'
 
 def request_connection(clientSocket, student_key):
 	clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key))
-	# return get_response_code(clientSocket) == HANDSHAKE_SUCCESSFUL	
 	get_response_code(clientSocket)
 
 def request_login(clientSocket, password):
@@ -73,7 +72,7 @@ def get_response_code(clientSocket):
 
 """ note: get_file_size() should only be called inside the function get_file() """
 def extract_file_size(clientSocket):
-	# can ignore the status code because
+	# can ignore the status code because we
 	get_response_code(clientSocket) # can assume always successful according to the FSM
 
 	encodedFileSize = b''
@@ -119,7 +118,6 @@ current_password = 0
 
 # try to login using all possible password combinations (0000-9999)
 while (num_success < 8 and current_password < 10000):
-	# padded_password = str(current_password).encode().rjust(4, b'0')
 	padded_password = precomputed_passwords[current_password]
 
 	can_login = request_login(clientSocket, padded_password)
