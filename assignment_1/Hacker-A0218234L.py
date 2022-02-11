@@ -47,7 +47,7 @@ def request_logout(clientSocket):
 	get_response_code(clientSocket)
 
 """ returns the file received from server in byte-format """
-def request_get_file(clientSocket):
+def request_file(clientSocket):
 	clientSocket.send(create_request_message(GET_REQUEST))
 	file_size = extract_file_size(clientSocket)
 	file = clientSocket.recv(file_size)
@@ -125,7 +125,7 @@ while (num_success < 8 and current_password < 10000):
 	can_login = request_login(clientSocket, padded_password)
 
 	if (can_login):
-		target_file = request_get_file(clientSocket)
+		target_file = request_file(clientSocket)
 		md5_hash = generate_MD5_hash(target_file)
 		request_validate_hash(clientSocket, md5_hash)
 
