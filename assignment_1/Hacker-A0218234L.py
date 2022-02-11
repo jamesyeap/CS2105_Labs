@@ -129,7 +129,6 @@ while (num_success < 8 and current_password < 10000):
 		
 		request_logout(clientSocket)
 		num_success += 1
-		print(num_success)
 
 	current_password += 1
 
