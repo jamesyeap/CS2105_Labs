@@ -122,7 +122,7 @@ while (num_success < 8 and current_password < 10000):
 	if (can_login):
 		can_validate_hash = False
 
-		while (!can_validate_hash):			
+		while (can_validate_hash == False):			
 			target_file = request_get_file(clientSocket)
 			md5_hash = generate_MD5_hash(target_file)
 			can_validate_hash = request_validate_hash(clientSocket, md5_hash)
