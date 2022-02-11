@@ -115,7 +115,6 @@ current_password = 0
 
 # try to login using all possible password combinations (0000-9999)
 while (num_success < 8 and current_password < 10000):
-	# padded_password = str(current_password).encode().rjust(4, b'0')
 	padded_password = precomputed_passwords[current_password]
 
 	can_login = request_login(clientSocket, padded_password)
@@ -123,13 +122,14 @@ while (num_success < 8 and current_password < 10000):
 	if (can_login):
 		can_validate_hash = False
 
-		while (!can_validate_hash):
+		while (!can_validate_hash):			
 			target_file = request_get_file(clientSocket)
 			md5_hash = generate_MD5_hash(target_file)
 			can_validate_hash = request_validate_hash(clientSocket, md5_hash)
 		
 		request_logout(clientSocket)
 		num_success += 1
+		print(num_success)
 
 	current_password += 1
 
