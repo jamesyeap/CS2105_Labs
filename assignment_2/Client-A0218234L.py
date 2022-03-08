@@ -29,7 +29,8 @@ def wait_for_turn(socket):
 	print(queue_len); # TO REMOVE
 
 	while (queue_len != b'0_' or queue_len != b'-1_'):
-		print(queue_len); # TO REMOVE
+		if (queue_len != b''):
+			print(queue_len); # TO REMOVE
 		queue_len = get_response_message(socket);
 
 # ------ MAIN ----------------------------------------------------------------
@@ -69,4 +70,14 @@ clientSocket.connect((ip_address, port_num));
 - to test the code,
 python3 Client-A0218234L.py 651723 0 137.132.92.111 4445 output.txt
 
+to run the reliable channel:
+On Terminal 1: (Client)    ./test/FileTransfer.sh -i 651723 -n    
+On Terminal 2: (server) ./test/FileTransfer.sh -s -i 651723 -n
+
+change the last option to
+-e  for error channel
+-r   for reorder channel
+-A  for running all three tests.
+
+https://docs.google.com/document/d/1biPpAvd8F7VPTqY2QDVU4XY4xfnWuTnRDM1VGq3usg8/edit#heading=h.65tkp2u5p4vz
 """
