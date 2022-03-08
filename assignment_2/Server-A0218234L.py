@@ -51,3 +51,10 @@ clientSocket = socket(AF_INET, SOCK_STREAM);
 clientSocket.connect((ip_address, port_num));
 clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_S'));
 wait_for_turn(clientSocket);
+
+""" my own notes
+- my student-key is 651723
+
+- to test the code,
+python3 Server-A0218234L.py 651723 0 137.132.92.111 4445 input.txt
+"""
