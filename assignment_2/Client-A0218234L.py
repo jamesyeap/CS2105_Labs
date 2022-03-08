@@ -29,7 +29,7 @@ def wait_for_turn(socket):
 	print(queue_len); # TO REMOVE
 
 	while (queue_len != b'0_' or queue_len != b'-1_'):
-		if (queue_len != b''):
+		if (queue_len != b''): # TO REMOVE
 			print(queue_len); # TO REMOVE
 		queue_len = get_response_message(socket);
 
@@ -52,9 +52,7 @@ clientSocket.connect((ip_address, port_num));
 clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_C'));
 wait_for_turn(clientSocket);
 
-""" once its our turn, connect to the TCP socket again
-"""
-clientSocket.connect((ip_address, port_num));
+
 
 # ❌ (probably wrong)
 # if (mode == RELIABLE_CHANNEL_MODE):

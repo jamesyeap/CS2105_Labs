@@ -29,7 +29,7 @@ def wait_for_turn(socket):
 	print(queue_len); # TO REMOVE
 
 	while (queue_len != b'0_' or queue_len != b'-1_'):
-		if (queue_len != b''):
+		if (queue_len != b''): # TO REMOVE
 			print(queue_len); # TO REMOVE
 		queue_len = get_response_message(socket);
 
