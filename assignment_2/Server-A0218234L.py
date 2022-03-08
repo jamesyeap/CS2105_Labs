@@ -39,7 +39,7 @@ def wait_for_turn(socket):
 student_key = sys.argv[1]; 		# get student key to establish connection with server
 mode = sys.argv[2]; 			# get the simulator mode
 ip_address = sys.argv[3]; 		# get the IP address of the machine running the simulators
-port_num = sys.argv[4]; 		# get the port number of the TCP socket of the simulator on the machine
+port_num = int(sys.argv[4]); 		# get the port number of the TCP socket of the simulator on the machine
 input_file_name = sys.argv[5];  # get the name of the file to write the hash to
 
 """ create client TCP socket
