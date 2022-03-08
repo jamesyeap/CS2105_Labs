@@ -1,4 +1,4 @@
-import socket
+from socket import *
 
 s = socket(AF_INET, SOCK_STREAM)
 s.connect(("137.132.92.111", 4445))
