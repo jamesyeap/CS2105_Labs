@@ -18,7 +18,7 @@ REQUEST_CONNECTION = 'STID_';
 """ ---- HELPER FUNCTIONS -------------------------------------------------- """
 
 def create_request_message(method_code, data=''):
-	print(method_code + data);
+	print('sending' + method_code + data);
 	return (method_code + data).encode();
 
 def get_response_message(socket):
