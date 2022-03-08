@@ -29,8 +29,7 @@ def wait_for_turn(socket):
 	print(queue_len); # TO REMOVE
 
 	while (queue_len != b'0_' or queue_len != b'-1_'):
-		if (queue_len != b''): # TO REMOVE
-			print(queue_len); # TO REMOVE
+		print(queue_len); # TO REMOVE
 		queue_len = get_response_message(socket);
 
 # ------ MAIN ----------------------------------------------------------------
@@ -39,7 +38,7 @@ def wait_for_turn(socket):
 student_key = sys.argv[1]; 		# get student key to establish connection with server
 mode = sys.argv[2]; 			# get the simulator mode
 ip_address = sys.argv[3]; 		# get the IP address of the machine running the simulators
-port_num = int(sys.argv[4]); 		# get the port number of the TCP socket of the simulator on the machine
+port_num = int(sys.argv[4]); 	# get the port number of the TCP socket of the simulator on the machine
 input_file_name = sys.argv[5];  # get the name of the file to write the hash to
 
 """ create client TCP socket
@@ -52,9 +51,11 @@ clientSocket.connect((ip_address, port_num));
 clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_S'));
 wait_for_turn(clientSocket);
 
+
+
 """ my own notes
 - my student-key is 651723
 
 - to test the code,
-python3 Server-A0218234L.py 651723 0 137.132.92.111 4445 input.txt
+	python3 Server-A0218234L.py 651723 0 137.132.92.111 4445 input.txt
 """

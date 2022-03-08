@@ -29,8 +29,7 @@ def wait_for_turn(socket):
 	print(queue_len); # TO REMOVE
 
 	while (queue_len != b'0_' or queue_len != b'-1_'):
-		if (queue_len != b''): # TO REMOVE
-			print(queue_len); # TO REMOVE
+		print(queue_len); # TO REMOVE
 		queue_len = get_response_message(socket);
 
 # ------ MAIN ----------------------------------------------------------------
@@ -39,7 +38,7 @@ def wait_for_turn(socket):
 student_key = sys.argv[1]; 		# get student key to establish connection with server
 mode = sys.argv[2]; 			# get the simulator mode
 ip_address = sys.argv[3]; 		# get the IP address of the machine running the simulators
-port_num = int(sys.argv[4]); 		# get the port number of the TCP socket of the simulator on the machine
+port_num = int(sys.argv[4]); 	# get the port number of the TCP socket of the simulator on the machine
 output_file_name = sys.argv[5]; # get the name of the file to write the hash to
 
 """ create client TCP socket
@@ -65,17 +64,18 @@ wait_for_turn(clientSocket);
 """ my own notes
 - my student-key is 651723
 
-- to test the code,
-python3 Client-A0218234L.py 651723 0 137.132.92.111 4445 output.txt
+- to test the code:
+	python3 Client-A0218234L.py 651723 0 137.132.92.111 4445 output.txt
 
-to run the reliable channel:
-On Terminal 1: (Client)    ./test/FileTransfer.sh -i 651723 -n    
-On Terminal 2: (server) ./test/FileTransfer.sh -s -i 651723 -n
+- to run the reliable channel:
+	On Terminal 1: (Client)    ./test/FileTransfer.sh -i 651723 -n    
+	On Terminal 2: (server) ./test/FileTransfer.sh -s -i 651723 -n
 
-change the last option to
--e  for error channel
--r   for reorder channel
--A  for running all three tests.
+	change the last option to
+		-e  for error channel
+		-r   for reorder channel
+		-A  for running all three tests.
 
-https://docs.google.com/document/d/1biPpAvd8F7VPTqY2QDVU4XY4xfnWuTnRDM1VGq3usg8/edit#heading=h.65tkp2u5p4vz
+- link to faq:
+	https://docs.google.com/document/d/1biPpAvd8F7VPTqY2QDVU4XY4xfnWuTnRDM1VGq3usg8/edit#heading=h.65tkp2u5p4vz
 """
