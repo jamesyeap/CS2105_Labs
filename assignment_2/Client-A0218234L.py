@@ -18,7 +18,7 @@ REQUEST_CONNECTION = 'STID_';
 """ ---- HELPER FUNCTIONS -------------------------------------------------- """
 
 def create_request_message(method_code, data=''):
-	print('[SENDING REQUEST MESSAGE] ' + method_code + data);
+	print('[SENDING REQUEST MESSAGE] ' + method_code + data); # TO REMOVE
 	return (method_code + data).encode();
 
 def get_response_message(socket):
@@ -26,6 +26,7 @@ def get_response_message(socket):
 
 def wait_for_turn(socket):
 	queue_len = get_response_message(socket);
+	print(queue_len); # TO REMOVE
 
 	while (queue_len != b'0_' or queue_len != b'-1_'):
 		print(queue_len); # TO REMOVE
