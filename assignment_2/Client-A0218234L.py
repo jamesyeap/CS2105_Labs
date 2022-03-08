@@ -18,7 +18,7 @@ REQUEST_CONNECTION = 'STID_';
 """ ---- HELPER FUNCTIONS -------------------------------------------------- """
 
 def create_request_message(method_code, data=''):
-	# print(method_code + data);
+	print(method_code + data);
 	return (method_code + data).encode();
 
 def get_response_message(socket):
@@ -45,7 +45,7 @@ output_file_name = sys.argv[5]; # get the name of the file to write the hash to
 	request connection
 	wait for our turn 
 """
-clientSocket = socket(AF_INET, SOCK_STREAM)
+clientSocket = socket(AF_INET, SOCK_STREAM);
 clientSocket.connect((ip_address, port_num));
 clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_C'));
 wait_for_turn(clientSocket);
