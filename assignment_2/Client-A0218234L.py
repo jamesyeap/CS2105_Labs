@@ -15,6 +15,21 @@ REORDERING_CHANNEL_PORT_NUMBER = 4447;
 # request method codes
 REQUEST_CONNECTION = 'STID_';
 
+""" ---- HELPER FUNCTIONS -------------------------------------------------- """
+
+def create_request_message(method_code, data=''):
+	return (method_code + data).encode();
+
+def get_response_message(socket):
+	return socket.recv(1000);
+
+def wait_for_turn(socket):
+	queue_len = get_response_message(socket);
+
+	while (queue_len != b'0_'):
+		print(queue_len); # TO REMOVE
+		queue_len = get_response_message(socket);
+
 # ------ MAIN ----------------------------------------------------------------
 
 """ readin input params """
@@ -45,21 +60,6 @@ clientSocket.connect((ip_address, port_num));
 # 	clientSocket.connect((ip_address, ERROR_CHANNEL_PORT_NUMBER));
 # else: # mode == REORDERING_CHANNEL_MODE
 # 	clientSocket.connect((ip_address, REORDERING_CHANNEL_PORT_NUMBER));
-
-""" ---- HELPER FUNCTIONS -------------------------------------------------- """
-
-def create_request_message(method_code, data=''):
-	return (method_code + data).encode();
-
-def get_response_message():
-	return clientSocket.recv(1000);
-
-def wait_for_turn():
-	queue_len = get_response_message();
-
-	while (queue_len != b'0_'):
-		print(queue_len); # TO REMOVE
-		queue_len = get_response_message();
 
 """ my own notes
 - my student-key is 651723
