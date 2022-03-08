@@ -27,7 +27,7 @@ def get_response_message(socket):
 def wait_for_turn(socket):
 	queue_len = get_response_message(socket);
 
-	while (queue_len != b'0_'):
+	while (queue_len != b'0_' or queue_len != b'-1_'):
 		print(queue_len); # TO REMOVE
 		queue_len = get_response_message(socket);
 
