@@ -52,6 +52,11 @@ clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_S')
 wait_for_turn(clientSocket);
 
 
+""" open the file to be sent
+"""
+filetosend = open(input_file_name);
+data = filetosend.read(1024);
+print(data);
 
 """ my own notes
 - my student-key is 651723
