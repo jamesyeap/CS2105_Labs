@@ -59,19 +59,8 @@ wait_for_turn(clientSocket);
 """
 fileToWriteTo = open(output_file_name, 'wb+');
 
-while (True):
-	dataReceived = clientSocket.recv(5);
-	print(len(dataReceived));
-	if (len(dataReceived) >= 5):
-		break;
-
-# ❌ (probably wrong)
-# if (mode == RELIABLE_CHANNEL_MODE):
-# 	clientSocket.connect((ip_address, RELIABLE_CHANNEL_PORT_NUMBER));
-# elif (mode == ERROR_CHANNEL_MODE):
-# 	clientSocket.connect((ip_address, ERROR_CHANNEL_PORT_NUMBER));
-# else: # mode == REORDERING_CHANNEL_MODE
-# 	clientSocket.connect((ip_address, REORDERING_CHANNEL_PORT_NUMBER));
+dataReceived = clientSocket.recv(5);
+print(dataReceived);
 
 """ my own notes
 - my student-key is 651723
