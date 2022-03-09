@@ -73,7 +73,7 @@ while (True):
 
 	clientSocket.send(dataToSend);
 
-# clientSocket.close();
+clientSocket.close();
 
 
 
