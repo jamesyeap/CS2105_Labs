@@ -70,7 +70,7 @@ dataReceived = clientSocket.recv(1024);
 fileToWriteTo.write(hashlib.md5(dataReceived).hexdigest());
 
 fileToWriteTo.close();
-clientSocket.close();
+# clientSocket.close();
 
 """ my own notes
 - my student-key is 651723

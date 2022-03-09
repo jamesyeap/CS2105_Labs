@@ -68,7 +68,7 @@ dataToSend = filetosend.read();
 
 clientSocket.send(dataToSend);
 
-clientSocket.close();
+# clientSocket.close();
 
 """ my own notes
 - my student-key is 651723
