@@ -61,7 +61,7 @@ fileToWriteTo = open(output_file_name, 'wb+');
 
 while (True):
 	dataReceived = clientSocket.recv(5);
-	print(dataReceived);
+	print(len(dataReceived));
 	if (len(dataReceived) >= 5):
 		break;
 
