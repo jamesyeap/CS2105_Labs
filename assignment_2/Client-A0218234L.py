@@ -66,12 +66,16 @@ wait_for_turn(clientSocket);
 fileToWriteTo = open(output_file_name, 'w+');
 hasher = hashlib.md5();
 
+num_bytes_received = 0;
 while (True):
 	dataReceived = clientSocket.recv(1024);
 
 	if (len(dataReceived) == 0):
 		break;
 
+	num_bytes_received = num_bytes_received + len(dataReceived);
+	print("[NUM_BYTES_RECEIVED]: " + str(num_bytes_received));
+	
 	hasher.update(dataReceived);
 
 fileToWriteTo.write(hasher.hexdigest());

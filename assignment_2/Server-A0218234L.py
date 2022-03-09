@@ -65,6 +65,7 @@ wait_for_turn(clientSocket);
 """
 filetosend = open(input_file_name, 'rb');
 
+num_bytes_sent = 0;
 while (True):
 	dataToSend = filetosend.read(1024);
 
@@ -72,6 +73,8 @@ while (True):
 		break;
 
 	clientSocket.send(dataToSend);
+	num_bytes_sent = num_bytes_sent + len(dataToSend);
+	print("[NUM_BYTES_SENT]: " + str(num_bytes_sent));
 
 clientSocket.close();
 
