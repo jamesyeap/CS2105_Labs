@@ -68,7 +68,7 @@ filetosend = open(input_file_name, 'rb');
 while (True):
 	dataToSend = filetosend.read(1024);
 
-	if (dataToSend == 0):
+	if (len(dataToSend) == 0):
 		break;
 
 	clientSocket.send(dataToSend);
