@@ -63,7 +63,7 @@ wait_for_turn(clientSocket);
 filetosend = open(input_file_name, 'rb');
 dataToSend = filetosend.read(5);
 
-clientSocket.send("hello");
+clientSocket.send("hello".encode());
 
 print("sent data");
 
