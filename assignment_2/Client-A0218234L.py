@@ -65,13 +65,12 @@ wait_for_turn(clientSocket);
 """
 fileToWriteTo = open(output_file_name, 'wb+');
 
-while (True): 
-	dataReceived = clientSocket.recv(1024);
-	print(dataReceived);
+dataReceived = clientSocket.recv(1024);
 
-	if (len(dataReceived) != 0):
-		break;
+fileToWriteTo.write(hashlib.md5(dataReceived).hexdigest());
 
+fileToWriteTo.close();
+clientSocket.close();
 
 """ my own notes
 - my student-key is 651723

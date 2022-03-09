@@ -64,10 +64,11 @@ wait_for_turn(clientSocket);
 """ open the file to be sent
 """
 filetosend = open(input_file_name, 'rb');
-dataToSend = filetosend.read(5);
+dataToSend = filetosend.read();
 
-clientSocket.send("hello".encode());
-# print("sent data");
+clientSocket.send(dataToSend);
+
+clientSocket.close();
 
 """ my own notes
 - my student-key is 651723
