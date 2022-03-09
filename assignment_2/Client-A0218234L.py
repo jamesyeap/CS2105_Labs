@@ -57,7 +57,13 @@ clientSocket.connect((ip_address, port_num));
 clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_C'));
 wait_for_turn(clientSocket);
 
+""" open the file where the hash is to be written to
+	if the file doesn't exist, create it
+"""
+fileToWriteTo = open(output_file_name, 'wb+');
 
+dataReceived = clientSocket.recv(5);
+print(dataReceived);
 
 # ❌ (probably wrong)
 # if (mode == RELIABLE_CHANNEL_MODE):
