@@ -62,9 +62,11 @@ wait_for_turn(clientSocket);
 """
 fileToWriteTo = open(output_file_name, 'wb+');
 
-for i in range(10):
+while (True):
 	dataReceived = clientSocket.recv(5);
 	print(dataReceived);
+	if (len(dataReceived) >= 5):
+		break;
 
 # ❌ (probably wrong)
 # if (mode == RELIABLE_CHANNEL_MODE):
