@@ -44,6 +44,12 @@ ip_address = sys.argv[3]; 		# get the IP address of the machine running the simu
 port_num = int(sys.argv[4]); 	# get the port number of the TCP socket of the simulator on the machine
 output_file_name = sys.argv[5]; # get the name of the file to write the hash to
 
+print("[PARAM - STUDENT_KEY]: " + student_key);
+print("[PARAM - MODE]: " + mode);
+print("[PARAM - IP_ADDRESS]: " + ip_address);
+print("[PARAM - port_num]: " + port_num);
+print("[PARAM - OUTPUT_FILE_NAME]: " + output_file_name);
+
 """ create client TCP socket
 	connect to the remote TCP socket
 	request connection
