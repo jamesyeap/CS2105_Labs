@@ -67,7 +67,7 @@ fileToWriteTo = open(output_file_name, 'wb+');
 
 dataReceived = clientSocket.recv(1024);
 
-fileToWriteTo.write(hashlib.md5(dataReceived).hexdigest());
+fileToWriteTo.write(str(hashlib.md5(dataReceived).hexdigest()));
 
 fileToWriteTo.close();
 clientSocket.close();
