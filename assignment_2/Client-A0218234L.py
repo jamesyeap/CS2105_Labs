@@ -64,15 +64,42 @@ wait_for_turn(clientSocket);
 	if the file doesn't exist, create it
 """
 fileToWriteTo = open(output_file_name, 'w+');
+hasher = hashlib.md5();
 
-dataReceived = clientSocket.recv(1024);
+while (True):
+	dataReceived = clientSocket.recv(1024);
 
-fileToWriteTo.write(hashlib.md5(dataReceived).hexdigest());
+	if (len(dataReceived) == 0):
+		break;
+
+	hasher.update(dataReceived);
+
+# fileToWriteTo.write(hashlib.md5(dataReceived).hexdigest());
+fileToWriteTo.write(hasher.hexdigest());
 
 fileToWriteTo.close();
 # clientSocket.close();
 
-""" my own notes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""" =============================================================================================
+	======================== my own notes =======================================================
+	=============================================================================================
+
 - my student-key is 651723
 
 - to test the code:
@@ -89,4 +116,5 @@ fileToWriteTo.close();
 
 - link to faq:
 	https://docs.google.com/document/d/1biPpAvd8F7VPTqY2QDVU4XY4xfnWuTnRDM1VGq3usg8/edit#heading=h.65tkp2u5p4vz
+	
 """

@@ -64,15 +64,37 @@ wait_for_turn(clientSocket);
 """ open the file to be sent
 """
 filetosend = open(input_file_name, 'rb');
-dataToSend = filetosend.read();
 
-clientSocket.send(dataToSend);
+while (True):
+	dataToSend = filetosend.read(1024);
+
+	if (dataToSend == 0):
+		break;
+
+	clientSocket.send(dataToSend);
 
 # clientSocket.close();
 
-""" my own notes
+
+
+
+
+
+
+
+
+
+
+
+
+""" =============================================================================================
+	======================== my own notes =======================================================
+	=============================================================================================
+
 - my student-key is 651723
 
 - to test the code,
 	python3 Server-A0218234L.py 651723 0 137.132.92.111 4445 hello.txt
+
+
 """
