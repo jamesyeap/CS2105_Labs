@@ -62,8 +62,9 @@ wait_for_turn(clientSocket);
 """
 fileToWriteTo = open(output_file_name, 'wb+');
 
-dataReceived = clientSocket.recv(5);
-print(dataReceived);
+for i in range(10):
+	dataReceived = clientSocket.recv(5);
+	print(dataReceived);
 
 # ❌ (probably wrong)
 # if (mode == RELIABLE_CHANNEL_MODE):
