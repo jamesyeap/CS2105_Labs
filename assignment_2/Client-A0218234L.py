@@ -22,7 +22,7 @@ def create_request_message(method_code, data=''):
 	return (method_code + data).encode();
 
 def get_response_message(socket):
-	return socket.recv(1000);
+	return socket.recv(1024);
 
 def wait_for_turn(socket):
 	queue_len = get_response_message(socket);

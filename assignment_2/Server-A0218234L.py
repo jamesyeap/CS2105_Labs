@@ -22,13 +22,19 @@ def create_request_message(method_code, data=''):
 	return (method_code + data).encode();
 
 def get_response_message(socket):
-	return socket.recv(1000);
+	return socket.recv(64);
 
 def wait_for_turn(socket):
 	queue_len = get_response_message(socket);
 	print(queue_len); # TO REMOVE
 
-	while (queue_len != b'0_' or queue_len != b'-1_'):
+	while (True):
+		if (queue_len == b'0_'):
+			break;
+
+		if (queue_len == b'-1_'):
+			break;
+
 		print(queue_len); # TO REMOVE
 		queue_len = get_response_message(socket);
 
