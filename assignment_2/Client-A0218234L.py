@@ -63,11 +63,11 @@ wait_for_turn(clientSocket);
 """ open the file where the hash is to be written to
 	if the file doesn't exist, create it
 """
-fileToWriteTo = open(output_file_name, 'wb+');
+fileToWriteTo = open(output_file_name, 'w+');
 
 dataReceived = clientSocket.recv(1024);
 
-fileToWriteTo.write(str(hashlib.md5(dataReceived).hexdigest()));
+fileToWriteTo.write(hashlib.md5(dataReceived).hexdigest());
 
 fileToWriteTo.close();
 clientSocket.close();
