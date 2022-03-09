@@ -47,7 +47,7 @@ input_file_name = sys.argv[5];  # get the name of the file to write the hash to
 print("[PARAM - STUDENT_KEY]: " + student_key);
 print("[PARAM - MODE]: " + mode);
 print("[PARAM - IP_ADDRESS]: " + ip_address);
-print("[PARAM - port_num]: " + port_num);
+print("[PARAM - port_num]: " + str(port_num));
 print("[PARAM - INPUT_FILE_NAME]: " + input_file_name);
 
 """ create client TCP socket
