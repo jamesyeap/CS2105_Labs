@@ -59,8 +59,13 @@ wait_for_turn(clientSocket);
 """
 fileToWriteTo = open(output_file_name, 'wb+');
 
-dataReceived = clientSocket.recv(5);
-print(dataReceived);
+while (True): 
+	dataReceived = clientSocket.recv(1024);
+	print(dataReceived);
+
+	if (len(dataReceived) != 0):
+		break;
+
 
 """ my own notes
 - my student-key is 651723
