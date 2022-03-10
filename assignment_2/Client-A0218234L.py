@@ -106,10 +106,10 @@ wait_for_turn(clientSocket);
 cumulative_seqnum = 0;
 
 while (True):
+	print(cumulative_seqnum);
+	
 	try:
 		incoming_seqnum, incoming_checksum, incoming_data = get_packet(clientSocket);
-
-		print(str(incoming_seqnum));
 
 		if (data_is_not_corrupted(incoming_data, incoming_checksum)):
 
