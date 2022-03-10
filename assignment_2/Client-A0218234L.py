@@ -114,8 +114,9 @@ cumulative_seqnum = 0;
 while (True):
 	incoming_seqnum, incoming_checksum, incoming_data, has_no_more_packets = get_packet(clientSocket);
 
+	print("[HAS NO MORE PACKETS?]: " + str(has_no_more_packets));
+
 	if (has_no_more_packets == True):
-		print('NO MORE PACKETS TO BE RECEIVED');
 		break;
 
 	if (data_is_not_corrupted(incoming_data, incoming_checksum)):
