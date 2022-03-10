@@ -33,14 +33,10 @@ MAX_PACKET_SIZE = 1024;
 def get_packet_header_seqnum(socket):
 	data = socket.recv(PACKET_HEADER_SEQNUM_SIZE);
 
-	has_no_more_packets = False;
-
-	print("[LEN DATA]: " + str(len(data)));
-
 	if (len(data) == 0):
-		has_no_more_packets = True;
+		return None, True;
 
-	return int(data.decode()), has_no_more_packets;
+	return int(data.decode()), False;
 
 def get_packet_header_checksum(socket):
 	data = socket.recv(PACKET_HEADER_CHECKSUM_SIZE);
