@@ -48,6 +48,9 @@ def get_packet_header_field(socket):
 
 		data = data + incomingData;
 
+
+	print("[LEN DATA:] " + str(len(data)+1));
+
 	return data, len(data)+1; # include "_", which takes up 1 byte
 
 def extract_packet_seqnum(socket):
