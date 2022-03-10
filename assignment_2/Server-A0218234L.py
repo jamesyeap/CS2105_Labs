@@ -75,9 +75,13 @@ wait_for_turn(clientSocket);
 """
 filetosend = open(input_file_name, 'rb');
 
+MAX_SIZE_OF_DATA = 1024 - 11 - 10; # 11 bytes for CHECKSUM header, 10 bytes for SEQNUM header
+								   # (inclusive of the '_' for both)
+
 seqNum = 0;
 while (True):
-	dataToSend = filetosend.read(1024);
+
+	dataToSend = filetosend.read(MAX_SIZE_OF_DATA);
 	num_bytes_of_data = len(dataToSend);
 
 	if (num_bytes_of_data == 0):
