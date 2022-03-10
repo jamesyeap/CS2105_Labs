@@ -33,10 +33,12 @@ MAX_PACKET_SIZE = 1024;
 def get_packet_header_seqnum(socket):
 	data = socket.recv(PACKET_HEADER_SEQNUM_SIZE);
 
-	if len(data) == 0:
-		raise StopIteration('NO MORE PACKETS TO BE RECEIVED');
+	no_more_packets = False;
 
-	return int(data.decode());
+	if (len(data) == 0):
+		no_more_packets = True;
+
+	return int(data.decode()), no_more_packets;
 
 def get_packet_header_checksum(socket):
 	data = socket.recv(PACKET_HEADER_CHECKSUM_SIZE);
@@ -52,11 +54,11 @@ def data_is_not_corrupted(data, checksum):
 	return dataChecksum == checksum;
 
 def get_packet(socket):
-	incoming_seqnum = get_packet_header_seqnum(socket);
+	incoming_seqnum, no_more_packets = get_packet_header_seqnum(socket);
 	incoming_checksum = get_packet_header_checksum(socket);
 	incoming_data = get_packet_data(socket);
 
-	return incoming_seqnum, incoming_checksum, incoming_data;
+	return incoming_seqnum, incoming_checksum, incoming_data, no_more_packets;
 
 def send_ack(socket, next_expected_seqnum):
 	ackMessage = ("A" + str(next_expected_seqnum)).encode();
@@ -106,29 +108,25 @@ wait_for_turn(clientSocket);
 cumulative_seqnum = 0;
 
 while (True):
-	print(cumulative_seqnum);
-	
-	try:
-		incoming_seqnum, incoming_checksum, incoming_data = get_packet(clientSocket);
+	incoming_seqnum, incoming_checksum, incoming_data, no_more_packets = get_packet(clientSocket);
 
-		if (data_is_not_corrupted(incoming_data, incoming_checksum)):
-
-			# send successful acknowledgement to server
-			send_ack(clientSocket, incoming_seqnum);
-
-			# increment cumulative seqnum
-			length_of_data = len(incoming_data);
-			cumulative_seqnum = cumulative_seqnum + length_of_data;
-
-			# "deliver" data
-			hasher.update(incoming_data);
-
-		else:
-			send_nack(clientSocket, incoming_seqnum);
-
-	except StopIteration as e:
-		print(e);
+	if (no_more_packets == True):
 		break;
+
+	if (data_is_not_corrupted(incoming_data, incoming_checksum)):
+
+		# send successful acknowledgement to server
+		send_ack(clientSocket, incoming_seqnum);
+
+		# increment cumulative seqnum
+		length_of_data = len(incoming_data);
+		cumulative_seqnum = cumulative_seqnum + length_of_data;
+
+		# "deliver" data
+		hasher.update(incoming_data);
+
+	else:
+		send_nack(clientSocket, incoming_seqnum);
 
 """ STEP 4
 	1. get the MD5 hash of the file received from server
