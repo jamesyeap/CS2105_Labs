@@ -36,21 +36,21 @@ def get_packet_header_seqnum(socket):
 	if (len(data) == 0):
 		return None, True;
 
-	print("[NUM BYTES RECEIVED FOR SEQNUM]: "+ len(data));
+	print("[NUM BYTES RECEIVED FOR SEQNUM]: "+ str(len(data)));
 
 	return int(data.decode()), False;
 
 def get_packet_header_checksum(socket):
 	data = socket.recv(PACKET_HEADER_CHECKSUM_SIZE);
 
-	print("[NUM BYTES RECEIVED FOR CHECKSUM]: "+ len(data));
+	print("[NUM BYTES RECEIVED FOR CHECKSUM]: "+ str(len(data)));
 
 	return int(data.decode());
 
 def get_packet_data(socket):
 	data = socket.recv(MAX_PACKET_SIZE - PACKET_HEADER_SEQNUM_SIZE - PACKET_HEADER_CHECKSUM_SIZE);
 
-	print("[NUM BYTES RECEIVED FOR PACKET DATA]: "+ len(data));
+	print("[NUM BYTES RECEIVED FOR PACKET DATA]: "+ str(len(data)));
 
 def data_is_not_corrupted(data, checksum):
 	dataChecksum = zlib.crc32(data);
