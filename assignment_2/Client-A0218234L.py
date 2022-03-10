@@ -14,7 +14,7 @@ def get_response_message(socket):
 
 def wait_for_turn(socket):
 	queue_len = get_response_message(socket);
-	print(queue_len); # TO REMOVE
+	print("[QUEUE_LENGTH]: " + str(queue_len)); # TO REMOVE
 
 	while (True):
 		if (queue_len == b'0_'):
@@ -109,6 +109,9 @@ while (True):
 	try:
 		incoming_seqnum, incoming_checksum, incoming_data = get_packet(clientSocket);
 
+		print("[INCOMING SEQNUM]: " + str(incoming_seqnum));
+		print("[INCOMING CHECKSUM]: " + str(incoming_checksum));
+
 		if (data_is_not_corrupted(incoming_data, incoming_checksum)):
 
 			# send successful acknowledgement to server
@@ -137,3 +140,40 @@ while (True):
 file_to_write_to.write(hasher.hexdigest());
 file_to_write_to.close();
 clientSocket.close();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""" =============================================================================================
+	======================== my own notes =======================================================
+	=============================================================================================
+
+- to run the reliable channel:
+	On Terminal 1: (Client) ./test/FileTransfer.sh -i 651723 -n    
+	On Terminal 2: (server) ./test/FileTransfer.sh -s -i 651723 -n
+
+	change the last option to
+		-e  for error channel
+		-r   for reorder channel
+		-A  for running all three tests.
+		
+"""

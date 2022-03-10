@@ -14,13 +14,13 @@ def get_response_message(socket):
 
 def wait_for_turn(socket):
 	queue_len = get_response_message(socket);
-	print(queue_len); # TO REMOVE
+	print("[QUEUE_LENGTH]: " + str(queue_len)); # TO REMOVE
 
 	while (True):
 		if (queue_len == b'0_'):
 			break;
 
-		print("[QUEUE_NUMBER]: " + str(queue_len)); # TO REMOVE
+		print("[QUEUE_LENGTH]: " + str(queue_len)); # TO REMOVE
 		queue_len = get_response_message(socket);
 
 """ ---- PACKET CREATION FUNCTIONS ------------------------------------------- """
@@ -30,11 +30,15 @@ PACKET_HEADER_CHECKSUM_SIZE = 16;
 def make_seqnum_header(seqnum):
 	seqnum_header = str(seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
 
+	print("[OUTGOING SEQNUM]: " + str(seqnum));
+
 	return seqnum_header;
 
 def make_checksum_header(data):
 	checksum = zlib.crc32(data);
 	checksum_header = str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
+
+	print("[OUTGOING CHECKSUM]: " + str(checksum));
 
 	return checksum_header;
 
@@ -102,6 +106,35 @@ while (True):
 """
 file_to_send.close();
 clientSocket.close();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""" =============================================================================================
+	======================== my own notes =======================================================
+	=============================================================================================
+
+- to run the reliable channel:
+	On Terminal 1: (Client) ./test/FileTransfer.sh -i 651723 -n    
+	On Terminal 2: (server) ./test/FileTransfer.sh -s -i 651723 -n
+
+	change the last option to
+		-e  for error channel
+		-r   for reorder channel
+		-A  for running all three tests.
+
+"""
 	
 
 
