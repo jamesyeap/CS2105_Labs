@@ -111,6 +111,7 @@ while (True):
 	incoming_seqnum, incoming_checksum, incoming_data, no_more_packets = get_packet(clientSocket);
 
 	if (no_more_packets == True):
+		print('NO MORE PACKETS TO BE RECEIVED');
 		break;
 
 	if (data_is_not_corrupted(incoming_data, incoming_checksum)):
