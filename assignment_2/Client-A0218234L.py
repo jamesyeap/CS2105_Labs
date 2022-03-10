@@ -50,14 +50,6 @@ def get_packet_header_checksum(socket):
 def get_packet_data(socket):
 	data = socket.recv(MAX_PACKET_SIZE - PACKET_HEADER_SEQNUM_SIZE - PACKET_HEADER_CHECKSUM_SIZE);
 
-	while (True):
-		incoming_data = socket.recv(1);
-
-		if (incoming_data == b'_'):
-			break;
-
-		data = data + incoming_data;
-
 	print("[NUM BYTES RECEIVED FOR PACKET DATA]: "+ str(len(data)));
 
 	return data;
