@@ -33,12 +33,12 @@ MAX_PACKET_SIZE = 1024;
 def get_packet_header_seqnum(socket):
 	data = socket.recv(PACKET_HEADER_SEQNUM_SIZE);
 
-	no_more_packets = False;
+	has_no_more_packets = False;
 
 	if (len(data) == 0):
-		no_more_packets = True;
+		has_no_more_packets = True;
 
-	return int(data.decode()), no_more_packets;
+	return int(data.decode()), has_no_more_packets;
 
 def get_packet_header_checksum(socket):
 	data = socket.recv(PACKET_HEADER_CHECKSUM_SIZE);
@@ -54,11 +54,11 @@ def data_is_not_corrupted(data, checksum):
 	return dataChecksum == checksum;
 
 def get_packet(socket):
-	incoming_seqnum, no_more_packets = get_packet_header_seqnum(socket);
+	incoming_seqnum, has_no_more_packets = get_packet_header_seqnum(socket);
 	incoming_checksum = get_packet_header_checksum(socket);
 	incoming_data = get_packet_data(socket);
 
-	return incoming_seqnum, incoming_checksum, incoming_data, no_more_packets;
+	return incoming_seqnum, incoming_checksum, incoming_data, has_no_more_packets;
 
 def send_ack(socket, next_expected_seqnum):
 	ackMessage = ("A" + str(next_expected_seqnum)).encode();
@@ -108,7 +108,7 @@ wait_for_turn(clientSocket);
 cumulative_seqnum = 0;
 
 while (True):
-	incoming_seqnum, incoming_checksum, incoming_data, no_more_packets = get_packet(clientSocket);
+	incoming_seqnum, incoming_checksum, incoming_data, has_no_more_packets = get_packet(clientSocket);
 
 	if (no_more_packets == True):
 		print('NO MORE PACKETS TO BE RECEIVED');
