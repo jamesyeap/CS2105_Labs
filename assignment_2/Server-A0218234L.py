@@ -38,7 +38,7 @@ def make_checksum_header(data):
 	checksum = zlib.crc32(data);
 	checksum_header = str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
 
-	# print("[OUTGOING CHECKSUM]: " + str(checksum));
+	print("[OUTGOING CHECKSUM]: " + str(checksum));
 
 	return checksum_header;
 

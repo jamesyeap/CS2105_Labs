@@ -33,8 +33,7 @@ MAX_PACKET_SIZE = 1024;
 def get_packet_header_seqnum(socket):
 	data = socket.recv(PACKET_HEADER_SEQNUM_SIZE);
 
-	# print("[NUM BYTES RECEIVED FOR SEQNUM]: "+ str(len(data)));
-	print(data);
+	print("[NUM BYTES RECEIVED FOR SEQNUM]: "+ str(len(data)));
 
 	if (len(data) == 0):
 		return (None, True);
