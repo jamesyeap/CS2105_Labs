@@ -45,7 +45,7 @@ def make_seqnum_header(seqNum):
 def make_packet(data, seqNum):
 	packet_header = make_seqnum_header(seqNum) + make_checksum_header(data);
 
-	print(packet_header);
+	# print(packet_header);
 
 	return packet_header + data; 
 
