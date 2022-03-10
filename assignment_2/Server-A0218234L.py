@@ -85,7 +85,7 @@ wait_for_turn(clientSocket);
 	repeat until no more data is to be sent
 """
 MAX_PACKET_SIZE = 1024;
-MAX_PACKET_DATA_SIZE = MAX_PACKET_SIZE - PACKET_HEADER_SEQNUM_SIZE - PACKET_HEADER_CHECKSUM_SIZE;
+MAX_PACKET_DATA_SIZE = MAX_PACKET_SIZE - PACKET_HEADER_SEQNUM_SIZE - PACKET_HEADER_CHECKSUM_SIZE - 1;
 
 cumulative_seqnum = 0;
 while (True):
@@ -96,7 +96,8 @@ while (True):
 		print('NO MORE PACKETS TO BE SENT');
 		break;
 
-	packet = make_packet(data_to_send, cumulative_seqnum);
+	# we add an underscore to mark the end of the data-part
+	packet = make_packet(data_to_send + b'_', cumulative_seqnum);
 	clientSocket.send(packet);
 
 	cumulative_seqnum = cumulative_seqnum + length_of_data;
