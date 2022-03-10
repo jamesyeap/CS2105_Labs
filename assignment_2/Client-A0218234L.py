@@ -62,8 +62,6 @@ def get_packet(socket):
 	incoming_checksum = get_packet_header_checksum(socket);
 	incoming_data = get_packet_data(socket);
 
-	print("[HAS NO MORE PACKETS?]: " + str(has_no_more_packets));
-
 	return incoming_seqnum, incoming_checksum, incoming_data, has_no_more_packets;
 
 def send_ack(socket, next_expected_seqnum):
@@ -115,8 +113,6 @@ cumulative_seqnum = 0;
 
 while (True):
 	incoming_seqnum, incoming_checksum, incoming_data, has_no_more_packets = get_packet(clientSocket);
-
-	print("[HAS NO MORE PACKETS?]: " + str(has_no_more_packets));
 
 	if (has_no_more_packets == True):
 		break;
