@@ -6,7 +6,7 @@ import zlib
 # ---- CONNECTION FUNCTIONS --------------------------------------------------
 
 def send_connection_request(socket, student_key):
-	print('[SENDING REQUEST MESSAGE] ' + 'STID_' + student_key); # TO REMOVE
+	print('[SENDING REQUEST MESSAGE] ' + 'STID_' + student_key + '_S'); # TO REMOVE
 	socket.send(('STID_' + student_key + '_S').encode());
 
 def get_response_message(socket):
@@ -96,7 +96,8 @@ while (True):
 		print('NO MORE PACKETS TO BE SENT');
 		break;
 
-	make_packet(data_to_send, cumulative_seqnum);
+	packet = make_packet(data_to_send, cumulative_seqnum);
+	clientSocket.send(packet);
 
 	cumulative_seqnum = cumulative_seqnum + length_of_data;
 
