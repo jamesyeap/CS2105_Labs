@@ -66,7 +66,7 @@ def extract_packet_data(socket, length_of_data):
 	return packetData, len(packetData);
 	
 def is_not_corrupted(data, packetCheckSum):
-	dataReceivedCheckSum = zlib.crc32(s);
+	dataReceivedCheckSum = zlib.crc32(data);
 
 	return dataReceivedCheckSum == packetCheckSum;
 
