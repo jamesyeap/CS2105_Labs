@@ -109,8 +109,7 @@ while (True):
 	try:
 		incoming_seqnum, incoming_checksum, incoming_data = get_packet(clientSocket);
 
-		print("[INCOMING SEQNUM]: " + str(incoming_seqnum));
-		print("[INCOMING CHECKSUM]: " + str(incoming_checksum));
+		print(str(incoming_seqnum));
 
 		if (data_is_not_corrupted(incoming_data, incoming_checksum)):
 
