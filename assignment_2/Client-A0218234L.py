@@ -109,7 +109,7 @@ send_connection_request(clientSocket, student_key);
 wait_for_turn(clientSocket);
 
 
-print(clientSocket.recv(1024).decode());
+print(clientSocket.recv(32).decode());
 
 """ STEP 3 (once it's our turn)
 	1. start reading-in packets sent from the server
