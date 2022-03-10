@@ -33,8 +33,6 @@ def make_checksum_header(data):
 	checksum = zlib.crc32(data);
 	checksum_header = (str(checksum) + "_").encode();
 
-	print(checksum_header);
-
 	return checksum_header;
 
 def make_seqnum_header(seqNum):
@@ -42,12 +40,13 @@ def make_seqnum_header(seqNum):
 	# the maximum file size is around 500 MB -> 500_000_000 B
 	seqnum_header = (str(seqNum) + "_").encode();
 
-	print(seqnum_header);
-
 	return seqnum_header;
 
 def make_packet(data, seqNum):
 	packet_header = make_seqnum_header(seqNum) + make_checksum_header(data);
+
+	print(packet_header);
+
 	return packet_header + data; 
 
 # ------ MAIN ----------------------------------------------------------------
