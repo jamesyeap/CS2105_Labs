@@ -81,11 +81,11 @@ def receive_packet(socket, receiver, expectedSeqNum):
 
 	if (is_not_corrupted(packetData, packetCheckSum)):
 		nextExpectedSeqNum = expectedSeqNum + num_bytes_received
-		send_ack(nextExpectedSeqNum);
+		send_ack(socket, nextExpectedSeqNum);
 
 		return nextExpectedSeqNum;
 	else:
-		send_nack(expectedSeqNum);
+		send_nack(socket, expectedSeqNum);
 
 		return expectedSeqNum;
 
