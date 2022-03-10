@@ -26,32 +26,17 @@ def wait_for_turn(socket):
 
 # ---- PACKET RECEIVE FUNCTIONS --------------------------------------------------
 
-NEW_PACKET_CODE = b'PAKT';
-SEQUENCE_NUMBER_CODE = b'SEQN';
-CHECKSUM_CODE = b'CKSM';
-END_OF_TRANSMISSION_CODE = b'ENDD';
-
 PACKET_HEADER_SEQNUM_SIZE = 32;
 PACKET_HEADER_CHECKSUM_SIZE = 16;
 MAX_PACKET_SIZE = 1024;
 
-def get_message_header_code(socket):
-	data = b'';
-
-	while (True):
-		incoming_data = clientSocket.recv(1);
-
-		if (incoming_data == b'_'):
-			break;
-
-		data = data + incoming_data;
-
-	return data;
-
 def get_packet_header_seqnum(socket):
 	data = socket.recv(PACKET_HEADER_SEQNUM_SIZE);
 
-	return int(data.decode());
+	if (len(data) == 0):
+		return None, True;
+
+	return int(data.decode()), False;
 
 def get_packet_header_checksum(socket):
 	data = socket.recv(PACKET_HEADER_CHECKSUM_SIZE);
@@ -123,7 +108,7 @@ cumulative_seqnum = 0;
 while (True):
 	incoming_seqnum, incoming_checksum, incoming_data, has_no_more_packets = get_packet(clientSocket);
 
-	if (no_more_packets == True):
+	if (has_no_more_packets == True):
 		print('NO MORE PACKETS TO BE RECEIVED');
 		break;
 
