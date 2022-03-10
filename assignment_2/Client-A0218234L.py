@@ -121,29 +121,26 @@ wait_for_turn(clientSocket);
 cumulative_seqnum = 0;
 
 while (True):
-	# incoming_seqnum, incoming_checksum, incoming_data, has_no_more_packets = get_packet(clientSocket);
+	incoming_seqnum, incoming_checksum, incoming_data, has_no_more_packets = get_packet(clientSocket);
 
-	# if (no_more_packets == True):
-	# 	print('NO MORE PACKETS TO BE RECEIVED');
-	# 	break;
+	if (no_more_packets == True):
+		print('NO MORE PACKETS TO BE RECEIVED');
+		break;
 
-	# if (data_is_not_corrupted(incoming_data, incoming_checksum)):
+	if (data_is_not_corrupted(incoming_data, incoming_checksum)):
 
-	# 	# send successful acknowledgement to server
-	# 	send_ack(clientSocket, incoming_seqnum);
+		# send successful acknowledgement to server
+		send_ack(clientSocket, incoming_seqnum);
 
-	# 	# increment cumulative seqnum
-	# 	length_of_data = len(incoming_data);
-	# 	cumulative_seqnum = cumulative_seqnum + length_of_data;
+		# increment cumulative seqnum
+		length_of_data = len(incoming_data);
+		cumulative_seqnum = cumulative_seqnum + length_of_data;
 
-	# 	# "deliver" data
-	# 	hasher.update(incoming_data);
+		# "deliver" data
+		hasher.update(incoming_data);
 
-	# else:
-	# 	send_nack(clientSocket, incoming_seqnum);
-
-
-	print(clientSocket.recv(100));
+	else:
+		send_nack(clientSocket, incoming_seqnum);
 
 """ STEP 4
 	1. get the MD5 hash of the file received from server
