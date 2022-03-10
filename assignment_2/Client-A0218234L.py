@@ -1,43 +1,94 @@
 import sys
 from socket import *
 import hashlib
+import zlib
 
-# numbers indicating the mode of the simulators
-RELIABLE_CHANNEL_MODE = 0;
-ERROR_CHANNEL_MODE = 1;
-REORDERING_CHANNEL_MODE = 2;
+# ---- CONNECTION FUNCTIONS --------------------------------------------------
 
-# port numbers of the 3 channels
-RELIABLE_CHANNEL_PORT_NUMBER = 4445;
-ERROR_CHANNEL_PORT_NUMBER = 4446;
-REORDERING_CHANNEL_PORT_NUMBER = 4447;
-
-# request method codes
-REQUEST_CONNECTION = 'STID_';
-
-""" ---- HELPER FUNCTIONS -------------------------------------------------- """
-
-def create_request_message(method_code, data=''):
-	print('[SENDING REQUEST MESSAGE] ' + method_code + data); # TO REMOVE
-	return (method_code + data).encode();
+def send_connection_request(socket, student_key):
+	print('[SENDING REQUEST MESSAGE] ' + 'STID_' + student_key); # TO REMOVE
+	socket.send(('STID_' + student_key + '_C').encode());
 
 def get_response_message(socket):
 	return socket.recv(1024);
 
 def wait_for_turn(socket):
 	queue_len = get_response_message(socket);
-	print(queue_len); # TO REMOVE
+	print("[QUEUE_LENGTH]: " + str(queue_len)); # TO REMOVE
 
 	while (True):
 		if (queue_len == b'0_'):
 			break;
 
-		print(queue_len); # TO REMOVE
+		print("[QUEUE_NUMBER]: " + str(queue_len)); # TO REMOVE
 		queue_len = get_response_message(socket);
+
+
+# ---- PACKET RECEIVE FUNCTIONS --------------------------------------------------
+
+NEW_PACKET_CODE = b'PAKT';
+SEQUENCE_NUMBER_CODE = b'SEQN';
+CHECKSUM_CODE = b'CKSM';
+END_OF_TRANSMISSION_CODE = b'ENDD';
+
+PACKET_HEADER_SEQNUM_SIZE = 32;
+PACKET_HEADER_CHECKSUM_SIZE = 16;
+MAX_PACKET_SIZE = 1024;
+
+def get_message_header_code(socket):
+	data = b'';
+
+	while (True):
+		incoming_data = clientSocket.recv(1);
+
+		if (incoming_data == b'_'):
+			break;
+
+		data = data + incoming_data;
+
+	return data;
+
+def get_packet_header_seqnum(socket):
+	data = socket.recv(PACKET_HEADER_SEQNUM_SIZE);
+
+	return int(data.decode());
+
+def get_packet_header_checksum(socket):
+	data = socket.recv(PACKET_HEADER_CHECKSUM_SIZE);
+
+	return int(data.decode());
+
+def get_packet_data(socket):
+	return socket.recv(MAX_PACKET_SIZE - PACKET_HEADER_SEQNUM_SIZE - PACKET_HEADER_CHECKSUM_SIZE);
+
+def data_is_not_corrupted(data, checksum):
+	dataChecksum = zlib.crc32(data);
+
+	return dataChecksum == checksum;
+
+def get_packet(socket):
+	incoming_seqnum, has_no_more_packets = get_packet_header_seqnum(socket);
+	incoming_checksum = get_packet_header_checksum(socket);
+	incoming_data = get_packet_data(socket);
+
+	return incoming_seqnum, incoming_checksum, incoming_data, has_no_more_packets;
+
+def send_ack(socket, next_expected_seqnum):
+	ackMessage = ("A" + str(next_expected_seqnum)).encode();
+	socket.send(ackMessage);
+
+def send_nack(socket, required_seqnum):
+	nackMessage = ("B" + str(required_seqnum)).encode();
+	socket.send(nackMessage);
 
 # ------ MAIN ----------------------------------------------------------------
 
-""" readin input params """
+""" STEP 1
+	1. readin input params
+	2. open the file where the hash is to be written to
+		if the file doesn't exist, create it
+	3. create an instance of the MD5 hasher
+"""
 student_key = sys.argv[1]; 		# get student key to establish connection with server
 mode = sys.argv[2]; 			# get the simulator mode
 ip_address = sys.argv[3]; 		# get the IP address of the machine running the simulators
@@ -50,34 +101,62 @@ print("[PARAM - IP_ADDRESS]: " + ip_address);
 print("[PARAM - port_num]: " + str(port_num));
 print("[PARAM - OUTPUT_FILE_NAME]: " + output_file_name);
 
-""" create client TCP socket
-	connect to the remote TCP socket
-	request connection
-	wait for our turn 
+file_to_write_to = open(output_file_name, 'w+');
+hasher = hashlib.md5();
+
+""" STEP 2
+	1. create client TCP socket
+	2. connect to the remote TCP socket
+	3. request connection
+	4. wait for our turn 
 """
 clientSocket = socket(AF_INET, SOCK_STREAM);
 clientSocket.connect((ip_address, port_num));
-clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_C'));
+send_connection_request(clientSocket, student_key);
 wait_for_turn(clientSocket);
 
-""" open the file where the hash is to be written to
-	if the file doesn't exist, create it
+""" STEP 3 (once it's our turn)
+	1. start reading-in packets sent from the server
 """
-fileToWriteTo = open(output_file_name, 'w+');
-hasher = hashlib.md5();
+cumulative_seqnum = 0;
 
 while (True):
-	dataReceived = clientSocket.recv(1024);
+	incoming_seqnum, incoming_checksum, incoming_data, has_no_more_packets = get_packet(clientSocket);
 
-	if (len(dataReceived) == 0):
+	if (no_more_packets == True):
+		print('NO MORE PACKETS TO BE RECEIVED');
 		break;
 
-	hasher.update(dataReceived);
+	if (data_is_not_corrupted(incoming_data, incoming_checksum)):
 
-fileToWriteTo.write(hasher.hexdigest());
+		# send successful acknowledgement to server
+		send_ack(clientSocket, incoming_seqnum);
 
-fileToWriteTo.close();
+		# increment cumulative seqnum
+		length_of_data = len(incoming_data);
+		cumulative_seqnum = cumulative_seqnum + length_of_data;
+
+		# "deliver" data
+		hasher.update(incoming_data);
+
+	else:
+		send_nack(clientSocket, incoming_seqnum);
+
+""" STEP 4
+	1. get the MD5 hash of the file received from server
+	2. write the hash to the output file specified
+	3. close the output file
+	4. close the client socket
+"""
+file_to_write_to.write(hasher.hexdigest());
+file_to_write_to.close();
 clientSocket.close();
+
+
+
+
+
+
 
 
 
@@ -98,16 +177,14 @@ clientSocket.close();
 """ =============================================================================================
 	======================== my own notes =======================================================
 	=============================================================================================
-- my student-key is 651723
-- to test the code:
-	python3 Client-A0218234L.py 651723 0 137.132.92.111 4445 output.txt
+
 - to run the reliable channel:
 	On Terminal 1: (Client) ./test/FileTransfer.sh -i 651723 -n
 	On Terminal 2: (server) ./test/FileTransfer.sh -s -i 651723 -n
+
 	change the last option to
 		-e  for error channel
 		-r   for reorder channel
 		-A  for running all three tests.
-- link to faq:
-	https://docs.google.com/document/d/1biPpAvd8F7VPTqY2QDVU4XY4xfnWuTnRDM1VGq3usg8/edit#heading=h.65tkp2u5p4vz
-	
+		
+"""
