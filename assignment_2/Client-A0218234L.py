@@ -35,10 +35,10 @@ def get_packet_header_seqnum(socket):
 
 	has_no_more_packets = False;
 
+	print("[LEN DATA]: " + str(len(data)));
+
 	if (len(data) == 0):
 		has_no_more_packets = True;
-
-	print(data);
 
 	return int(data.decode()), has_no_more_packets;
 
