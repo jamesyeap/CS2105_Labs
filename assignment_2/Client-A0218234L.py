@@ -34,7 +34,7 @@ def get_packet_header_seqnum(socket):
 	data = socket.recv(PACKET_HEADER_SEQNUM_SIZE);
 
 	if (len(data) == 0):
-		return (None, True);
+		return (b'1', True);
 
 	print("[NUM BYTES RECEIVED FOR SEQNUM]: "+ str(len(data)));
 
@@ -61,6 +61,8 @@ def get_packet(socket):
 	incoming_seqnum, has_no_more_packets = get_packet_header_seqnum(socket);
 	incoming_checksum = get_packet_header_checksum(socket);
 	incoming_data = get_packet_data(socket);
+
+	print("[HAS NO MORE PACKETS?]: " + str(has_no_more_packets));
 
 	return incoming_seqnum, incoming_checksum, incoming_data, has_no_more_packets;
 
