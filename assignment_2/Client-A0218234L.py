@@ -123,7 +123,7 @@ hasher = hashlib.md5();
 expectedSeqNum = 0;
 while (True):
 	try:
-		expectedSeqNum = receive_packet(socket, hasher, expectedSeqNum);
+		expectedSeqNum = receive_packet(clientSocket, hasher, expectedSeqNum);
 	except StopIteration:
 		print('[NO MORE DATA TO RECEIVE]');
 		break;
