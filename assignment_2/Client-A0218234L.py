@@ -34,11 +34,11 @@ def get_packet_header_seqnum(socket):
 	data = socket.recv(PACKET_HEADER_SEQNUM_SIZE);
 
 	if (len(data) == 0):
-		return None, True;
+		return (None, True);
 
 	print("[NUM BYTES RECEIVED FOR SEQNUM]: "+ str(len(data)));
 
-	return int(data.decode()), False;
+	return (int(data.decode()), False);
 
 def get_packet_header_checksum(socket):
 	data = socket.recv(PACKET_HEADER_CHECKSUM_SIZE);
