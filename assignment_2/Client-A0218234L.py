@@ -1,25 +1,16 @@
 import sys
 from socket import *
 import hashlib
-
-# numbers indicating the mode of the simulators
-RELIABLE_CHANNEL_MODE = 0;
-ERROR_CHANNEL_MODE = 1;
-REORDERING_CHANNEL_MODE = 2;
-
-# port numbers of the 3 channels
-RELIABLE_CHANNEL_PORT_NUMBER = 4445;
-ERROR_CHANNEL_PORT_NUMBER = 4446;
-REORDERING_CHANNEL_PORT_NUMBER = 4447;
+import zlib
 
 # request method codes
-REQUEST_CONNECTION = 'STID_';
+REQUEST_CONNECTION_HEADER = 'STID_';
 
 """ ---- HELPER FUNCTIONS -------------------------------------------------- """
 
-def create_request_message(method_code, data=''):
-	print('[SENDING REQUEST MESSAGE] ' + method_code + data); # TO REMOVE
-	return (method_code + data).encode();
+def send_connection_request(socket, student_key):
+	print('[SENDING REQUEST MESSAGE] ' + 'STID_' + student_key); # TO REMOVE
+	socket.send(('STID_' + student_key + '_C').encode());
 
 def get_response_message(socket):
 	return socket.recv(1024);
@@ -34,6 +25,69 @@ def wait_for_turn(socket):
 
 		print("[QUEUE_NUMBER]: " + str(queue_len)); # TO REMOVE
 		queue_len = get_response_message(socket);
+
+def send_ack(socket, nextExpectedSeqNum):
+	ackMessage = ("A" + str(nextExpectedSeqNum)).encode();
+	socket.send(ackMessage);
+
+def send_nack(socket, requiredSeqNum):
+	nackMessage = ("B" + str(requiredSeqNum)).encode();
+	socket.send(nackMessage);
+
+def get_packet_header_field(socket):
+	data = b'';
+
+	while (True):
+		incomingData = socket.recv(1);
+
+		if (len(incomingData) == 0):
+			raise StopIteration('NO MORE DATA');
+
+		if (incomingData == b'_'):
+			break;
+
+		data = data + incomingData;
+
+	return data, len(data)+1; # include "_", which takes up 1 byte
+
+def extract_packet_seqnum(socket):
+	packetSeqNum, num_bytes_of_packet = get_packet_header_field(socket);
+
+	return int(packetSeqNum.decode()), num_bytes_of_packet;
+
+def extract_packet_checksum(socket):
+	packetCheckSum, num_bytes_of_packet = get_packet_header_field(socket);
+
+	return int(packetCheckSum.decode()), num_bytes_of_packet;
+
+def extract_packet_data(socket, length_of_data):
+	packetData = socket.recv(length_of_data);
+
+	return packetData, len(packetData);
+	
+def is_not_corrupted(data, packetCheckSum):
+	dataReceivedCheckSum = zlib.crc32(s);
+
+	return dataReceivedCheckSum == packetCheckSum;
+
+def deliver(data, receiver):
+	# in this assignment, the "receiver" is the md5 object
+	receiver.update(data);
+
+def receive_packet(socket, receiver, expectedSeqNum):
+	packetSeqNum, seqNumLength = extract_packet_checksum(socket);
+	packetCheckSum, checkSumLength = extract_packet_checksum(socket);
+	packetData, num_bytes_received = extract_packet_data(socket, 1024 - seqNumLength - checkSumLength);
+
+	if (is_not_corrupted(packetData, packetCheckSum)):
+		nextExpectedSeqNum = expectedSeqNum + num_bytes_received
+		send_ack(nextExpectedSeqNum);
+
+		return nextExpectedSeqNum;
+	else:
+		send_nack(expectedSeqNum);
+
+		return expectedSeqNum;
 
 # ------ MAIN ----------------------------------------------------------------
 
@@ -57,7 +111,7 @@ print("[PARAM - OUTPUT_FILE_NAME]: " + output_file_name);
 """
 clientSocket = socket(AF_INET, SOCK_STREAM);
 clientSocket.connect((ip_address, port_num));
-clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_C'));
+send_connection_request(clientSocket, student_key);
 wait_for_turn(clientSocket);
 
 """ open the file where the hash is to be written to
@@ -66,22 +120,22 @@ wait_for_turn(clientSocket);
 fileToWriteTo = open(output_file_name, 'w+');
 hasher = hashlib.md5();
 
-num_bytes_received = 0;
+expectedSeqNum = 0;
 while (True):
-	dataReceived = clientSocket.recv(1024);
-
-	if (len(dataReceived) == 0):
+	try:
+		expectedSeqNum = receive_packet(socket, hasher, expectedSeqNum);
+	except StopIteration:
+		print('[NO MORE DATA TO RECEIVE]');
 		break;
-
-	num_bytes_received = num_bytes_received + len(dataReceived);
-	print("[NUM_BYTES_RECEIVED]: " + str(num_bytes_received));
-	
-	hasher.update(dataReceived);
 
 fileToWriteTo.write(hasher.hexdigest());
 
 fileToWriteTo.close();
 clientSocket.close();
+
+
+
+
 
 
 
