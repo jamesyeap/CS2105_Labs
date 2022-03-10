@@ -102,7 +102,7 @@ clientSocket.close();
 - to test the code:
 	python3 Client-A0218234L.py 651723 0 137.132.92.111 4445 output.txt
 - to run the reliable channel:
-	On Terminal 1: (Client) ./test/FileTransfer.sh -i 651723 -n    
+	On Terminal 1: (Client) ./test/FileTransfer.sh -i 651723 -n
 	On Terminal 2: (server) ./test/FileTransfer.sh -s -i 651723 -n
 	change the last option to
 		-e  for error channel
