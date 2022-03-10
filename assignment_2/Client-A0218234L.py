@@ -53,14 +53,14 @@ def get_packet_header_field(socket):
 def extract_packet_seqnum(socket):
 	packetSeqNum, num_bytes_of_packet = get_packet_header_field(socket);
 
-	print("[PACKET - SEQNUM]: " + packetSeqNum);
+	print("[PACKET - SEQNUM]: " + packetSeqNum.decode());
 
 	return int(packetSeqNum.decode()), num_bytes_of_packet;
 
 def extract_packet_checksum(socket):
 	packetCheckSum, num_bytes_of_packet = get_packet_header_field(socket);
 
-	print("[PACKET - CHECKSUM]: " + packetCheckSum);
+	print("[PACKET - CHECKSUM]: " + packetCheckSum.decode());
 
 	return int(packetCheckSum.decode()), num_bytes_of_packet;
 
