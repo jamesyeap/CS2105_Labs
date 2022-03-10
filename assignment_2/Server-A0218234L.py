@@ -126,7 +126,7 @@ clientSocket.close();
 	=============================================================================================
 
 - to run the reliable channel:
-	On Terminal 1: (Client) ./test/FileTransfer.sh -i 651723 -n    
+	On Terminal 1: (Client) ./test/FileTransfer.sh -i 651723 -n
 	On Terminal 2: (server) ./test/FileTransfer.sh -s -i 651723 -n
 
 	change the last option to
