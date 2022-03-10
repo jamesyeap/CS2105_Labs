@@ -33,7 +33,7 @@ MAX_PACKET_SIZE = 1024;
 def get_packet_header_seqnum(socket):
 	data = socket.recv(PACKET_HEADER_SEQNUM_SIZE);
 
-	print("[NUM BYTES RECEIVED FOR SEQNUM]: "+ str(len(data)));
+	# print("[NUM BYTES RECEIVED FOR SEQNUM]: "+ str(len(data)));
 
 	if (len(data) == 0):
 		return (None, True);
@@ -43,14 +43,14 @@ def get_packet_header_seqnum(socket):
 def get_packet_header_checksum(socket):
 	data = socket.recv(PACKET_HEADER_CHECKSUM_SIZE);
 
-	print("[NUM BYTES RECEIVED FOR CHECKSUM]: "+ str(len(data)));
+	# print("[NUM BYTES RECEIVED FOR CHECKSUM]: "+ str(len(data)));
 
 	return int(data.decode());
 
 def get_packet_data(socket):
 	data = socket.recv(MAX_PACKET_SIZE - PACKET_HEADER_SEQNUM_SIZE - PACKET_HEADER_CHECKSUM_SIZE);
 
-	print("[NUM BYTES RECEIVED FOR PACKET DATA]: "+ str(len(data)));
+	# print("[NUM BYTES RECEIVED FOR PACKET DATA]: "+ str(len(data)));
 
 	return data;
 
@@ -107,6 +107,9 @@ clientSocket = socket(AF_INET, SOCK_STREAM);
 clientSocket.connect((ip_address, port_num));
 send_connection_request(clientSocket, student_key);
 wait_for_turn(clientSocket);
+
+
+print(clientSocket.recv(1024).decode());
 
 """ STEP 3 (once it's our turn)
 	1. start reading-in packets sent from the server
