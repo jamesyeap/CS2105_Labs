@@ -3,10 +3,7 @@ from socket import *
 import hashlib
 import zlib
 
-# request method codes
-REQUEST_CONNECTION_HEADER = 'STID_';
-
-""" ---- HELPER FUNCTIONS -------------------------------------------------- """
+# ---- CONNECTION FUNCTIONS --------------------------------------------------
 
 def send_connection_request(socket, student_key):
 	print('[SENDING REQUEST MESSAGE] ' + 'STID_' + student_key); # TO REMOVE
@@ -26,83 +23,57 @@ def wait_for_turn(socket):
 		print("[QUEUE_NUMBER]: " + str(queue_len)); # TO REMOVE
 		queue_len = get_response_message(socket);
 
-def send_ack(socket, nextExpectedSeqNum):
-	ackMessage = ("A" + str(nextExpectedSeqNum)).encode();
+
+# ---- PACKET RECEIVE FUNCTIONS --------------------------------------------------
+
+PACKET_HEADER_SEQNUM_SIZE = 32;
+PACKET_HEADER_CHECKSUM_SIZE = 16;
+MAX_PACKET_SIZE = 1024;
+
+def get_packet_header_seqnum(socket):
+	data = socket.recv(PACKET_HEADER_SEQNUM_SIZE);
+
+	if len(data) == 0:
+		raise StopIteration('NO MORE PACKETS TO BE RECEIVED');
+
+	return int(data.decode());
+
+def get_packet_header_checksum(socket):
+	data = socket.recv(PACKET_HEADER_CHECKSUM_SIZE);
+
+	return int(data.decode());
+
+def get_packet_data(socket):
+	return socket.recv(MAX_PACKET_SIZE - PACKET_HEADER_SEQNUM_SIZE - PACKET_HEADER_CHECKSUM_SIZE);
+
+def data_is_not_corrupted(data, checksum):
+	dataChecksum = zlib.crc32(data);
+
+	return dataChecksum == checksum;
+
+def get_packet(socket):
+	incoming_seqnum = get_packet_header_seqnum(socket);
+	incoming_checksum = get_packet_header_checksum(socket);
+	incoming_data = get_packet_data(socket);
+
+	return incoming_seqnum, incoming_checksum, incoming_data;
+
+def send_ack(socket, next_expected_seqnum):
+	ackMessage = ("A" + str(next_expected_seqnum)).encode();
 	socket.send(ackMessage);
 
-def send_nack(socket, requiredSeqNum):
-	nackMessage = ("B" + str(requiredSeqNum)).encode();
+def send_nack(socket, required_seqnum):
+	nackMessage = ("B" + str(required_seqnum)).encode();
 	socket.send(nackMessage);
-
-def get_packet_header_field(socket):
-	data = b'';
-
-	while (True):
-		incomingData = socket.recv(1);
-
-		if (len(incomingData) == 0):
-			raise StopIteration('NO MORE DATA');
-
-		if (incomingData == b'_'):
-			break;
-
-		data = data + incomingData;
-
-
-	print("[LEN DATA:] " + str(len(data)+1));
-
-	return data, len(data)+1; # include "_", which takes up 1 byte
-
-def extract_packet_seqnum(socket):
-	packetSeqNum, num_bytes_of_packet = get_packet_header_field(socket);
-
-	print("[PACKET - SEQNUM]: " + packetSeqNum.decode());
-
-	return int(packetSeqNum.decode()), num_bytes_of_packet;
-
-def extract_packet_checksum(socket):
-	packetCheckSum, num_bytes_of_packet = get_packet_header_field(socket);
-
-	print("[PACKET - CHECKSUM]: " + packetCheckSum.decode());
-
-	return int(packetCheckSum.decode()), num_bytes_of_packet;
-
-def extract_packet_data(socket, length_of_data):
-	packetData = socket.recv(length_of_data);
-
-	return packetData, len(packetData);
-	
-def is_not_corrupted(data, packetCheckSum):
-	dataReceivedCheckSum = zlib.crc32(data);
-
-	return dataReceivedCheckSum == packetCheckSum;
-
-def deliver(data, receiver):
-	# in this assignment, the "receiver" is the md5 object
-	receiver.update(data);
-
-def receive_packet(socket, receiver, expectedSeqNum):
-	packetSeqNum, seqNumLength = extract_packet_seqnum(socket);
-	packetCheckSum, checkSumLength = extract_packet_checksum(socket);
-
-	print("[PACKET - SEQNUM - LENGTH]: " + str(seqNumLength));
-	print("[PACKET - CHECKSUM - LENGTH]: " + str(checkSumLength));
-	
-	packetData, num_bytes_received = extract_packet_data(socket, 1024 - seqNumLength - checkSumLength);
-
-	if (is_not_corrupted(packetData, packetCheckSum)):
-		nextExpectedSeqNum = expectedSeqNum + num_bytes_received
-		send_ack(socket, nextExpectedSeqNum);
-
-		return nextExpectedSeqNum;
-	else:
-		send_nack(socket, expectedSeqNum);
-
-		return expectedSeqNum;
 
 # ------ MAIN ----------------------------------------------------------------
 
-""" readin input params """
+""" STEP 1
+	1. readin input params
+	2. open the file where the hash is to be written to
+		if the file doesn't exist, create it
+	3. create an instance of the MD5 hasher
+"""
 student_key = sys.argv[1]; 		# get student key to establish connection with server
 mode = sys.argv[2]; 			# get the simulator mode
 ip_address = sys.argv[3]; 		# get the IP address of the machine running the simulators
@@ -115,74 +86,54 @@ print("[PARAM - IP_ADDRESS]: " + ip_address);
 print("[PARAM - port_num]: " + str(port_num));
 print("[PARAM - OUTPUT_FILE_NAME]: " + output_file_name);
 
-""" create client TCP socket
-	connect to the remote TCP socket
-	request connection
-	wait for our turn 
+file_to_write_to = open(output_file_name, 'w+');
+hasher = hashlib.md5();
+
+""" STEP 2
+	1. create client TCP socket
+	2. connect to the remote TCP socket
+	3. request connection
+	4. wait for our turn 
 """
 clientSocket = socket(AF_INET, SOCK_STREAM);
 clientSocket.connect((ip_address, port_num));
 send_connection_request(clientSocket, student_key);
 wait_for_turn(clientSocket);
 
-""" open the file where the hash is to be written to
-	if the file doesn't exist, create it
+""" STEP 3 (once it's our turn)
+	1. start reading-in packets sent from the server
 """
-fileToWriteTo = open(output_file_name, 'w+');
-hasher = hashlib.md5();
+cumulative_seqnum = 0;
 
-expectedSeqNum = 0;
 while (True):
 	try:
-		expectedSeqNum = receive_packet(clientSocket, hasher, expectedSeqNum);
-	except StopIteration:
-		print('[NO MORE DATA TO RECEIVE]');
+		incoming_seqnum, incoming_checksum, incoming_data = get_packet(clientSocket);
+
+		if (data_is_not_corrupted(incoming_data, incoming_checksum)):
+
+			# send successful acknowledgement to server
+			send_ack(clientSocket, incoming_seqnum);
+
+			# increment cumulative seqnum
+			length_of_data = len(incoming_data);
+			cumulative_seqnum = cumulative_seqnum + length_of_data;
+
+			# "deliver" data
+			hasher.update(incoming_data);
+
+		else:
+			send_nack(clientSocket, incoming_seqnum);
+
+	except StopIteration as e:
+		print(e);
 		break;
 
-fileToWriteTo.write(hasher.hexdigest());
-
-fileToWriteTo.close();
-clientSocket.close();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-""" =============================================================================================
-	======================== my own notes =======================================================
-	=============================================================================================
-
-- my student-key is 651723
-
-- to test the code:
-	python3 Client-A0218234L.py 651723 0 137.132.92.111 4445 output.txt
-
-- to run the reliable channel:
-	On Terminal 1: (Client) ./test/FileTransfer.sh -i 651723 -n    
-	On Terminal 2: (server) ./test/FileTransfer.sh -s -i 651723 -n
-
-	change the last option to
-		-e  for error channel
-		-r   for reorder channel
-		-A  for running all three tests.
-
-- link to faq:
-	https://docs.google.com/document/d/1biPpAvd8F7VPTqY2QDVU4XY4xfnWuTnRDM1VGq3usg8/edit#heading=h.65tkp2u5p4vz
-	
+""" STEP 4
+	1. get the MD5 hash of the file received from server
+	2. write the hash to the output file specified
+	3. close the output file
+	4. close the client socket
 """
+file_to_write_to.write(hasher.hexdigest());
+file_to_write_to.close();
+clientSocket.close();
