@@ -38,6 +38,8 @@ def get_packet_header_seqnum(socket):
 	if (len(data) == 0):
 		has_no_more_packets = True;
 
+	print(data);
+
 	return int(data.decode()), has_no_more_packets;
 
 def get_packet_header_checksum(socket):
