@@ -81,7 +81,7 @@ def deliver(data, receiver):
 def receive_packet(socket, receiver, expectedSeqNum):
 	packetSeqNum, seqNumLength = extract_packet_checksum(socket);
 	packetCheckSum, checkSumLength = extract_packet_checksum(socket);
-	packetData, num_bytes_received = extract_packet_data(socket, 1009);
+	packetData, num_bytes_received = extract_packet_data(socket, 1024 - 11 - 10);
 
 	if (is_not_corrupted(packetData, packetCheckSum)):
 		nextExpectedSeqNum = expectedSeqNum + num_bytes_received
