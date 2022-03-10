@@ -30,7 +30,7 @@ PACKET_HEADER_CHECKSUM_SIZE = 16;
 def make_seqnum_header(seqnum):
 	seqnum_header = str(seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
 
-	print("[OUTGOING SEQNUM]: " + str(seqnum));
+	# print("[OUTGOING SEQNUM]: " + str(seqnum));
 
 	return seqnum_header;
 
@@ -38,7 +38,7 @@ def make_checksum_header(data):
 	checksum = zlib.crc32(data);
 	checksum_header = str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
 
-	print("[OUTGOING CHECKSUM]: " + str(checksum));
+	# print("[OUTGOING CHECKSUM]: " + str(checksum));
 
 	return checksum_header;
 
@@ -97,6 +97,9 @@ while (True):
 		break;
 
 	packet = make_packet(data_to_send, cumulative_seqnum);
+
+	print("[SENT OUT PACKET OF TOTAL SIZE]: " + str(length_of_data));
+	
 	clientSocket.send(packet);
 
 	cumulative_seqnum = cumulative_seqnum + length_of_data;
