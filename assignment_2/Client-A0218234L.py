@@ -36,6 +36,8 @@ def get_packet_header_seqnum(socket):
 	if (len(data) == 0):
 		return None, True;
 
+	print("[DATA RECEIVED FOR SEQNUM]: "+ str(data));
+
 	return int(data.decode()), False;
 
 def get_packet_header_checksum(socket):
