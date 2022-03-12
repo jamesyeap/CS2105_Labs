@@ -61,31 +61,28 @@ def get_message_until_size_reached(socket, total_length):
 def get_packet_seqnum(socket):
 	seqnum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
 
-	# print("[seqnum]: " + seqnum_inbytes.decode());
+	print("[seqnum]: " + seqnum_inbytes.decode());
 
 	return seqnum_inbytes;
 
 def get_packet_checksum(socket):
 	checksum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_CHECKSUM_SIZE);
 
-	# print("[checksum]: " + checksum_inbytes.decode());
+	print("[checksum]: " + checksum_inbytes.decode());
 
 	return checksum_inbytes;
 
 def get_packet_length(socket):
 	packet_length_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_LENGTH_SIZE);
 
-	# print("[packet_length_inbytes] " + packet_length_inbytes.decode());
+	print("[packet_length_inbytes] " + packet_length_inbytes.decode());
 
 	return packet_length_inbytes;
 
 def get_packet_header(socket):
 	seqnum = int(get_packet_seqnum(socket).decode());
-	print("1");
 	checksum = int(get_packet_checksum(socket).decode());
-	print("2");
 	data_payload_length = int(get_packet_length(socket).decode());
-	print("3");
 
 	return seqnum, checksum, data_payload_length;
 
