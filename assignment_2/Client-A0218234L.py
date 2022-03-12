@@ -120,6 +120,8 @@ clientSocket.connect((ip_address, port_num));
 clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_C'));
 wait_for_turn(clientSocket);
 
+print("====== STARTING NOW =======");
+
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb');
 

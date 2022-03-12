@@ -81,6 +81,8 @@ clientSocket.connect((ip_address, port_num));
 clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_S'));
 wait_for_turn(clientSocket);
 
+print("====== STARTING NOW =======");
+
 """ open the file to be sent """
 input_fd = open(input_file_name, 'rb');
 
