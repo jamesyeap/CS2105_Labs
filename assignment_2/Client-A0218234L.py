@@ -73,9 +73,11 @@ def get_packet(socket):
 
 	packet_data = get_message_until_size_reached(socket, total_length);
 
+	""" TODO
 	if (is_corrupted(packet_data, checksum)):
-		# TODO: send_nack(seqnum)
-		# TODO: return None;
+		send_nack(seqnum)
+		return None;
+	"""
 
 	return packet_data;
 
