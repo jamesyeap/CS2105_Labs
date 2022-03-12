@@ -99,13 +99,15 @@ while (data_payload_length != 0):
 	length_header = generate_length_header(data_payload_length);
 
 	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
-	clientSocket.send(packet);
+	clientSocket.sendall(packet);
 	print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
 
 	curr_seqnum = curr_seqnum + 1;
 	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
 	data_payload_length = len(data_payload);
 
+
+clientSocket.send();
 clientSocket.close();
 
 
