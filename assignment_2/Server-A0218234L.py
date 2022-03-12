@@ -106,7 +106,7 @@ while (data_payload_length != 0):
 	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
 	data_payload_length = len(data_payload);
 
-clientSocket.close();
+# clientSocket.close();
 
 
 
