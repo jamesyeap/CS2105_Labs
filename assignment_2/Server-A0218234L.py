@@ -92,9 +92,9 @@ while (True):
 	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
 	data_payload_length = len(data_payload);
 
-	if (data_payload_length == 0):
-		print("ALL DATA SENT")
-		break;
+	# if (data_payload_length == 0):
+	# 	print("ALL DATA SENT")
+	# 	break;
 
 	seqnum_header = generate_seqnum_header(curr_seqnum);
 	checksum_header = generate_checksum_header(data_payload);
