@@ -44,11 +44,11 @@ ip_address = sys.argv[3]; 		# get the IP address of the machine running the simu
 port_num = int(sys.argv[4]); 	# get the port number of the TCP socket of the simulator on the machine
 output_file_name = sys.argv[5]; # get the name of the file to write the hash to
 
-print("[PARAM - STUDENT_KEY]: " + student_key);
-print("[PARAM - MODE]: " + mode);
-print("[PARAM - IP_ADDRESS]: " + ip_address);
-print("[PARAM - port_num]: " + str(port_num));
-print("[PARAM - OUTPUT_FILE_NAME]: " + output_file_name);
+# print("[PARAM - STUDENT_KEY]: " + student_key);
+# print("[PARAM - MODE]: " + mode);
+# print("[PARAM - IP_ADDRESS]: " + ip_address);
+# print("[PARAM - port_num]: " + str(port_num));
+# print("[PARAM - OUTPUT_FILE_NAME]: " + output_file_name);
 
 """ create client TCP socket
 	connect to the remote TCP socket
@@ -63,20 +63,16 @@ wait_for_turn(clientSocket);
 """ open the file where the hash is to be written to
 	if the file doesn't exist, create it
 """
-fileToWriteTo = open(output_file_name, 'w+');
-hasher = hashlib.md5();
+output_fd = open(output_file_name, 'w');
 
 while (True):
-	dataReceived = clientSocket.recv(1024);
+	packet = clientSocket.recv(1024);
+	output_fd.write(packet);
 
-	if (len(dataReceived) == 0):
+	if (len(packet) == 0):
 		break;
 
-	hasher.update(dataReceived);
-
-fileToWriteTo.write(hasher.hexdigest());
-
-fileToWriteTo.close();
+output_fd.close();
 clientSocket.close();
 
 
