@@ -93,18 +93,16 @@ def get_packet(socket):
 
 	if (indicator == PACKET_HEADER_INDICATOR_INCOMING_PACKET):
 		seqnum, checksum, data_payload_length = get_packet_header(socket);
+		packet_data = get_message_until_size_reached(socket, data_payload_length);
+		return packet_data;
 	else:
 		return None;
-
-	packet_data = get_message_until_size_reached(socket, data_payload_length);
 
 	""" TODO
 	if (is_corrupted(packet_data, checksum)):
 		send_nack(seqnum)
 		return None;
 	"""
-
-	return packet_data;
 
 # ----- MAIN -----------------------------------------------------------------
 
