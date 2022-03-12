@@ -44,7 +44,7 @@ def get_message_until_size_reached(socket, total_length):
 	data = b'';
 	length_received = 0;
 
-	print("hello")
+	# print("hello")
 
 	while (True):
 		if (length_received == total_length):
@@ -68,14 +68,14 @@ def get_packet_seqnum(socket):
 def get_packet_checksum(socket):
 	checksum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_CHECKSUM_SIZE);
 
-	print("[checksum]: " + checksum_inbytes.decode());
+	# print("[checksum]: " + checksum_inbytes.decode());
 
 	return checksum_inbytes;
 
 def get_packet_length(socket):
 	packet_length_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_LENGTH_SIZE);
 
-	print("[packet_length_inbytes] " + packet_length_inbytes.decode());
+	# print("[packet_length_inbytes] " + packet_length_inbytes.decode());
 
 	return packet_length_inbytes;
 
