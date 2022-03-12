@@ -40,9 +40,6 @@ PACKET_HEADER_SEQNUM_SIZE = 6;
 PACKET_HEADER_CHECKSUM_SIZE = 10;
 PACKET_HEADER_LENGTH_SIZE = 4;
 
-def get_packet_header_indicator(socket):
-	return socket.recv(1);
-
 def get_message_until_size_reached(socket, total_length):
 	data = b'';
 	length_received = 0;
@@ -88,12 +85,11 @@ def get_packet_header(socket):
 	return seqnum, checksum, data_payload_length;
 
 def get_packet(socket):
-	indicator = get_packet_header_indicator(socket);
-
-	print(indicator);
-
-	# if (indicator == PACKET_HEADER_INDICATOR_INCOMING_PACKET):
 	seqnum, checksum, data_payload_length = get_packet_header(socket);
+
+	if (data_payload_length == 0):
+		return None;
+
 	packet_data = get_message_until_size_reached(socket, data_payload_length);
 
 	return packet_data;
@@ -134,10 +130,11 @@ output_fd = open(output_file_name, 'wb');
 
 while (True):
 	packet_data = get_packet(clientSocket);
-	output_fd.write(packet_data);
 
 	if (packet_data == None):
 		break;
+
+	output_fd.write(packet_data);
 
 output_fd.close();
 clientSocket.close();
