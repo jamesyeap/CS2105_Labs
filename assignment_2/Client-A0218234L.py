@@ -91,16 +91,9 @@ def get_packet(socket):
 
 	if (data_payload_length == 0):
 		return None;
-
-	packet_data = get_message_until_size_reached(socket, data_payload_length);
-
-	return packet_data;
-
-	""" TODO
-	if (is_corrupted(packet_data, checksum)):
-		send_nack(seqnum)
-		return None;
-	"""
+	else:
+		packet_data = get_message_until_size_reached(socket, data_payload_length);
+		return packet_data;
 
 # ----- MAIN -----------------------------------------------------------------
 
