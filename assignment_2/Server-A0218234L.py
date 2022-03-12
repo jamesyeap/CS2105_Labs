@@ -1,21 +1,12 @@
 import sys
 from socket import *
 import hashlib
-
-# numbers indicating the mode of the simulators
-RELIABLE_CHANNEL_MODE = 0;
-ERROR_CHANNEL_MODE = 1;
-REORDERING_CHANNEL_MODE = 2;
-
-# port numbers of the 3 channels
-RELIABLE_CHANNEL_PORT_NUMBER = 4445;
-ERROR_CHANNEL_PORT_NUMBER = 4446;
-REORDERING_CHANNEL_PORT_NUMBER = 4447;
+import zlib
 
 # request method codes
 REQUEST_CONNECTION = 'STID_';
 
-""" ---- HELPER FUNCTIONS -------------------------------------------------- """
+# ---- HELPER FUNCTIONS ------------------------------------------------------
 
 def create_request_message(method_code, data=''):
 	print('[SENDING REQUEST MESSAGE] ' + method_code + data); # TO REMOVE
@@ -24,9 +15,10 @@ def create_request_message(method_code, data=''):
 def get_response_message(socket):
 	return socket.recv(64);
 
+# ---- CONNECTION FUNCTIONS -------------------------------------------------------
+
 def wait_for_turn(socket):
 	queue_len = get_response_message(socket);
-	print(queue_len); # TO REMOVE
 
 	while (True):
 		if (queue_len == b'0_'):
@@ -34,6 +26,26 @@ def wait_for_turn(socket):
 
 		print(queue_len); # TO REMOVE
 		queue_len = get_response_message(socket);
+
+# ----- GENERATE PACKET FUNCTIONS --------------------------------------------
+
+PACKET_HEADER_SEQNUM_SIZE = 6;
+PACKET_HEADER_CHECKSUM_SIZE = 10;
+PACKET_HEADER_LENGTH_SIZE = 4;
+
+def generate_seqnum_header(curr_seqnum):
+	return str(curr_seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
+
+def generate_checksum_header(data):
+	checksum = zlib.crc32(packet_data);
+
+	return str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
+
+def generate_length_header(data_length):
+	return str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0');
+
+def generate_packet(seqnum_header, checksum_header, length_header, data):
+	return seqnum_header + checksum_header + length_header + data;
 
 # ------ MAIN ----------------------------------------------------------------
 
@@ -60,10 +72,10 @@ clientSocket.connect((ip_address, port_num));
 clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_S'));
 wait_for_turn(clientSocket);
 
-""" open the file to be sent
-"""
+""" open the file to be sent """
 input_fd = open(input_file_name, 'rb');
 
+"""
 while (True):
 	packet = input_fd.read(1024);
 
@@ -71,6 +83,24 @@ while (True):
 		break;
 
 	clientSocket.send(packet);
+"""
+
+curr_seqnum = 0;
+while (True):
+	data = input_fd.read(1024);
+	data_length = len(data);
+
+	if (data_length == 0):
+		break;
+
+	seqnum_header = generate_seqnum_header(curr_seqnum);
+	checksum_header = generate_checksum_header(data);
+	length_header = generate_length_header(data_length);
+
+	packet = generate_packet(seqnum_header, checksum_header, length_header, data);
+
+	clientSocket.send(packet);
+	curr_seqnum = curr_seqnum + 1;
 
 clientSocket.close();
 
