@@ -93,9 +93,6 @@ while (True):
 	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
 	data_payload_length = len(data_payload);
 
-	print(data_payload_length);
-	print(type(data_payload));
-
 	seqnum_header = generate_seqnum_header(curr_seqnum);
 	checksum_header = generate_checksum_header(data_payload);
 	length_header = generate_length_header(data_payload_length);
@@ -103,7 +100,9 @@ while (True):
 	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
 
 	clientSocket.send(packet);
+
 	print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
+
 	curr_seqnum = curr_seqnum + 1;
 
 	if (data_payload_length == 0):
