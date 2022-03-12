@@ -101,9 +101,6 @@ while (True):
 
 	print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
 
-	# if (data_payload_length == 0):
-	# 	break;
-
 clientSocket.close();
 
 
