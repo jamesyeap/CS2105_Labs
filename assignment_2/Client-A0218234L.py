@@ -46,9 +46,6 @@ def get_message_until_size_reached(socket, total_length):
 
 	print("hello")
 
-	if (total_length == 0):
-		return None;
-
 	while (True):
 		if (length_received == total_length):
 			break;
@@ -126,15 +123,24 @@ wait_for_turn(clientSocket);
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb');
 
+# while (True):
+# 	packet_data = get_packet(clientSocket);
+
+# 	print("------------------------------------------------------------------");
+
+# 	if (packet_data == None):
+# 		break;
+
+# 	output_fd.write(packet_data);
+
 while (True):
-	packet_data = get_packet(clientSocket);
+	packet_data = clientSocket.recv(1024);
 
-	print("------------------------------------------------------------------");
-
-	if (packet_data == None):
+	if (len(packet_data) == 0):
 		break;
 
 	output_fd.write(packet_data);
+
 
 output_fd.close();
 clientSocket.close();
