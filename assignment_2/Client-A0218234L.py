@@ -90,6 +90,8 @@ def get_packet_header(socket):
 def get_packet(socket):
 	indicator = get_packet_header_indicator(socket);
 
+	print(indicator);
+
 	if (indicator == PACKET_HEADER_INDICATOR_INCOMING_PACKET):
 		seqnum, checksum, data_payload_length = get_packet_header(socket);
 		packet_data = get_message_until_size_reached(socket, data_payload_length);
