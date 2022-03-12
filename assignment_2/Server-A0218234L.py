@@ -116,7 +116,7 @@ while (True):
 
 	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
 
-	clientSocket.send(packet;
+	clientSocket.send(packet);
 	curr_seqnum = curr_seqnum + 1;
 
 clientSocket.close();
