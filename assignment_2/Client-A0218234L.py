@@ -79,10 +79,13 @@ def get_packet_length(socket):
 
 def get_packet_header(socket):
 	seqnum = int(get_packet_seqnum(socket).decode());
+	print("1");
 	checksum = int(get_packet_checksum(socket).decode());
+	print("2");
 	data_payload_length = int(get_packet_length(socket).decode());
+	print("3");
 
-	print("({}, {}, {})".format(seqnum, checksum, data_payload_length)); 
+	# print("({}, {}, {})".format(seqnum, checksum, data_payload_length)); 
 
 	return seqnum, checksum, data_payload_length;
 
