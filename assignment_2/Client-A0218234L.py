@@ -136,11 +136,10 @@ output_fd = open(output_file_name, 'wb');
 
 while (True):
 	packet_data = get_packet(clientSocket);
+	output_fd.write(packet_data);
 
 	if (packet_data == None):
 		break;
-
-	output_fd.write(packet_data);
 
 output_fd.close();
 clientSocket.close();
@@ -182,7 +181,7 @@ clientSocket.close();
 	python3 Client-A0218234L.py 651723 0 137.132.92.111 4445 myownoutput.txt
 
 	python3 Server-A0218234L.py 651723 0 137.132.92.111 4445 myowninput.txt
-	
+
 - to run the reliable channel:
 	On Terminal 1: (Client) ./test/FileTransfer.sh -i 651723 -n
 	On Terminal 2: (server) ./test/FileTransfer.sh -s -i 651723 -n
