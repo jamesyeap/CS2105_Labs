@@ -64,17 +64,11 @@ wait_for_turn(clientSocket);
 	if the file doesn't exist, create it
 """
 fileToWriteTo = open(output_file_name, 'w+');
-hasher = hashlib.md5();
 
 while (True):
 	dataReceived = clientSocket.recv(1024);
 
-	if (len(dataReceived) == 0):
-		break;
-
-	hasher.update(dataReceived);
-
-fileToWriteTo.write(hasher.hexdigest());
+	fileToWriteTo.write(dataReceived);
 
 fileToWriteTo.close();
 clientSocket.close();
