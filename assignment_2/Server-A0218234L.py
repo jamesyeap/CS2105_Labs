@@ -100,7 +100,7 @@ while (True):
 	clientSocket.send(packet);
 	curr_seqnum = curr_seqnum + 1;
 
-	print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
+	# print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
 
 clientSocket.close();
 
