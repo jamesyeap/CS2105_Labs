@@ -126,6 +126,8 @@ output_fd = open(output_file_name, 'wb');
 while (True):
 	packet_data = get_packet(clientSocket);
 
+	print("------------------------------------------------------------------");
+
 	if (packet_data == None):
 		break;
 
