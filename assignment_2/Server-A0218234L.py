@@ -88,25 +88,27 @@ MAX_PACKET_SIZE = 1024;
 MAX_PACKET_DATA_SIZE = MAX_PACKET_SIZE - (PACKET_HEADER_SEQNUM_SIZE + PACKET_HEADER_CHECKSUM_SIZE + PACKET_HEADER_LENGTH_SIZE);
 
 curr_seqnum = 0;
-
-data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
-data_payload_length = len(data_payload);
-
-while (data_payload_length != 0):
+while (True):
+	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
+	data_payload_length = len(data_payload);
 
 	seqnum_header = generate_seqnum_header(curr_seqnum);
 	checksum_header = generate_checksum_header(data_payload);
 	length_header = generate_length_header(data_payload_length);
 
-	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
-	clientSocket.sendall(packet);
-	print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
+	if (data_payload_length == 0):
+		clientSocket.send(b'A');
+		clientSocket.send(b'A');
+		clientSocket.send(b'A');
+		packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
+		clientSocket.send(packet);
+		break;
+	else:
+		packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
+		clientSocket.send(packet);
+		print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
+		curr_seqnum = curr_seqnum + 1;
 
-	curr_seqnum = curr_seqnum + 1;
-	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
-	data_payload_length = len(data_payload);
-
-clientSocket.send(b'A');
 clientSocket.close();
 
 

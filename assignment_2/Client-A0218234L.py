@@ -134,7 +134,7 @@ output_fd = open(output_file_name, 'wb');
 # 	output_fd.write(packet_data);
 
 while (True):
-	packet_data = get_packet(clientSocket);
+	packet_data = clientSocket.recv(1024);
 	print(packet_data);
 
 
