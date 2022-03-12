@@ -90,7 +90,6 @@ def get_packet(socket):
 	seqnum, checksum, data_payload_length = get_packet_header(socket);
 
 	if (data_payload_length == 0):
-		print("hello")
 		return None;
 
 	packet_data = get_message_until_size_reached(socket, data_payload_length);
