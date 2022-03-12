@@ -61,7 +61,7 @@ def get_message_until_size_reached(socket, total_length):
 def get_packet_seqnum(socket):
 	seqnum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
 
-	print("[seqnum]: " + seqnum_inbytes.decode());
+	# print("[seqnum]: " + seqnum_inbytes.decode());
 
 	return seqnum_inbytes;
 
