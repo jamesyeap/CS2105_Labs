@@ -128,6 +128,12 @@ function getFileNameIn()
     myresult="test/input/${mode}${size_val}.dat"
     echo "$myresult"
 }
+function getFileNameInHash()
+{
+    local  myresult=''
+    myresult="test/input/${mode}${size_val}.hash"
+    echo "$myresult"
+}
 function getPortNum()
 {
     local  myresult=''
@@ -153,8 +159,9 @@ function check_md5()
   if ! $run_server ; then
     echo "generating the md5 digest and comparing"
     fileNameIn=$(getFileNameIn)
-    md5_org=($(md5sum $fileNameIn))
-    md5_client=$(cat $fileName)
+    fileNameInHash=$(getFileNameInHash)
+    md5_org=$(cat $fileNameInHash)
+    md5_client=($(md5sum $fileName))
     echo "correct  digest:" $md5_org
     echo "client's digest:" $md5_client
 
@@ -169,6 +176,11 @@ function check_md5()
       echo -e "${size_val} ${RED}Test Failed${NOCOLOR}"
       echo
     fi
+    # needed to ensure we wait for the simulator to flush old connection
+    sleep 5
+  else
+    # to compensate for the time taken by client to generate the hash
+    sleep 10
   fi
 }
 
@@ -216,7 +228,6 @@ if $run_test_no_error ; then
   mode=0
   size_val='_small'
   execute_test
-  sleep 5
   size_val='_large'
   execute_test
 fi
@@ -225,7 +236,6 @@ if $run_test_error ; then
   mode=1
   size_val='_small'
   execute_test
-  sleep 5
   size_val='_large'
   execute_test
 fi
@@ -234,7 +244,6 @@ if $run_test_reorder ; then
   mode=2
   size_val='_small'
   execute_test
-  sleep 5
   size_val='_large'
   execute_test
 fi

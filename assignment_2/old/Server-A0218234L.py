@@ -1,16 +1,25 @@
 import sys
 from socket import *
 import hashlib
-import zlib
+
+# numbers indicating the mode of the simulators
+RELIABLE_CHANNEL_MODE = 0;
+ERROR_CHANNEL_MODE = 1;
+REORDERING_CHANNEL_MODE = 2;
+
+# port numbers of the 3 channels
+RELIABLE_CHANNEL_PORT_NUMBER = 4445;
+ERROR_CHANNEL_PORT_NUMBER = 4446;
+REORDERING_CHANNEL_PORT_NUMBER = 4447;
 
 # request method codes
 REQUEST_CONNECTION = 'STID_';
 
 """ ---- HELPER FUNCTIONS -------------------------------------------------- """
 
-def send_connection_request(socket, student_key):
-	print('[SENDING REQUEST MESSAGE] ' + 'STID_' + student_key); # TO REMOVE
-	socket.send(('STID_' + student_key + '_S').encode());
+def create_request_message(method_code, data=''):
+	print('[SENDING REQUEST MESSAGE] ' + method_code + data); # TO REMOVE
+	return (method_code + data).encode();
 
 def get_response_message(socket):
 	return socket.recv(64);
@@ -23,31 +32,8 @@ def wait_for_turn(socket):
 		if (queue_len == b'0_'):
 			break;
 
-		print("[QUEUE_NUMBER]: " + str(queue_len)); # TO REMOVE
+		print(queue_len); # TO REMOVE
 		queue_len = get_response_message(socket);
-
-
-""" ---- PACKET CREATION FUNCTIONS ------------------------------------------- """
-
-PACKET_HEADER_SEQNUM_SIZE = 32;
-PACKET_HEADER_CHECKSUM_SIZE = 16;
-MAX_PACKET_SIZE = 1024;
-
-def make_seqnum_header(seqnum):
-	seqnum_header = str(seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
-
-	return seqnum_header;
-
-def make_checksum_header(data):
-	checksum = zlib.crc32(data);
-	checksum_header = str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
-
-	return checksum_header;
-
-def make_packet(data, seqnum):
-	packet_header = make_seqnum_header(seqnum) + make_checksum_header(data);
-
-	return packet_header + data; 
 
 # ------ MAIN ----------------------------------------------------------------
 
@@ -71,27 +57,21 @@ print("[PARAM - INPUT_FILE_NAME]: " + input_file_name);
 """
 clientSocket = socket(AF_INET, SOCK_STREAM);
 clientSocket.connect((ip_address, port_num));
-send_connection_request(clientSocket, student_key);
+clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_S'));
 wait_for_turn(clientSocket);
+
 
 """ open the file to be sent
 """
 filetosend = open(input_file_name, 'rb');
 
-seqNum = 0;
 while (True):
+	dataToSend = filetosend.read(1024);
 
-	dataToSend = filetosend.read(MAX_SIZE_OF_DATA);
-	num_bytes_of_data = len(dataToSend);
-
-	if (num_bytes_of_data == 0):
+	if (len(dataToSend) == 0):
 		break;
 
-	packetToSend = make_packet(dataToSend, seqNum);
-	clientSocket.send(packetToSend);
-
-	seqNum = seqNum + num_bytes_of_data;
-	# print("[NUM_BYTES_SENT]: " + str(seqNum));
+	clientSocket.send(dataToSend);
 
 clientSocket.close();
 
@@ -109,11 +89,7 @@ clientSocket.close();
 """ =============================================================================================
 	======================== my own notes =======================================================
 	=============================================================================================
-
 - my student-key is 651723
-
 - to test the code,
 	python3 Server-A0218234L.py 651723 0 137.132.92.111 4445 hello.txt
-
-
 """
