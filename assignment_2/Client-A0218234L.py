@@ -85,8 +85,6 @@ def get_packet_header(socket):
 	data_payload_length = int(get_packet_length(socket).decode());
 	print("3");
 
-	# print("({}, {}, {})".format(seqnum, checksum, data_payload_length)); 
-
 	return seqnum, checksum, data_payload_length;
 
 def get_packet(socket):

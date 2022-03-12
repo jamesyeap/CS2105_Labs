@@ -103,6 +103,7 @@ while (True):
 	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
 
 	clientSocket.send(packet);
+	print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
 	curr_seqnum = curr_seqnum + 1;
 
 	if (data_payload_length == 0):
