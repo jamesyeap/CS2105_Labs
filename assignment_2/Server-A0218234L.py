@@ -105,9 +105,9 @@ while (True):
 
 	curr_seqnum = curr_seqnum + 1;
 
-	if (data_payload_length == 0):
-		print("ALL DATA SENT")
-		break;
+	# if (data_payload_length == 0):
+	# 	print("ALL DATA SENT")
+	# 	break;
 
 clientSocket.close();
 
