@@ -49,17 +49,17 @@ def get_message_until_size_reached(socket, total_length):
 
 	while (True):
 		incoming_data = socket.recv(1);
+		incoming_data_length = len(incoming_data);
 
 		if (length_received == total_length):
 			break;
 
 		data = data + incoming_data;
-		total_length = total_length + length_received;
+		length_received = length_received + incoming_data_length;
 
 	return data;
 
 def get_packet_seqnum(socket):
-	print("hello-");
 	seqnum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
 
 	print("[seqnum]: " + seqnum_inbytes.decode());
