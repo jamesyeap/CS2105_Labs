@@ -94,6 +94,7 @@ while (True):
 	data_payload_length = len(data_payload);
 
 	print(data_payload_length);
+	print(type(data_payload));
 
 	seqnum_header = generate_seqnum_header(curr_seqnum);
 	checksum_header = generate_checksum_header(data_payload);
