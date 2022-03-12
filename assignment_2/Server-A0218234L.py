@@ -37,7 +37,7 @@ def generate_seqnum_header(curr_seqnum):
 	return str(curr_seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
 
 def generate_checksum_header(data):
-	checksum = zlib.crc32(packet_data);
+	checksum = zlib.crc32(data);
 
 	return str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
 
