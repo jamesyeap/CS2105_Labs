@@ -92,7 +92,6 @@ def get_packet(socket):
 	if (indicator == PACKET_HEADER_INDICATOR_INCOMING_PACKET):
 		seqnum, checksum, data_payload_length = get_packet_header();
 	else
-		# meaning indicator == PACKET_HEADER_INDICATOR_END_TRANSMISSION
 		return None;
 
 	packet_data = get_message_until_size_reached(socket, data_payload_length);
