@@ -37,19 +37,19 @@ PACKET_HEADER_CHECKSUM_SIZE = 10;
 PACKET_HEADER_LENGTH_SIZE = 4;
 
 def generate_seqnum_header(curr_seqnum):
-	print(str(curr_seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0'));
+	# print(str(curr_seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0'));
 
 	return str(curr_seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
 
 def generate_checksum_header(data):
 	checksum = zlib.crc32(data);
 
-	print(str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0'));
+	# print(str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0'));
 
 	return str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
 
 def generate_length_header(data_length):
-	print(str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0'));
+	# print(str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0'));
 	
 	return str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0');
 
