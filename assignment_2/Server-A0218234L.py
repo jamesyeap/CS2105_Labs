@@ -106,8 +106,8 @@ while (True):
 	print(data_payload_length);
 
 	if (data_payload_length == 0):
+		clientSocket.send(PACKET_HEADER_INDICATOR_END_TRANSMISSION);
 		print("ALL DATA SENT")
-		clientSocket.send(PACKET_HEADER_INDICATOR_END_TRANSMISSION.encode());
 		break;
 
 	seqnum_header = generate_seqnum_header(curr_seqnum);
