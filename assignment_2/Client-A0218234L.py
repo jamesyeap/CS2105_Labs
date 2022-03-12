@@ -136,9 +136,6 @@ output_fd = open(output_file_name, 'wb');
 while (True):
 	packet_data = clientSocket.recv(1024);
 
-	if (len(packet_data) == 0):
-		break;
-
 	output_fd.write(packet_data);
 
 
