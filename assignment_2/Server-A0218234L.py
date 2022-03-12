@@ -89,6 +89,9 @@ MAX_PACKET_DATA_SIZE = MAX_PACKET_SIZE - (PACKET_HEADER_SEQNUM_SIZE + PACKET_HEA
 
 curr_seqnum = 0;
 while (True):
+	if (data_payload_length == 0):
+		print("ALL DATA SENT")
+		break;
 
 	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
 	data_payload_length = len(data_payload);
@@ -104,10 +107,6 @@ while (True):
 	print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
 
 	curr_seqnum = curr_seqnum + 1;
-
-	# if (data_payload_length == 0):
-	# 	print("ALL DATA SENT")
-	# 	break;
 
 clientSocket.close();
 

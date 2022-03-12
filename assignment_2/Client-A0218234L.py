@@ -123,19 +123,19 @@ wait_for_turn(clientSocket);
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb');
 
+while (True):
+	packet_data = get_packet(clientSocket);
+
+	print("------------------------------------------------------------------");
+
+	if (packet_data == None):
+		break;
+
+	output_fd.write(packet_data);
+
 # while (True):
 # 	packet_data = get_packet(clientSocket);
-
-# 	print("------------------------------------------------------------------");
-
-# 	if (packet_data == None):
-# 		break;
-
-# 	output_fd.write(packet_data);
-
-while (True):
-	packet_data = clientSocket.recv(1024);
-	print(packet_data);
+# 	print(packet_data);
 
 
 output_fd.close();
