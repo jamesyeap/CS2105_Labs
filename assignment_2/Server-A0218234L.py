@@ -109,6 +109,7 @@ while (True):
 		print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
 		curr_seqnum = curr_seqnum + 1;
 
+print("EXITING NOW");
 clientSocket.close();
 
 
