@@ -59,6 +59,7 @@ def get_message_until_size_reached(socket, total_length):
 	return data;
 
 def get_packet_seqnum(socket):
+	print("hello-");
 	seqnum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
 
 	print("[seqnum]: " + seqnum_inbytes.decode());
@@ -89,12 +90,10 @@ def get_packet_header(socket):
 def get_packet(socket):
 	indicator = get_packet_header_indicator(socket);
 
-	print(indicator);
-
 	if (indicator == PACKET_HEADER_INDICATOR_INCOMING_PACKET):
-		print("hello");
 		seqnum, checksum, data_payload_length = get_packet_header(socket);
 		packet_data = get_message_until_size_reached(socket, data_payload_length);
+
 		return packet_data;
 	else:
 		return None;
