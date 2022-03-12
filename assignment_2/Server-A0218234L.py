@@ -99,10 +99,10 @@ while (True):
 	checksum_header = generate_checksum_header(data_payload);
 	length_header = generate_length_header(data_payload_length);
 
+	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
+
 	clientSocket.send(packet);
 	curr_seqnum = curr_seqnum + 1;
-
-	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
 
 	if (data_payload_length == 0):
 		print("ALL DATA SENT")
