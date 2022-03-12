@@ -67,11 +67,10 @@ output_fd = open(output_file_name, 'w+');
 
 while (True):
 	packet = clientSocket.recv(1024);
+	output_fd.write(packet);
 
 	if (len(packet) == 0):
 		break;
-
-	output_fd.write(packet);
 
 output_fd.close();
 clientSocket.close();
