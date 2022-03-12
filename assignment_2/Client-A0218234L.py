@@ -92,7 +92,7 @@ def get_packet(socket):
 	if (data_payload_length_inbytes == b'0000'):
 		return None;
 	else:
-		packet_data = get_message_until_size_reached(socket, data_payload_length);
+		packet_data = get_message_until_size_reached(socket, int(data_payload_length_inbytes.decode()));
 		return packet_data;
 
 # ----- MAIN -----------------------------------------------------------------
