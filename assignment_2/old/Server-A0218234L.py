@@ -60,18 +60,17 @@ clientSocket.connect((ip_address, port_num));
 clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_S'));
 wait_for_turn(clientSocket);
 
-
 """ open the file to be sent
 """
-filetosend = open(input_file_name, 'rb');
+input_fd = open(input_file_name, 'rb');
 
 while (True):
-	dataToSend = filetosend.read(1024);
+	packet = input_fd.read(1024);
 
-	if (len(dataToSend) == 0):
+	if (len(packet) == 0):
 		break;
 
-	clientSocket.send(dataToSend);
+	clientSocket.send(packet);
 
 clientSocket.close();
 

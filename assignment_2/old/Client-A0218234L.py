@@ -63,10 +63,14 @@ wait_for_turn(clientSocket);
 """ open the file where the hash is to be written to
 	if the file doesn't exist, create it
 """
-output_fd = open(output_file_name, 'w');
+output_fd = open(output_file_name, 'w+');
 
 while (True):
 	packet = clientSocket.recv(1024);
+
+	if (len(packet) == 0):
+		break;
+
 	output_fd.write(packet);
 
 output_fd.close();
