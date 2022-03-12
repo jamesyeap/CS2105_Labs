@@ -89,12 +89,12 @@ MAX_PACKET_DATA_SIZE = MAX_PACKET_SIZE - (PACKET_HEADER_SEQNUM_SIZE + PACKET_HEA
 
 curr_seqnum = 0;
 while (True):
+	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
+	data_payload_length = len(data_payload);
+
 	if (data_payload_length == 0):
 		print("ALL DATA SENT")
 		break;
-
-	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
-	data_payload_length = len(data_payload);
 
 	seqnum_header = generate_seqnum_header(curr_seqnum);
 	checksum_header = generate_checksum_header(data_payload);
