@@ -50,7 +50,7 @@ def generate_checksum_header(data):
 
 def generate_length_header(data_length):
 	# print(str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0'));
-	
+
 	return str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0');
 
 def generate_packet(seqnum_header, checksum_header, length_header, data):
@@ -99,6 +99,9 @@ MAX_PACKET_DATA_SIZE = MAX_PACKET_SIZE - 1 - (PACKET_HEADER_SEQNUM_SIZE + PACKET
 
 curr_seqnum = 0;
 while (True):
+	
+	print(curr_seqnum);
+
 	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
 	data_payload_length = len(data_payload);
 
