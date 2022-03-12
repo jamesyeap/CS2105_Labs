@@ -48,17 +48,16 @@ def get_message_until_size_reached(socket, total_length):
 	length_received = 0;
 
 	while (True):
-		
+
 		print(data);
+
+		if (length_received == total_length):
+			break;
 
 		incoming_data = socket.recv(1);
 		incoming_data_length = len(incoming_data);
 
 		data = data + incoming_data;
-
-		if (length_received == total_length):
-			break;
-
 		length_received = length_received + incoming_data_length;
 
 	return data;
