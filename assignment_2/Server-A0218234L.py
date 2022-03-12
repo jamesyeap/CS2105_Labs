@@ -99,13 +99,14 @@ MAX_PACKET_DATA_SIZE = MAX_PACKET_SIZE - 1 - (PACKET_HEADER_SEQNUM_SIZE + PACKET
 
 curr_seqnum = 0;
 while (True):
-	
+
 	print(curr_seqnum);
 
 	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
 	data_payload_length = len(data_payload);
 
 	if (data_payload_length == 0):
+		print("ALL DATA SENT")
 		clientSocket.send(PACKET_HEADER_INDICATOR_END_TRANSMISSION);
 		break;
 
