@@ -33,9 +33,15 @@ def is_corrupted(packet_data, packet_checksum):
 
 	return generated_checksum != packet_checksum;
 
+PACKET_HEADER_INDICATOR_INCOMING_PACKET = b'P';
+PACKET_HEADER_INDICATOR_END_TRANSMISSION = b'E';
+
 PACKET_HEADER_SEQNUM_SIZE = 6;
 PACKET_HEADER_CHECKSUM_SIZE = 10;
 PACKET_HEADER_LENGTH_SIZE = 4;
+
+def get_packet_header_indicator(socket):
+	return socket.recv(1);
 
 def get_message_until_size_reached(socket, total_length):
 	data = b'';
@@ -76,14 +82,19 @@ def get_packet_length(socket):
 def get_packet_header(socket):
 	seqnum = int(get_packet_seqnum(socket).decode());
 	checksum = int(get_packet_checksum(socket).decode());
-	length = int(get_packet_length(socket).decode());
+	data_payload_length = int(get_packet_length(socket).decode());
 
-	return seqnum, checksum, length;
+	return seqnum, checksum, data_payload_length;
 
 def get_packet(socket):
-	seqnum, checksum, length = get_packet_header();
+	indicator = get_packet_header_indicator();
 
-	packet_data = get_message_until_size_reached(socket, total_length);
+	if (indicator == PACKET_HEADER_INDICATOR_INCOMING_PACKET):
+		seqnum, checksum, data_payload_length = get_packet_header();
+	else # indicator == PACKET_HEADER_INDICATOR_END_TRANSMISSION
+		return None;
+
+	packet_data = get_message_until_size_reached(socket, data_payload_length);
 
 	""" TODO
 	if (is_corrupted(packet_data, checksum)):
@@ -122,11 +133,12 @@ wait_for_turn(clientSocket);
 output_fd = open(output_file_name, 'wb');
 
 while (True):
-	packet = clientSocket.recv(1024);
-	output_fd.write(packet);
+	packet_data = get_packet(clientSocket);
 
-	if (len(packet) == 0):
+	if (packet_data == None):
 		break;
+
+	output_fd.write(packet_data);
 
 output_fd.close();
 clientSocket.close();

@@ -29,6 +29,9 @@ def wait_for_turn(socket):
 
 # ----- GENERATE PACKET FUNCTIONS --------------------------------------------
 
+PACKET_HEADER_INDICATOR_INCOMING_PACKET = b'P';
+PACKET_HEADER_INDICATOR_END_TRANSMISSION = b'E';
+
 PACKET_HEADER_SEQNUM_SIZE = 6;
 PACKET_HEADER_CHECKSUM_SIZE = 10;
 PACKET_HEADER_LENGTH_SIZE = 4;
@@ -45,7 +48,7 @@ def generate_length_header(data_length):
 	return str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0');
 
 def generate_packet(seqnum_header, checksum_header, length_header, data):
-	return seqnum_header + checksum_header + length_header + data;
+	return PACKET_HEADER_INDICATOR_INCOMING_PACKET + seqnum_header + checksum_header + length_header + data;
 
 # ------ MAIN ----------------------------------------------------------------
 
@@ -85,19 +88,23 @@ while (True):
 	clientSocket.send(packet);
 """
 
+MAX_PACKET_SIZE = 1024;
+MAX_PACKET_DATA_SIZE = MAX_PACKET_SIZE - 1 - (PACKET_HEADER_INDICATOR_SEQNUM + PACKET_HEADER_CHECKSUM_SIZE + PACKET_HEADER_LENGTH_SIZE);
+
 curr_seqnum = 0;
 while (True):
-	data = input_fd.read(1024);
-	data_length = len(data);
+	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
+	data_payload_length = len(data);
 
-	if (data_length == 0):
+	if (data_payload_length == 0):
+		clientSocket.send(PACKET_HEADER_INDICATOR_END_TRANSMISSION);
 		break;
 
 	seqnum_header = generate_seqnum_header(curr_seqnum);
-	checksum_header = generate_checksum_header(data);
-	length_header = generate_length_header(data_length);
+	checksum_header = generate_checksum_header(data_payload);
+	length_header = generate_length_header(data_payload_length);
 
-	packet = generate_packet(seqnum_header, checksum_header, length_header, data);
+	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
 
 	clientSocket.send(packet);
 	curr_seqnum = curr_seqnum + 1;
