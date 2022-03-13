@@ -104,6 +104,8 @@ while (True):
 	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
 	padded_packet = generate_padded_packet(packet, MAX_PACKET_SIZE);
 
+	print("[PADDED PACKET LENGTH]: " + str(len(packet)));
+
 	clientSocket.send(padded_packet);
 	curr_seqnum = curr_seqnum + 1;
 
