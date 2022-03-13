@@ -14,7 +14,7 @@ def create_request_message(method_code, data=''):
 	return (method_code + data).encode();
 
 def get_response_message(socket):
-	return socket.recv(1024);
+	return socket.recv(32);
 
 # ---- CONNECTION FUNCTIONS -------------------------------------------------------
 
@@ -176,7 +176,7 @@ while (True):
 
 	if (packet_status == Status.OK):
 		output_fd.write(packet_data);
-		# send_ack(clientSocket, packet_seqnum);
+		send_ack(clientSocket, packet_seqnum);
 
 	if (packet_status == Status.IS_CORRUPTED):
 		print("===== IS CORRUPTED ======");
