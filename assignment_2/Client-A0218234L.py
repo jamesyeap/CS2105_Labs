@@ -28,15 +28,10 @@ def wait_for_turn(socket):
 
 # ----- RECEIVE PACKET FUNCTIONS ---------------------------------------------
 
-def is_corrupted(packet_data, packet_checksum):
-	generated_checksum = zlib.crc32(packet_data);
-
-	return generated_checksum != packet_checksum;
-
 PACKET_HEADER_INDICATOR_INCOMING_PACKET = b'P';
 PACKET_HEADER_INDICATOR_END_TRANSMISSION = b'E';
 
-PACKET_SIZE = 1024;
+SERVER_PACKET_SIZE = 1024;
 PACKET_HEADER_SEQNUM_SIZE = 6;
 PACKET_HEADER_CHECKSUM_SIZE = 10;
 PACKET_HEADER_LENGTH_SIZE = 4;
@@ -60,48 +55,76 @@ def get_message_until_size_reached(socket, total_length):
 
 def get_packet_seqnum(socket):
 	seqnum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
+	seqnum = int(seqnum_inbytes.decode());
 
-	print("[seqnum]: " + seqnum_inbytes.decode());
+	print("[seqnum]: " + str(seqnum));
 
-	return seqnum_inbytes;
+	return seqnum;
 
 def get_packet_checksum(socket):
 	checksum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_CHECKSUM_SIZE);
+	checksum = int(checksum_inbytes.decode());
 
-	print("[checksum]: " + checksum_inbytes.decode());
+	print("[checksum]: " + str(checksum));
 
-	return checksum_inbytes;
+	return checksum;
 
-def get_packet_length(socket):
-	packet_length_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_LENGTH_SIZE);
+def get_data_payload_length(socket):
+	data_payload_length_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_LENGTH_SIZE);
+	data_payload_length = int(data_payload_length_inbytes.decode());
 
-	print("[packet_length_inbytes] " + packet_length_inbytes.decode());
+	print("[data_payload_length] " + str(data_payload_length));
 
-	return packet_length_inbytes;
+	return data_payload_length;
 
 def get_packet_header(socket):
-	seqnum_inbytes = get_packet_seqnum(socket);
-	checksum_inbytes = get_packet_checksum(socket);
-	data_payload_length_inbytes = get_packet_length(socket);
+	seqnum = get_packet_seqnum(socket);
+	checksum = get_packet_checksum(socket);
+	data_payload_length = get_data_payload_length(socket);
 
-	return seqnum_inbytes, checksum_inbytes, data_payload_length_inbytes;
+	return seqnum, checksum, data_payload_length;
 
 def remove_excess_padding(socket, padding_size):
 	get_message_until_size_reached(socket, padding_size);
 
-def get_packet(socket):
-	seqnum_inbytes, checksum_inbytes, data_payload_length_inbytes = get_packet_header(socket);
+def is_corrupted(packet_data, packet_checksum):
+	generated_checksum = zlib.crc32(packet_data);
 
-	if (data_payload_length_inbytes == b'0000'):
+	return generated_checksum != packet_checksum;
+
+def get_packet(socket):
+	seqnum, checksum, data_payload_length = get_packet_header(socket);
+
+	if (data_payload_length == 0):
 		return None;
 	else:
-		packet_data_payload_length = int(data_payload_length_inbytes.decode());
-		packet_data = get_message_until_size_reached(socket, packet_data_payload_length);
+		packet_data = get_message_until_size_reached(socket, data_payload_length);
 
-		padding_size = PACKET_SIZE - packet_data_payload_length - TOTAL_PACKET_HEADER_SIZE;
+		padding_size = SERVER_PACKET_SIZE - data_payload_length - TOTAL_PACKET_HEADER_SIZE;
 		remove_excess_padding(socket, padding_size);
 
+		if (is_corrupted(packet_data, checksum)):
+			print("is_corrupted");
+
 		return packet_data;
+
+# ----- GENERATE ACK PACKET FUNCTIONS ----------------------------------------
+
+CLIENT_PACKET_SIZE = 64;
+
+def generate_padded_packet(packet, target_length):
+	return packet.ljust(target_length, b'0');
+
+def generate_ack_packet(seqnum):
+	encoded_seqnum = str(seqnum).encode();
+	checksum = zlib.crc32(encoded_seqnum);
+	encoded_checksum = str(checksum).encode();
+
+	ack_header = encoded_seqnum.rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
+
+	packet = ack_header + encoded_checksum;
+
+	return generate_padded_packet(packet, CLIENT_PACKET_SIZE);
 
 # ----- MAIN -----------------------------------------------------------------
 

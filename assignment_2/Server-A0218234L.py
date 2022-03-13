@@ -89,8 +89,8 @@ print("====== STARTING NOW =======");
 """ open the file to be sent """
 input_fd = open(input_file_name, 'rb');
 
-PACKET_SIZE = 1024;
-MAX_PACKET_DATA_SIZE = PACKET_SIZE - (PACKET_HEADER_SEQNUM_SIZE + PACKET_HEADER_CHECKSUM_SIZE + PACKET_HEADER_LENGTH_SIZE);
+SERVER_PACKET_SIZE = 1024;
+MAX_PACKET_DATA_SIZE = SERVER_PACKET_SIZE - (PACKET_HEADER_SEQNUM_SIZE + PACKET_HEADER_CHECKSUM_SIZE + PACKET_HEADER_LENGTH_SIZE);
 
 curr_seqnum = 0;
 while (True):
@@ -102,14 +102,12 @@ while (True):
 	length_header = generate_length_header(data_payload_length);
 
 	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
-	padded_packet = generate_padded_packet(packet, PACKET_SIZE);
-
-	print("[PADDED PACKET LENGTH]: " + str(len(padded_packet)));
+	padded_packet = generate_padded_packet(packet, SERVER_PACKET_SIZE);
 
 	clientSocket.send(padded_packet);
 	curr_seqnum = curr_seqnum + 1;
 
-	print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
+	print("[sent]: ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
 
 	if (data_payload_length == 0):
 		print("ALL DATA SENT");
