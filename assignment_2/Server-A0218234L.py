@@ -42,11 +42,13 @@ def generate_seqnum_header(curr_seqnum):
 	return str(curr_seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
 
 def generate_checksum_header(data):
-	checksum = zlib.crc32(data);
+	# checksum = zlib.crc32(data);
+	dummy_checksum = 2853332358;
 
 	# print(str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0'));
 
-	return str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
+	# return str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
+	return str(dummy_checksum).encode();
 
 def generate_length_header(data_length):
 	# print(str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0'));
