@@ -24,7 +24,7 @@ def wait_for_turn(socket):
 		if (queue_len == b'0_'):
 			break;
 
-		print(queue_len); # TO REMOVE
+		print("[POSITION IN QUEUE]: " + str(queue_len)); # TO REMOVE
 		queue_len = get_response_message(socket);
 
 # ----- GENERATE PACKET FUNCTIONS --------------------------------------------
