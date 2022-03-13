@@ -87,7 +87,7 @@ def get_message_until_size_reached(socket, total_length):
 def get_packet_ack_inbytes(socket):
 	ack_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
 
-	print("[ack]: " + ack_inbytes);
+	print("[ack]: " + ack_inbytes.decode());
 
 	return ack_inbytes;
 
