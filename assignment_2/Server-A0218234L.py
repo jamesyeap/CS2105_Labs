@@ -13,7 +13,7 @@ def create_request_message(method_code, data=''):
 	return (method_code + data).encode();
 
 def get_response_message(socket):
-	return socket.recv(64);
+	return socket.recv(32);
 
 # ---- CONNECTION FUNCTIONS -------------------------------------------------------
 
@@ -27,14 +27,19 @@ def wait_for_turn(socket):
 		print("[POSITION IN QUEUE]: " + str(queue_len)); # TO REMOVE
 		queue_len = get_response_message(socket);
 
-# ----- GENERATE PACKET FUNCTIONS --------------------------------------------
-
-PACKET_HEADER_INDICATOR_INCOMING_PACKET = b'P';
-PACKET_HEADER_INDICATOR_END_TRANSMISSION = b'E';
+# ----- IMPORTANT INFO -------------------------------------------------------
 
 PACKET_HEADER_SEQNUM_SIZE = 6;
 PACKET_HEADER_CHECKSUM_SIZE = 10;
 PACKET_HEADER_LENGTH_SIZE = 4;
+
+SERVER_PACKET_SIZE = 1024;
+MAX_PACKET_DATA_SIZE = SERVER_PACKET_SIZE - (PACKET_HEADER_SEQNUM_SIZE + PACKET_HEADER_CHECKSUM_SIZE + PACKET_HEADER_LENGTH_SIZE);
+
+CLIENT_PACKET_SIZE = 64;
+CLIENT_PACKET_PADDING_SIZE = CLIENT_PACKET_SIZE - PACKET_HEADER_SEQNUM_SIZE - PACKET_HEADER_CHECKSUM_SIZE;
+
+# ----- GENERATE PACKET FUNCTIONS --------------------------------------------
 
 def generate_seqnum_header(curr_seqnum):
 	# print(str(curr_seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0'));
@@ -59,6 +64,64 @@ def generate_packet(seqnum_header, checksum_header, length_header, data):
 def generate_padded_packet(packet, target_length):
 	return packet.ljust(target_length, b'0');
 
+
+# -------- RECEIVE ACK PACKET FUNCTIONS --------------------------------------
+
+def get_message_until_size_reached(socket, total_length):
+	data = b'';
+	length_received = 0;
+
+	while (True):
+		if (length_received == total_length):
+			break;
+
+		incoming_data = socket.recv(total_length - length_received);
+		incoming_data_length = len(incoming_data);
+
+		data = data + incoming_data;
+		length_received = length_received + incoming_data_length;
+
+	return data;
+
+def get_packet_ack(socket):
+	ack_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
+	ack = int(ack_inbytes.decode());
+
+	print("[ack]: str(ack)");
+
+	return ack;
+
+def get_packet_checksum(socket):
+	checksum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_CHECKSUM_SIZE);
+	checksum = int(checksum_inbytes.decode());
+
+	print("[checksum]: " + str(checksum));
+
+	return checksum;
+
+def remove_excess_padding(socket, padding_size):
+	get_message_until_size_reached(socket, padding_size);
+
+def is_corrupted(packet_data, packet_checksum):
+	generated_checksum = zlib.crc32(packet_data);
+
+	return generated_checksum != packet_checksum;
+
+class Status(Enum):
+	OK = 0;
+	IS_CORRUPTED = 1;
+
+def get_packet(socket):
+	ack = get_packet_ack(socket);
+	checksum = get_packet_checksum(socket);
+
+	remove_excess_padding(socket, CLIENT_PACKET_PADDING_SIZE);
+
+	if (is_corrupted(ack, checksum)):
+		return None, Status.IS_CORRUPTED;
+
+	return ack, Status.OK;
+	 
 # ------ MAIN ----------------------------------------------------------------
 
 """ readin input params """
@@ -89,9 +152,6 @@ print("====== STARTING NOW =======");
 """ open the file to be sent """
 input_fd = open(input_file_name, 'rb');
 
-SERVER_PACKET_SIZE = 1024;
-MAX_PACKET_DATA_SIZE = SERVER_PACKET_SIZE - (PACKET_HEADER_SEQNUM_SIZE + PACKET_HEADER_CHECKSUM_SIZE + PACKET_HEADER_LENGTH_SIZE);
-
 curr_seqnum = 0;
 while (True):
 	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
@@ -106,11 +166,16 @@ while (True):
 
 	clientSocket.send(padded_packet);
 	curr_seqnum = curr_seqnum + 1;
-
 	print("[sent]: ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
 
+	ack, packet_status = get_packet(clientSocket);
+	if (packet_status == Status.IS_CORRUPTED):
+		print("<== ACK PACKET IS CORRUPTED ==>";)
+	if (packet_status == Status.OK):
+		print("[RECEIVED ACK]: ", str(ack));
+
 	if (data_payload_length == 0):
-		print("ALL DATA SENT");
+		print("====== ALL DATA SENT ======");
 		break;
 
 clientSocket.close();
