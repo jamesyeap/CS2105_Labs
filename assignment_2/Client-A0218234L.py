@@ -176,7 +176,7 @@ while (True):
 
 	if (packet_status == Status.OK):
 		output_fd.write(packet_data);
-		send_ack(clientSocket, packet_seqnum);
+		# send_ack(clientSocket, packet_seqnum);
 
 	if (packet_status == Status.IS_CORRUPTED):
 		print("===== IS CORRUPTED ======");
