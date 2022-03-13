@@ -93,6 +93,9 @@ def get_packet(socket):
 		return None;
 	else:
 		packet_data = get_message_until_size_reached(socket, int(data_payload_length_inbytes.decode()));
+
+		print(packet_data);
+		
 		return packet_data;
 
 # ----- MAIN -----------------------------------------------------------------
