@@ -56,6 +56,9 @@ def generate_length_header(data_length):
 def generate_packet(seqnum_header, checksum_header, length_header, data):
 	return seqnum_header + checksum_header + length_header + data;
 
+def generate_padded_packet(packet, target_length):
+	return packet.rjust(target_length, b'0');
+
 # ------ MAIN ----------------------------------------------------------------
 
 """ readin input params """
@@ -99,10 +102,16 @@ while (True):
 	length_header = generate_length_header(data_payload_length);
 
 	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
-	clientSocket.send(packet);
+	padded_packet = generate_padded_packet(packet, MAX_PACKET_SIZE);
+
+	clientSocket.send(padded_packet);
 	curr_seqnum = curr_seqnum + 1;
 
-	# print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
+	print("sent ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
+
+	if (data_payload_length == 0):
+		print("ALL DATA SENT");
+		break;
 
 clientSocket.close();
 
