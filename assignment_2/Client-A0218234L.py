@@ -130,10 +130,10 @@ def get_packet(socket):
 		padding_size = SERVER_PACKET_SIZE - data_payload_length - TOTAL_PACKET_HEADER_SIZE;
 		remove_excess_padding(socket, padding_size);
 
-		if (!is_corrupted(packet_data, checksum)):
-			return seqnum, packet_data, Status.OK;
-
-		return seqnum, None, Status.IS_CORRUPTED;
+		if (is_corrupted(packet_data, checksum)):
+			return seqnum, None, Status.IS_CORRUPTED;
+		
+		return seqnum, packet_data, Status.OK;
 
 # ----- MAIN -----------------------------------------------------------------
 
