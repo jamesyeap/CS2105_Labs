@@ -57,7 +57,7 @@ def generate_packet(seqnum_header, checksum_header, length_header, data):
 	return seqnum_header + checksum_header + length_header + data;
 
 def generate_padded_packet(packet, target_length):
-	return packet.rjust(target_length, b'0');
+	return packet.ljust(target_length, b'0');
 
 # ------ MAIN ----------------------------------------------------------------
 
@@ -89,8 +89,8 @@ print("====== STARTING NOW =======");
 """ open the file to be sent """
 input_fd = open(input_file_name, 'rb');
 
-MAX_PACKET_SIZE = 1024;
-MAX_PACKET_DATA_SIZE = MAX_PACKET_SIZE - (PACKET_HEADER_SEQNUM_SIZE + PACKET_HEADER_CHECKSUM_SIZE + PACKET_HEADER_LENGTH_SIZE);
+PACKET_SIZE = 1024;
+MAX_PACKET_DATA_SIZE = PACKET_SIZE - (PACKET_HEADER_SEQNUM_SIZE + PACKET_HEADER_CHECKSUM_SIZE + PACKET_HEADER_LENGTH_SIZE);
 
 curr_seqnum = 0;
 while (True):
@@ -102,7 +102,7 @@ while (True):
 	length_header = generate_length_header(data_payload_length);
 
 	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
-	padded_packet = generate_padded_packet(packet, MAX_PACKET_SIZE);
+	padded_packet = generate_padded_packet(packet, PACKET_SIZE);
 
 	print("[PADDED PACKET LENGTH]: " + str(len(padded_packet)));
 

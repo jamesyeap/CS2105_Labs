@@ -36,9 +36,11 @@ def is_corrupted(packet_data, packet_checksum):
 PACKET_HEADER_INDICATOR_INCOMING_PACKET = b'P';
 PACKET_HEADER_INDICATOR_END_TRANSMISSION = b'E';
 
+PACKET_SIZE = 1024;
 PACKET_HEADER_SEQNUM_SIZE = 6;
 PACKET_HEADER_CHECKSUM_SIZE = 10;
 PACKET_HEADER_LENGTH_SIZE = 4;
+TOTAL_PACKET_HEADER_SIZE = PACKET_HEADER_SEQNUM_SIZE + PACKET_HEADER_CHECKSUM_SIZE + PACKET_HEADER_LENGTH_SIZE;
 
 def get_message_until_size_reached(socket, total_length):
 	data = b'';
@@ -86,13 +88,24 @@ def get_packet_header(socket):
 
 	return seqnum_inbytes, checksum_inbytes, data_payload_length_inbytes;
 
+def remove_excess_padding(socket, padding_size):
+	length_received = 0;
+
+	while (length_received != padding_size):
+		useless_padding = socket.recv(1);
+		length_received = length_received + len(useless_padding);
+
 def get_packet(socket):
 	seqnum_inbytes, checksum_inbytes, data_payload_length_inbytes = get_packet_header(socket);
 
 	if (data_payload_length_inbytes == b'0000'):
 		return None;
 	else:
-		packet_data = get_message_until_size_reached(socket, int(data_payload_length_inbytes.decode()));
+		packet_data_payload_length = int(data_payload_length_inbytes.decode());
+		packet_data = get_message_until_size_reached(socket, packet_data_payload_length);
+
+		padding_size = PACKET_SIZE - packet_data_payload_length - TOTAL_PACKET_HEADER_SIZE;
+		remove_excess_padding(socket, padding_size);
 
 		return packet_data;
 
@@ -126,17 +139,17 @@ print("====== STARTING NOW =======");
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb');
 
-# while (True):
-# 	packet_data = get_packet(clientSocket);
-
-# 	if (packet_data == None):
-# 		break;
-
-# 	output_fd.write(packet_data);
-
 while (True):
-	packet_data = clientSocket.recv(1024);
-	print(packet_data);
+	packet_data = get_packet(clientSocket);
+
+	if (packet_data == None):
+		break;
+
+	output_fd.write(packet_data);
+
+# while (True):
+# 	packet_data = clientSocket.recv(1024);
+# 	print(packet_data);
 
 
 output_fd.close();
