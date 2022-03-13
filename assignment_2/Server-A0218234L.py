@@ -2,6 +2,7 @@ import sys
 from socket import *
 import hashlib
 import zlib
+from enum import Enum
 
 # request method codes
 REQUEST_CONNECTION = 'STID_';
