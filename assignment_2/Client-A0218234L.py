@@ -2,6 +2,7 @@ import sys
 from socket import *
 import hashlib
 import zlib
+from enum import Enum
 
 # request method codes
 REQUEST_CONNECTION = 'STID_';
@@ -26,16 +27,37 @@ def wait_for_turn(socket):
 			
 		queue_len = get_response_message(socket);
 
-# ----- RECEIVE PACKET FUNCTIONS ---------------------------------------------
 
-PACKET_HEADER_INDICATOR_INCOMING_PACKET = b'P';
-PACKET_HEADER_INDICATOR_END_TRANSMISSION = b'E';
+# ----- IMPORTANT INFO -------------------------------------------------------
 
 SERVER_PACKET_SIZE = 1024;
 PACKET_HEADER_SEQNUM_SIZE = 6;
 PACKET_HEADER_CHECKSUM_SIZE = 10;
 PACKET_HEADER_LENGTH_SIZE = 4;
 TOTAL_PACKET_HEADER_SIZE = PACKET_HEADER_SEQNUM_SIZE + PACKET_HEADER_CHECKSUM_SIZE + PACKET_HEADER_LENGTH_SIZE;
+
+CLIENT_PACKET_SIZE = 64;
+
+# ----- GENERATE ACK PACKET FUNCTIONS ----------------------------------------
+
+def generate_padded_packet(packet, target_length):
+	return packet.ljust(target_length, b'0');
+
+def generate_ack_packet(seqnum):
+	encoded_seqnum = str(seqnum).encode();
+	checksum = zlib.crc32(encoded_seqnum);
+	encoded_checksum = str(checksum).encode();
+
+	ack_header = encoded_seqnum.rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
+
+	packet = ack_header + encoded_checksum;
+
+	return generate_padded_packet(packet, CLIENT_PACKET_SIZE);
+
+def send_ack(socket, seqnum):
+	socket.send(generate_ack_packet(seqnum));
+
+# ----- RECEIVE PACKET FUNCTIONS ---------------------------------------------
 
 def get_message_until_size_reached(socket, total_length):
 	data = b'';
@@ -92,39 +114,26 @@ def is_corrupted(packet_data, packet_checksum):
 
 	return generated_checksum != packet_checksum;
 
+class Status(Enum):
+	OK = 0;
+	IS_CORRUPTED = 1;
+	NO_MORE_DATA = 2;
+
 def get_packet(socket):
 	seqnum, checksum, data_payload_length = get_packet_header(socket);
 
 	if (data_payload_length == 0):
-		return None;
+		return seqnum, None, Status.NO_MORE_DATA;
 	else:
 		packet_data = get_message_until_size_reached(socket, data_payload_length);
 
 		padding_size = SERVER_PACKET_SIZE - data_payload_length - TOTAL_PACKET_HEADER_SIZE;
 		remove_excess_padding(socket, padding_size);
 
-		if (is_corrupted(packet_data, checksum)):
-			print("is_corrupted");
+		if (!is_corrupted(packet_data, checksum)):
+			return seqnum, packet_data, Status.OK;
 
-		return packet_data;
-
-# ----- GENERATE ACK PACKET FUNCTIONS ----------------------------------------
-
-CLIENT_PACKET_SIZE = 64;
-
-def generate_padded_packet(packet, target_length):
-	return packet.ljust(target_length, b'0');
-
-def generate_ack_packet(seqnum):
-	encoded_seqnum = str(seqnum).encode();
-	checksum = zlib.crc32(encoded_seqnum);
-	encoded_checksum = str(checksum).encode();
-
-	ack_header = encoded_seqnum.rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
-
-	packet = ack_header + encoded_checksum;
-
-	return generate_padded_packet(packet, CLIENT_PACKET_SIZE);
+		return seqnum, None, Status.IS_CORRUPTED;
 
 # ----- MAIN -----------------------------------------------------------------
 
@@ -156,18 +165,24 @@ print("====== STARTING NOW =======");
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb');
 
+cumulative_seqnum = 0;
 while (True):
-	packet_data = get_packet(clientSocket);
+	packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
-	if (packet_data == None):
+	if (packet_status == Status.NO_MORE_DATA):
+		print("===== ALL DATA RECEIVED =====");
 		break;
 
-	output_fd.write(packet_data);
+	if (packet_status == Status.OK):
+		output_fd.write(packet_data);
+		send_ack(socket, seqnum);
+
+	if (packet_status == Status.IS_CORRUPTED):
+		print("===== IS CORRUPTED ======");
 
 # while (True):
 # 	packet_data = clientSocket.recv(1024);
 # 	print(packet_data);
-
 
 output_fd.close();
 clientSocket.close();
