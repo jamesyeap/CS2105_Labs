@@ -46,13 +46,11 @@ def get_message_until_size_reached(socket, total_length):
 	data = b'';
 	length_received = 0;
 
-	# print("hello")
-
 	while (True):
 		if (length_received == total_length):
 			break;
 
-		incoming_data = socket.recv(1);
+		incoming_data = socket.recv(total_length - length_received);
 		incoming_data_length = len(incoming_data);
 
 		data = data + incoming_data;
@@ -89,11 +87,7 @@ def get_packet_header(socket):
 	return seqnum_inbytes, checksum_inbytes, data_payload_length_inbytes;
 
 def remove_excess_padding(socket, padding_size):
-	length_received = 0;
-
-	while (length_received != padding_size):
-		useless_padding = socket.recv(1);
-		length_received = length_received + len(useless_padding);
+	get_message_until_size_reached(socket, padding_size);
 
 def get_packet(socket):
 	seqnum_inbytes, checksum_inbytes, data_payload_length_inbytes = get_packet_header(socket);
