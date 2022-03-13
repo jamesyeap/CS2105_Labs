@@ -170,7 +170,7 @@ while (True):
 
 	ack, packet_status = get_packet(clientSocket);
 	if (packet_status == Status.IS_CORRUPTED):
-		print("<== ACK PACKET IS CORRUPTED ==>";)
+		print("<== ACK PACKET IS CORRUPTED ==>");
 	if (packet_status == Status.OK):
 		print("[RECEIVED ACK]: ", str(ack));
 
