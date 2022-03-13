@@ -84,13 +84,12 @@ def get_message_until_size_reached(socket, total_length):
 
 	return data;
 
-def get_packet_ack(socket):
+def get_packet_ack_inbytes(socket):
 	ack_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
-	ack = int(ack_inbytes.decode());
 
-	print("[ack]: str(ack)");
+	print("[ack]: " + ack_inbytes);
 
-	return ack;
+	return ack_inbytes;
 
 def get_packet_checksum(socket):
 	checksum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_CHECKSUM_SIZE);
@@ -113,13 +112,15 @@ class Status(Enum):
 	IS_CORRUPTED = 1;
 
 def get_packet(socket):
-	ack = get_packet_ack(socket);
+	ack_inbytes = get_packet_ack_inbytes(socket);
 	checksum = get_packet_checksum(socket);
 
 	remove_excess_padding(socket, CLIENT_PACKET_PADDING_SIZE);
 
-	if (is_corrupted(ack, checksum)):
+	if (is_corrupted(ack_inbytes, checksum)):
 		return None, Status.IS_CORRUPTED;
+
+	ack = int(ack_inbytes.decode());
 
 	return ack, Status.OK;
 	 
