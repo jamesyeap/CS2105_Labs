@@ -147,7 +147,7 @@ def buffer_packet(packet_seqnum, packet_data):
 def write_buffered_packets(fd):
 	# print("====== [WRITING PACKETS FROM BUFFER]: " + str(packet_seqnum) + "======");
 
-	sorted_seqnums = sorted(buffered_packets.key());
+	sorted_seqnums = sorted(buffered_packets.keys());
 
 	highest_seqnum = sorted_seqnums[-1];
 
