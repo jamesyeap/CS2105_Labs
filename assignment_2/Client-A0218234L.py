@@ -289,6 +289,8 @@ while (True):
 		break;
 
 	packet_data = get_message_until_size_reached(clientSocket, data_payload_length);
+	padding_size = SERVER_PACKET_SIZE - data_payload_length - TOTAL_PACKET_HEADER_SIZE;
+	remove_excess_padding(clientSocket, padding_size);
 
 	if (seqnum != expected_seqnum):
 		buffer_packet(seqnum, packet_data);
