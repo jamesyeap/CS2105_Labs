@@ -221,7 +221,6 @@ while (True):
 
 	if (end_of_file == True):
 		print("===== ALL DATA SUCCESSFULLY RECEIVED =====");
-		# send_ack(clientSocket, ALL_DATA_SUCCESSFULLY_RECEIVED_ACK);
 		break;
 
 	# RECEIVE ALL PACKETS IN THE CURRENT WINDOW
@@ -232,6 +231,7 @@ while (True):
 
 		if (packet_status == Status.NO_MORE_DATA):
 			print("===== SERVER HAS SENT ALL DATA =====");
+			send_ack(clientSocket, ALL_DATA_SUCCESSFULLY_RECEIVED_ACK);
 			end_of_file = True;
 			break;
 
