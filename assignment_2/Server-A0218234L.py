@@ -59,12 +59,19 @@ def generate_length_header(data_length):
 
 	return str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0');
 
+FILE_EOF = 0;
+FILE_STILL_HAS_DATA = 1;
+
 def generate_packet(fd, seqnum):
+	file_status;
+
 	data = fd.read(MAX_PACKET_DATA_SIZE);
 	data_length = len(data);
 
 	if (data_length == 0):
-		return None;
+		file_status = FILE_EOF;
+	else:
+		file_status = FILE_STILL_HAS_DATA;
 
 	seqnum_header = generate_seqnum_header(seqnum);
 	checksum_header = generate_checksum_header(data);
@@ -72,7 +79,7 @@ def generate_packet(fd, seqnum):
 
 	packet = seqnum_header + checksum_header + length_header + data;
 
-	return packet.ljust(SERVER_PACKET_SIZE, b'0');
+	return packet.ljust(SERVER_PACKET_SIZE, b'0'), file_status;
 
 # -------- RECEIVE ACK PACKET FUNCTIONS --------------------------------------
 
@@ -235,17 +242,18 @@ while (True):
 	# SENDING PACKETS
 	if (end_of_file == False):
 		for i in range(WINDOW_SIZE):
-			packet = generate_packet(input_fd, next_seqnum);
+			packet, file_status = generate_packet(input_fd, next_seqnum);
 
-			if (packet == None):
+			if (file_status == FILE_EOF):
 				print("====== NO MORE DATA TO BE READ FROM FILE =======");
+				clientSocket.send(packet);
 				end_of_file = True;
+				
 				break;
-
-			buffer_packet(next_seqnum, packet);
-			clientSocket.send(packet);
-
-			next_seqnum = next_seqnum + 1;
+			else:
+				buffer_packet(next_seqnum, packet);
+				clientSocket.send(packet);
+				next_seqnum = next_seqnum + 1;
 
 	# RECEIVING ACKs
 	for i in range(WINDOW_SIZE):
