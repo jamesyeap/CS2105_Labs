@@ -233,7 +233,7 @@ init_packet = (init_filesize_header + init_checksum_header).ljust(SERVER_PACKET_
 
 init_successful = False;
 while (init_successful == False):
-	clientSocket.send(filesize_packet);
+	clientSocket.send(init_packet);
 	
 	# get confirmation that the client knows the filesize
 	client_confirmation_packet_1 = get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
