@@ -388,7 +388,7 @@ while (True):
 	num_resent_packets = resend_any_unacked_packets(clientSocket);
 
 	while(num_resent_packets != 0):
-		num_resent_packets = resend_any_unacked_packets(num_resent_packets);
+		num_resent_packets = resend_any_unacked_packets(clientSocket);
 
 
 
