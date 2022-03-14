@@ -201,24 +201,24 @@ input_fd = open(input_file_name, 'rb');
 if (mode == 0):
 	# ================ for reliable-channel only ================================
 	while (True):
-	packet = input_fd.read(1024);
+		packet = input_fd.read(1024);
 
-	if (len(packet) == 0):
-		break;
+		if (len(packet) == 0):
+			break;
 
-	clientSocket.send(packet);
+		clientSocket.send(packet);
 
 if (mode == 1):
 	# ================ for error-channel only ================================
 
 	""" ⚠️ just a placeholder for now """
 	while (True):
-	packet = input_fd.read(1024);
+		packet = input_fd.read(1024);
 
-	if (len(packet) == 0):
-		break;
+		if (len(packet) == 0):
+			break;
 
-	clientSocket.send(packet);
+		clientSocket.send(packet);
 
 if (mode == 2):
 	# ================ for reordering-channel only =======================================
