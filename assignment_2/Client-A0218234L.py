@@ -136,7 +136,7 @@ def get_packet(socket):
 		get_message_until_size_reached(socket, 1004); # ⚠️ just assume the packets are 1004 for now
 		return -1, None, Status.IS_CORRUPTED;
 
-	if (data_payload_length == 0):
+	if (data_payload_length == 0 or (seqnum == 0 and checksum == 0 and data_payload_length == 0)):
 		return seqnum, None, Status.NO_MORE_DATA;
 	else:
 		packet_data = get_message_until_size_reached(socket, data_payload_length);
