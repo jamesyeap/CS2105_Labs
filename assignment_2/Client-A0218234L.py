@@ -221,7 +221,7 @@ while (True):
 	
 	while (True):
 
-		if (num_buffered_packets == WINDOW_SIZE):
+		if (num_buffered_packets == WINDOW_SIZE or end_of_file == True):
 			write_buffered_packets(output_fd);
 			break;
 
