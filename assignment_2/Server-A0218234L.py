@@ -250,7 +250,7 @@ while (init_successful == False):
 				break;
 
 
-WINDOW_SIZE = 100;
+WINDOW_SIZE = 500;
 end_of_file = False;
 curr_seqnum = 0;
 while (True):
