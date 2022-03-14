@@ -258,6 +258,13 @@ while (True):
 		for i in range(num_resent_packets):
 			packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
+			print("[PACKET STATUS]: "+ str(packet_status));
+
+			if (packet_status == Status.NO_MORE_DATA):
+				print("===== SERVER HAS SENT ALL DATA =====");
+				send_ack(clientSocket, ALL_DATA_SUCCESSFULLY_RECEIVED_ACK);
+				end_of_file =
+
 			if (packet_status == Status.OK):
 				buffer_packet(packet_seqnum, packet_data);
 				send_ack(clientSocket, packet_seqnum);
