@@ -162,10 +162,17 @@ def write_buffered_packets(fd):
 
 	highest_seqnum = sorted_seqnums[-1];
 
-	for s in sorted_seqnums:
-		fd.write(buffered_packets[s]);
-		print("===== [FROM BUFFER]: WRITING SEQNUM: " + str(s) + " ======");
-		del(buffered_packets[s]);
+	for i in range(len(sorted_seqnums)):
+		curr_seqnum = sorted_seqnums[i];
+
+		if i != len(sorted_seqnums)-1:
+			adjacent_seqnum = sorted_seqnums[i+1];
+			if (curr_seqnum != adjacent_seqnum - 1):
+				break;
+
+		fd.write(buffered_packets[curr_seqnum]);
+		print("===== [FROM BUFFER]: WRITING SEQNUM: " + str(curr_seqnum) + " ======");
+		del(buffered_packets[curr_seqnum]);
 
 	return highest_seqnum;
 
