@@ -209,8 +209,8 @@ input_fd = open(input_file_name, 'rb');
 # 		break;
 
 WINDOW_SIZE = 10;
-NEGATIVE_ACK = -1;
-ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = -2;
+NEGATIVE_ACK = 999998;
+ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
 
 next_seqnum = 0;
 stop_transmitting = False;
