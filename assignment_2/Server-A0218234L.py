@@ -149,6 +149,16 @@ def send_buffered_packets(socket):
 def remove_acked_packet(acked_seqnum):
 	# print("====== [PACKET ACKED]: " + str(packet_seqnum) + "======");
 	del(buffered_packets[acked_seqnum]);
+
+# ----- MISC ------
+
+def print_buffer():
+	w = "[PACKETS IN BUFFER]: ";
+
+	for k in buffered_packets.keys():
+		w = w + "[" + str(k) + "]";
+		
+	print(w);
 	 
 # ------ MAIN ----------------------------------------------------------------
 
@@ -252,10 +262,7 @@ while (True):
 	num_unacked_packets = len(buffered_packets);
 	while (True):
 
-		w = "[UNACKED PACKETS]: ";
-		for k in buffered_packets.keys():
-			w = w + "[" + str(k) + "]";
-		print(w);
+		print_buffer();
 
 		if (num_unacked_packets == 0):
 			break;			

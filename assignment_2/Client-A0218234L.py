@@ -156,6 +156,15 @@ def write_buffered_packets(fd):
 
 	return highest_seqnum;
 
+# ----- MISC ------
+
+def print_buffer():
+	w = "[PACKETS IN BUFFER]: ";
+
+	for k in buffered_packets.keys():
+		w = w + "[" + str(k) + "]";
+
+	print(w);
 
 # ----- MAIN -----------------------------------------------------------------
 
@@ -196,11 +205,6 @@ expected_seqnum = 0;
 end_of_file = False;
 while (True):
 
-	w = "[PACKETS IN BUFFER]: ";
-	for k in buffered_packets.keys():
-		w = w + "[" + str(k) + "]";
-	print(w);
-
 	if (end_of_file == True and len(buffer_packet) == 0):
 		print("===== ALL DATA SUCCESSFULLY RECEIVED =====");
 		send_ack(clientSocket, ALL_DATA_SUCCESSFULLY_RECEIVED_ACK);
@@ -216,6 +220,7 @@ while (True):
 
 		if (packet_status == Status.OK):
 			buffer_packet(packet_seqnum, packet_data);
+			print_buffer();
 			send_ack(clientSocket, packet_seqnum);
 
 		if (packet_status == Status.IS_CORRUPTED):
