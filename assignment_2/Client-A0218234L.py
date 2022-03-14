@@ -237,7 +237,6 @@ while (True):
 
 		if (packet_status == Status.OK):
 			buffer_packet(packet_seqnum, packet_data);
-			print_buffer();
 			send_ack(clientSocket, packet_seqnum);
 
 		if (packet_status == Status.IS_CORRUPTED):
