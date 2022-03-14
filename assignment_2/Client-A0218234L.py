@@ -197,7 +197,7 @@ print("====== STARTING NOW =======");
 output_fd = open(output_file_name, 'wb');
 
 
-WINDOW_SIZE = 500;
+WINDOW_SIZE = 1000;
 NEGATIVE_ACK = 999998;
 ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
 

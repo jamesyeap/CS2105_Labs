@@ -226,7 +226,7 @@ input_fd = open(input_file_name, 'rb');
 # 		print("====== ALL DATA SENT ======");
 # 		break;
 
-WINDOW_SIZE = 500;
+WINDOW_SIZE = 1000;
 NEGATIVE_ACK = 999998;
 ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
 
