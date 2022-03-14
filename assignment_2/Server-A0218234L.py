@@ -138,7 +138,7 @@ def buffer_packet(packet_seqnum, packet_data):
 	buffered_packets[packet_seqnum] = packet_data;
 
 def send_buffered_packets(socket):
-	sorted_seqnums = sorted(buffered_packets.key());
+	sorted_seqnums = sorted(buffered_packets.keys());
 
 	for s in sorted_seqnums:
 		socket.send(buffered_packets[s]);
