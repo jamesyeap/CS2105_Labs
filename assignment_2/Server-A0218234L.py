@@ -240,6 +240,7 @@ while (init_successful == False):
 
 	# once the client knows the file-size, we can continue
 	if (client_confirmation_packet_1 == EXPECTED_CLIENT_CONFIRMATION_PACKET):
+		print("[CLIENT KNOWS!]");
 		while (True):
 			clientSocket.send(SERVER_CONFIRMATION_PACKET);
 			client_confirmation_packet_2 = get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
