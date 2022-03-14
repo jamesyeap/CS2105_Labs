@@ -292,6 +292,7 @@ while (True):
 	remove_excess_padding(clientSocket, padding_size);
 
 	if (seqnum != expected_seqnum):
+		print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
 		buffer_packet(seqnum, packet_data);
 	else:
 		output_fd.write(packet_data);
