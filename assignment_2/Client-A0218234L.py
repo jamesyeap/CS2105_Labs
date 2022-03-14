@@ -255,12 +255,10 @@ while (init_successful == False):
 
 	filesize = int(filesize_inbytes.decode());
 
-	print("[FILESIZE]:" + str(filesize));
 	clientSocket.send(CLIENT_CONFIRMATION_PACKET); # tell the server that we know the filesize
 
 	# get confirmation that the server knows that we know the filesize
 	while (True):
-		print("hello");
 		server_confirmation_packet_1 = get_message_until_size_reached(clientSocket, SERVER_PACKET_SIZE);
 		clientSocket.send(CLIENT_CONFIRMATION_PACKET); # tell the server that we know the filesize
 
@@ -268,7 +266,7 @@ while (init_successful == False):
 			init_successful = True;
 			break;
 
-print("[FILESIZE]:" + str(filesize));
+print("[FILESIZE RECEIVED]:" + str(filesize));
 
 highest_contiguous_seqnum = 0;
 seqnums_of_successfully_received_packets = set();
@@ -276,7 +274,7 @@ seqnums_of_successfully_received_packets = set();
 while (True):
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
-	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= 724000):
+	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= filesize):
 		write_buffered_packets(highest_contiguous_seqnum, output_fd);
 		send_ack(clientSocket, highest_contiguous_seqnum);
 		print("=== ALL DATA RECEIVED. EXITING...... ===");
