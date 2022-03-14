@@ -377,6 +377,7 @@ while (True):
 		for i in range(WINDOW_SIZE):
 			packet, file_status = generate_packet(input_fd, curr_seqnum);
 			clientSocket.send(packet);
+			buffer_packet(curr_seqnum, packet);
 			curr_seqnum = curr_seqnum + 1;
 
 			if (file_status == FILE_EOF):
