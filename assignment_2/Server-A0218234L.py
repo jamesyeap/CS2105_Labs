@@ -42,10 +42,10 @@ CLIENT_PACKET_PADDING_SIZE = CLIENT_PACKET_SIZE - PACKET_HEADER_SEQNUM_SIZE - PA
 
 # ----- GENERATE PACKET FUNCTIONS --------------------------------------------
 
-def generate_seqnum_header(curr_seqnum):
-	# print(str(curr_seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0'));
+def generate_seqnum_header(seqnum):
+	# print(str(seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0'));
 
-	return str(curr_seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
+	return str(seqnum).encode().rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
 
 def generate_checksum_header(data):
 	checksum = zlib.crc32(data);
@@ -59,12 +59,17 @@ def generate_length_header(data_length):
 
 	return str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0');
 
-def generate_packet(seqnum_header, checksum_header, length_header, data):
-	return seqnum_header + checksum_header + length_header + data;
+def generate_packet(fd, seqnum):
+	data = fd.read(MAX_PACKET_DATA_SIZE);
+	data_length = len(data);
 
-def generate_padded_packet(packet, target_length):
-	return packet.ljust(target_length, b'0');
+	seqnum_header = generate_seqnum_header(seqnum);
+	checksum_header = generate_checksum_header(data);
+	length_header = generate_length_header(data_length);
 
+	packet = seqnum_header + checksum_header + length_header + data;
+
+	return packet.ljust(SERVER_PACKET_SIZE, b'0');
 
 # -------- RECEIVE ACK PACKET FUNCTIONS --------------------------------------
 
@@ -123,6 +128,24 @@ def get_packet(socket):
 	ack = int(ack_inbytes.decode());
 
 	return ack, Status.OK;
+
+# ------ BUFFER PACKET FUNCTIONS ---------------------------------------------
+
+buffered_packets = dict();
+
+def buffer_packet(packet_seqnum, packet_data):
+	# print("====== [BUFFERED]: " + str(packet_seqnum) + "======");
+	buffered_packets[packet_seqnum] = packet_data;
+
+def send_buffered_packets(socket):
+	sorted_seqnums = sorted(buffered_packets.key());
+
+	for s in sorted_seqnums:
+		socket.send(buffered_packets[s]);
+
+def remove_acked_packet(acked_seqnum):
+	# print("====== [PACKET ACKED]: " + str(packet_seqnum) + "======");
+	del(buffered_packets[acked_seqnum]);
 	 
 # ------ MAIN ----------------------------------------------------------------
 
@@ -154,38 +177,90 @@ print("====== STARTING NOW =======");
 """ open the file to be sent """
 input_fd = open(input_file_name, 'rb');
 
-curr_seqnum = 0;
+# curr_seqnum = 0;
+# while (True):
+# 	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
+# 	data_payload_length = len(data_payload);
+
+# 	seqnum_header = generate_seqnum_header(curr_seqnum);
+# 	checksum_header = generate_checksum_header(data_payload);
+# 	length_header = generate_length_header(data_payload_length);
+
+# 	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
+# 	padded_packet = generate_padded_packet(packet, SERVER_PACKET_SIZE);
+
+# 	clientSocket.send(padded_packet);
+# 	buffer_packet(curr_seqnum, padded_packet);
+
+# 	curr_seqnum = curr_seqnum + 1;
+# 	# print("[sent]: ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
+
+# 	ack, packet_status = get_packet(clientSocket);
+# 	if (packet_status == Status.IS_CORRUPTED):
+# 		print("<== ACK PACKET IS CORRUPTED ==>");
+# 	if (packet_status == Status.OK):
+# 		print("[RECEIVED ACK]: ", str(ack));
+# 		remove_acked_packet(ack);
+
+# 	if (data_payload_length == 0):
+# 		print("====== ALL DATA SENT ======");
+# 		break;
+
+WINDOW_SIZE = 10;
+
 while (True):
-	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
-	data_payload_length = len(data_payload);
+	# SENDING PACKETS
+	for i in range(WINDOW_SIZE):
+		packet = generate_packet(input_fd, next_seqnum);
+		buffer_packet(next_seqnum, packet);
+		clientSocket.send(packet);
 
-	seqnum_header = generate_seqnum_header(curr_seqnum);
-	checksum_header = generate_checksum_header(data_payload);
-	length_header = generate_length_header(data_payload_length);
+		next_seqnum = next_seqnum + 1;
 
-	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
-	padded_packet = generate_padded_packet(packet, SERVER_PACKET_SIZE);
+	# RECEIVING ACKs
+	for i in range(WINDOW_SIZE):
+		ack, packet_status = get_packet(clientSocket);
 
-	clientSocket.send(padded_packet);
-	curr_seqnum = curr_seqnum + 1;
-	print("[sent]: ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
+		if (packet_status == Status.OK):
+			remove_acked_packet(ack);
 
-	ack, packet_status = get_packet(clientSocket);
-	if (packet_status == Status.IS_CORRUPTED):
-		print("<== ACK PACKET IS CORRUPTED ==>");
-	if (packet_status == Status.OK):
-		print("[RECEIVED ACK]: ", str(ack));
+	# RESEND ANY UNACKED PACKETS IN THIS WINDOW
+	num_unacked_packets = len(buffered_packets);
+	while (True):
+		if (num_unacked_packets == 0):
+			break;			
+		
+		send_buffered_packets(clientSocket);
 
-	if (data_payload_length == 0):
-		print("====== ALL DATA SENT ======");
-		break;
+		for j in range(num_unacked_packets):
+			ack, packet_status = get_packet(clientSocket);
+
+			if (packet_status == Status.OK):
+				remove_acked_packet(ack);
+
+		num_unacked_packets = len(buffered_packets);
+
 
 clientSocket.close();
 
 
 
 
+"""
+	add 10 packets to buffer
 
+	send all packets in buffer (in order of seqnum)
+
+	receive ACK messages, a
+		remove ACKed packet from buffer
+
+		if a >= expectedseqnum:
+			expectedseqnum = a + 1
+		else:
+			resend all remaining packets in buffer
+
+
+"""
 
 
 

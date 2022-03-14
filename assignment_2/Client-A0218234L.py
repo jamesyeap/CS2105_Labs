@@ -136,6 +136,28 @@ def get_packet(socket):
 		
 		return seqnum, packet_data, Status.OK;
 
+# ----- BUFFER PACKET FUNCTIONS ----------------------------------------------
+
+buffered_packets = dict();
+
+def buffer_packet(packet_seqnum, packet_data):
+	# print("====== [BUFFERED]: " + str(packet_seqnum) + "======");
+	buffered_packets[packet_seqnum] = packet_data;
+
+def write_buffered_packets(fd):
+	# print("====== [WRITING PACKETS FROM BUFFER]: " + str(packet_seqnum) + "======");
+
+	sorted_seqnums = sorted(buffered_packets.key());
+
+	highest_seqnum = sorted_seqnums[-1];
+
+	for s in sorted_seqnums:
+		fd.write(buffered_packets[s]);
+		del(buffered_packets[s]);
+
+	return highest_seqnum;
+
+
 # ----- MAIN -----------------------------------------------------------------
 
 """ readin input params """
@@ -166,7 +188,7 @@ print("====== STARTING NOW =======");
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb');
 
-cumulative_seqnum = 0;
+expected_seqnum = 0;
 while (True):
 	packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
@@ -175,8 +197,19 @@ while (True):
 		break;
 
 	if (packet_status == Status.OK):
-		output_fd.write(packet_data);
-		send_ack(clientSocket, packet_seqnum);
+		if (packet_seqnum == expected_seqnum):
+			output_fd.write(packet_data);
+
+			if (len(buffered_packets) > 0):
+				latest_seqnum = write_buffered_packets(output_fd);
+				expected_seqnum = latest_seqnum + 1;
+			else:
+				expected_seqnum = expected_seqnum + 1;
+
+			send_ack(clientSocket, expected_seqnum);
+		else:
+			send_ack(clientSocket, expected_seqnum);
+
 
 	if (packet_status == Status.IS_CORRUPTED):
 		print("===== IS CORRUPTED ======");
