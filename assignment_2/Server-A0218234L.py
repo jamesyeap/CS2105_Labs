@@ -226,6 +226,7 @@ input_fd = open(input_file_name, 'rb');
 # 		print("====== ALL DATA SENT ======");
 # 		break;
 
+
 WINDOW_SIZE = 1000;
 NEGATIVE_ACK = 999998;
 ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
@@ -277,6 +278,8 @@ while (True):
 
 	# RESEND ANY UNACKED PACKETS IN THIS WINDOW
 	num_unacked_packets = len(buffered_packets);
+	print(num_unacked_packets);
+
 	while (True):
 
 		# print_buffer();
@@ -300,8 +303,6 @@ while (True):
 
 
 clientSocket.close();
-
-
 
 
 """
