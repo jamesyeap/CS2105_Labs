@@ -258,8 +258,9 @@ while (True):
 				next_seqnum = next_seqnum + 1;
 
 	# RECEIVING ACKs
+	print("====== RECEIVING ACKS FROM CLIENT ======");
+	
 	for i in range(WINDOW_SIZE):
-		print("====== RECEIVING ACKS FROM CLIENT ======");
 		ack, packet_status = get_packet(clientSocket);
 
 		if (packet_status == Status.OK and ack == ALL_DATA_SUCCESSFULLY_RECEIVED_ACK):
