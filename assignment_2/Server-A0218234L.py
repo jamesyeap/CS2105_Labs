@@ -63,7 +63,7 @@ FILE_EOF = 0;
 FILE_STILL_HAS_DATA = 1;
 
 def generate_packet(fd, seqnum):
-	file_status;
+	file_status = -1;
 
 	data = fd.read(MAX_PACKET_DATA_SIZE);
 	data_length = len(data);
@@ -248,7 +248,7 @@ while (True):
 				print("====== NO MORE DATA TO BE READ FROM FILE =======");
 				clientSocket.send(packet);
 				end_of_file = True;
-				
+
 				break;
 			else:
 				buffer_packet(next_seqnum, packet);
