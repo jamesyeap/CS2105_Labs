@@ -363,7 +363,7 @@ while (True):
 		else:
 			buffer_packet(seqnum, packet_data);
 
-
+		print_buffer();
 
 # while (True):
 # 	packet_data = clientSocket.recv(1024);
