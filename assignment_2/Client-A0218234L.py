@@ -314,6 +314,7 @@ while (True):
 		else:
 			highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
 			expected_seqnum = highest_received_seqnum + 1;
+			print_buffer();
 
 # while (True):
 # 	packet_data = clientSocket.recv(1024);
