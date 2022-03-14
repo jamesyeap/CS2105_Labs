@@ -243,6 +243,8 @@ while (True):
 			print("===== IS CORRUPTED ======");
 			send_ack(clientSocket, NEGATIVE_ACK);
 
+	if (end_of_file == True):
+		break;
 	
 	num_buffered_packets = len(buffered_packets);
 	
