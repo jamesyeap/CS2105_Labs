@@ -373,14 +373,16 @@ WINDOW_SIZE = 100;
 end_of_file = False;
 curr_seqnum = 0;
 while (True):
-	for i in range(WINDOW_SIZE):
-		packet, file_status = generate_packet(input_fd, curr_seqnum);
-		clientSocket.send(packet);
-		curr_seqnum = curr_seqnum + 1;
+	if (not end_of_file):
+		for i in range(WINDOW_SIZE):
+			packet, file_status = generate_packet(input_fd, curr_seqnum);
+			clientSocket.send(packet);
+			curr_seqnum = curr_seqnum + 1;
 
-		if (file_status == FILE_EOF):
-			end_of_file = True;
-			break;
+			if (file_status == FILE_EOF):
+				print("====== NO MORE DATA TO BE READ FROM FILE =======");
+				end_of_file = True;
+				break;
 
 	num_resent_packets = resend_any_unacked_packets(clientSocket);
 
