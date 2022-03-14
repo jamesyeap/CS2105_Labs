@@ -259,7 +259,7 @@ while (True):
 
 	# RECEIVING ACKs
 	print("====== RECEIVING ACKS FROM CLIENT ======");
-	
+
 	for i in range(WINDOW_SIZE):
 		ack, packet_status = get_packet(clientSocket);
 
@@ -268,7 +268,10 @@ while (True):
 			break;
 
 		if (packet_status == Status.OK and ack != NEGATIVE_ACK):
+			print("[ACK RECEIVED]: "+ str(ack));
 			remove_acked_packet(ack);
+		if (packet_status == Status.IS_CORRUPTED):
+				print("[ACK CORRUPTED]:" + "xxxxxxxxxxx");
 
 	# RESEND ANY UNACKED PACKETS IN THIS WINDOW
 	num_unacked_packets = len(buffered_packets);
