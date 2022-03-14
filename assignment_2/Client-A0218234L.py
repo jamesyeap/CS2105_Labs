@@ -225,7 +225,7 @@ while (True):
 
 		num_resent_packets = WINDOW_SIZE - num_buffered_packets;
 
-		for i in num_resent_packets:
+		for i in range(num_resent_packets):
 			packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
 			if (packet_status == Status.OK):
