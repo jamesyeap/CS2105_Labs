@@ -63,6 +63,9 @@ def generate_packet(fd, seqnum):
 	data = fd.read(MAX_PACKET_DATA_SIZE);
 	data_length = len(data);
 
+	if (data_length == 0):
+		return None;
+
 	seqnum_header = generate_seqnum_header(seqnum);
 	checksum_header = generate_checksum_header(data);
 	length_header = generate_length_header(data_length);
@@ -212,18 +215,27 @@ ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
 
 next_seqnum = 0;
 stop_transmitting = False;
+end_of_file = False;
+
 while (True):
 	if (stop_transmitting == True):
 		print("====== ALL DATA SUCCESSFULLY RECEIVED BY CLIENT ====== ");
 		break;
 
 	# SENDING PACKETS
-	for i in range(WINDOW_SIZE):
-		packet = generate_packet(input_fd, next_seqnum);
-		buffer_packet(next_seqnum, packet);
-		clientSocket.send(packet);
+	if (end_of_file == False):
+		for i in range(WINDOW_SIZE):
+			packet = generate_packet(input_fd, next_seqnum);
 
-		next_seqnum = next_seqnum + 1;
+			if (packet == None):
+				print("====== NO MORE DATA TO BE READ FROM FILE =======");
+				end_of_file = True;
+				break;
+
+			buffer_packet(next_seqnum, packet);
+			clientSocket.send(packet);
+
+			next_seqnum = next_seqnum + 1;
 
 	# RECEIVING ACKs
 	for i in range(WINDOW_SIZE):
