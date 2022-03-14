@@ -227,6 +227,7 @@ input_fd = open(input_file_name, 'rb');
 # 		break;
 
 
+"""
 WINDOW_SIZE = 1000;
 NEGATIVE_ACK = 999998;
 ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
@@ -300,26 +301,22 @@ while (True):
 				print("[ACK CORRUPTED]:" + "xxxxxxxxxxx");
 
 		num_unacked_packets = len(buffered_packets);
+"""
 
+# for reordering-channel only
+next_seqnum = 0;
+while (True):
+	packet, file_status generate_packet(input_fd, next_seqnum);
+
+	if (file_status == FILE_EOF):
+		print("====== NO MORE DATA TO BE READ FROM FILE =======");
+		clientSocket.send(packet);
+		break;
+
+	clientSocket.send(packet);
 
 clientSocket.close();
 
-
-"""
-	add 10 packets to buffer
-
-	send all packets in buffer (in order of seqnum)
-
-	receive ACK messages, a
-		remove ACKed packet from buffer
-
-		if a >= expectedseqnum:
-			expectedseqnum = a + 1
-		else:
-			resend all remaining packets in buffer
-
-
-"""
 
 
 

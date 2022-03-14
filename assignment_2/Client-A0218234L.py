@@ -147,7 +147,7 @@ def get_packet(socket):
 		if (is_corrupted(packet_data, checksum)):
 			return seqnum, None, Status.IS_CORRUPTED;
 		
-		return seqnum, packet_data, Status.OK;
+		return seqnum, data_payload_length, packet_data, Status.OK;
 
 # ----- BUFFER PACKET FUNCTIONS ----------------------------------------------
 
@@ -217,6 +217,9 @@ ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
 
 expected_seqnum = 0;
 end_of_file = False;
+
+
+"""
 while (True):
 
 	if (end_of_file == True):
@@ -273,6 +276,32 @@ while (True):
 			if (packet_status == Status.IS_CORRUPTED):
 				print("===== IS CORRUPTED ======");
 				send_ack(clientSocket, NEGATIVE_ACK);
+"""
+
+
+# for reordering-channel only
+expected_seqnum = 0;
+while (True):
+	seqnum, checksum, data_payload_length = get_packet_header(clientSocket);
+
+	if (data_payload_length == 0):
+		write_buffered_packets(output_fd);
+		break;
+
+	packet_data = get_message_until_size_reached(clientSocket, data_payload_length);
+
+	if (seqnum != expected_seqnum):
+		buffer_packet(seqnum, packet_data);
+	else:
+		output_fd.write(packet_data);
+
+		if (len(buffered_packets) == 0):
+			expected_seqnum = expected_seqnum + 1;
+		else:
+			highest_received_seqnum = write_buffered_packets(fd);
+			expected_seqnum = highest_received_seqnum + 1;
+
+
 
 
 # while (True):
