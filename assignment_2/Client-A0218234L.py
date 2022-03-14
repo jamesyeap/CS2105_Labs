@@ -304,7 +304,7 @@ while (True):
 
 	if (seqnum != expected_seqnum):
 		print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
-		buffer_packet(expected_seqnum, packet_data);
+		buffer_packet(seqnum, packet_data);
 	else:
 		output_fd.write(packet_data);
 		print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
