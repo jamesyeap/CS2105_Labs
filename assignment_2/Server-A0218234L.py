@@ -242,7 +242,7 @@ while (True):
 
 		w = "[UNACKED PACKETS]: ";
 		for k in buffered_packets.keys():
-			w = w + "[" + str(k) "]";
+			w = w + "[" + str(k) + "]";
 		print(w);
 
 		if (num_unacked_packets == 0):
