@@ -284,10 +284,6 @@ expected_seqnum = 0;
 while (True):
 	seqnum, checksum, data_payload_length = get_packet_header(clientSocket);
 
-	if (data_payload_length == None):
-		write_buffered_packets(output_fd);
-		break;
-
 	if (data_payload_length == 0):
 		write_buffered_packets(output_fd);
 		break;
