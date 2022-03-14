@@ -351,20 +351,21 @@ def resend_any_unacked_packets(socket):
 
 
 # send file-size to client
-PACKET_HEADER_FILESIZE_SIZE = 9;
+# PACKET_HEADER_FILESIZE_SIZE = 9;
 
-size = os.path.getsize(input_file_name);
-filesize_header = str(size).encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
-filesize_packet = filesize_header.ljust(SERVER_PACKET_SIZE, b'0');
+# size = os.path.getsize(input_file_name);
+# filesize_header = str(size).encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
+# filesize_packet = filesize_header.ljust(SERVER_PACKET_SIZE, b'0');
 
-client_knows_filesize = False;
-while (client_knows_filesize == False):
-	clientSocket.send(filesize_packet);
-	expected_clientconfirmation_inbytes = b'1'.rjust(CLIENT_PACKET_SIZE, b'1');
-	clientconfirmation_inbytes = get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
+# client_knows_filesize = False;
+# while (client_knows_filesize == False):
+# 	clientSocket.send(filesize_packet);
+# 	expected_clientconfirmation_inbytes = b'1'.rjust(CLIENT_PACKET_SIZE, b'1');
+# 	clientconfirmation_inbytes = get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
 
-	if (clientconfirmation_inbytes == expected_clientconfirmation_inbytes):
-		client_knows_filesize = True;
+# 	if (clientconfirmation_inbytes == expected_clientconfirmation_inbytes):
+# 		i
+# 		client_knows_filesize = True;
 
 
 WINDOW_SIZE = 100;

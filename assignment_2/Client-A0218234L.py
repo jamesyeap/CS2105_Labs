@@ -335,37 +335,12 @@ PACKET_HEADER_FILESIZE_SIZE = 9;
 
 # get file-size from server first
 
-server_received_confirmation = False;
-while (server_received_confirmation == False):
-	filesize_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_FILESIZE_SIZE);
-	print(filesize_inbytes);
-	remove_excess_padding(clientSocket, SERVER_PACKET_SIZE - PACKET_HEADER_FILESIZE_SIZE);
-
-	try:
-		filesize = int(filesize_inbytes.decode());
-		print(str(filesize));
-	except ValueError:
-		response_packet = (b'2').rjust(CLIENT_PACKET_SIZE, b'2');
-		clientSocket.send(response_packet); # need to tell server that client knows the file-size as server will not send any packets until it receives confirmation that client knows the filesize
-		continue;
-
-	response_packet = (b'1').rjust(CLIENT_PACKET_SIZE, b'1');
-	clientSocket.send(response_packet); # need to tell server that client knows the file-size as server will not send any packets until it receives confirmation that client knows the filesize
-
-	expected_serverconfirmation_inbytes = b'1'.rjust(SERVER_PACKET_SIZE, b'1');
-	serverconfirmation_inbytes = get_message_until_size_reached(clientSocket, SERVER_PACKET_SIZE);
-
-	if (serverconfirmation_inbytes == expected_serverconfirmation_inbytes):
-		server_received_confirmation = True;
-
-
-
 highest_contiguous_seqnum = 0;
 
 while (True):
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
-	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= filesize):
+	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= 725116):
 		print("=== ALL DATA RECEIVED. EXITING...... ===");
 		break;
 
