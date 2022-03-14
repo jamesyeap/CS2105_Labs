@@ -221,62 +221,156 @@ print("====== STARTING NOW =======");
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb');
 
-if (mode == 0):
-	# ================ for reliable-channel only ================================
-	while (True):
-	packet = clientSocket.recv(1024);
-	output_fd.write(packet);
 
-	if (len(packet) == 0):
+# ====== <OLD STUFF> ============================================================
+"""
+WINDOW_SIZE = 1000;
+NEGATIVE_ACK = 999998;
+ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
+
+expected_seqnum = 0;
+end_of_file = False;
+
+while (True):
+
+	if (end_of_file == True):
+		print("===== ALL DATA SUCCESSFULLY RECEIVED =====");
 		break;
 
-if (mode == 1):
-	# ================ for error-channel only ================================
+	# RECEIVE ALL PACKETS IN THE CURRENT WINDOW
+	for i in range(WINDOW_SIZE):
+		packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
-	""" ⚠️ just a placeholder for now """
-	while (True):
-		packet = clientSocket.recv(1024);
-		output_fd.write(packet);
+		print("[PACKET STATUS]: "+ str(packet_status));
 
-		if (len(packet) == 0):
+		if (packet_status == Status.NO_MORE_DATA):
+			print("===== SERVER HAS SENT ALL DATA =====");
+			send_ack(clientSocket, ALL_DATA_SUCCESSFULLY_RECEIVED_ACK);
+			end_of_file = True;
 			break;
 
-if (mode == 2):
-	# ================ for reordering-channel only ================================
-	PACKET_HEADER_FILESIZE_SIZE = 9;
+		if (packet_status == Status.OK):
+			buffer_packet(packet_seqnum, packet_data);
+			send_ack(clientSocket, packet_seqnum);
 
-	# get file-size from server first
-	filesize_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_FILESIZE_SIZE);
-	remove_excess_padding(clientSocket, SERVER_PACKET_SIZE - PACKET_HEADER_FILESIZE_SIZE);
-	filesize = int(filesize_inbytes.decode());
-	response_packet = (b'0').rjust(CLIENT_PACKET_SIZE, b'0');
-	clientSocket.send(response_packet); # need to tell server that client knows the file-size as server will not send any packets until this to prevent re-ordering
+		if (packet_status == Status.IS_CORRUPTED):
+			print("===== IS CORRUPTED ======");
+			send_ack(clientSocket, NEGATIVE_ACK);
+	
+	num_buffered_packets = len(buffered_packets);
 
-	expected_seqnum = 0;
+	print(num_buffered_packets);
+	
 	while (True):
-		if (expected_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= filesize):
-			print("=== ALL DATA RECEIVED. EXITING...... ===");
+
+		if (num_buffered_packets == WINDOW_SIZE or end_of_file == True):
+			write_buffered_packets(output_fd);
 			break;
 
-		seqnum, checksum, data_payload_length = get_packet_header(clientSocket);
+		num_resent_packets = WINDOW_SIZE - num_buffered_packets;
 
-		packet_data = get_message_until_size_reached(clientSocket, data_payload_length);
-		padding_size = SERVER_PACKET_SIZE - data_payload_length - TOTAL_PACKET_HEADER_SIZE;
-		remove_excess_padding(clientSocket, padding_size);
+		for i in range(num_resent_packets):
+			packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
-		if (seqnum != expected_seqnum):
-			print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
-			buffer_packet(seqnum, packet_data);
+			print("[PACKET STATUS]: "+ str(packet_status));
+
+			if (packet_status == Status.NO_MORE_DATA):
+				print("===== SERVER HAS SENT ALL DATA =====");
+				send_ack(clientSocket, ALL_DATA_SUCCESSFULLY_RECEIVED_ACK);
+				end_of_file = True;
+				break;
+
+			if (packet_status == Status.OK):
+				buffer_packet(packet_seqnum, packet_data);
+				send_ack(clientSocket, packet_seqnum);
+
+			if (packet_status == Status.IS_CORRUPTED):
+				print("===== IS CORRUPTED ======");
+				send_ack(clientSocket, NEGATIVE_ACK);
+"""
+
+
+# ================ for reordering-channel only ================================
+"""
+
+PACKET_HEADER_FILESIZE_SIZE = 9;
+
+# get file-size from server first
+filesize_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_FILESIZE_SIZE);
+remove_excess_padding(clientSocket, SERVER_PACKET_SIZE - PACKET_HEADER_FILESIZE_SIZE);
+filesize = int(filesize_inbytes.decode());
+response_packet = (b'0').rjust(CLIENT_PACKET_SIZE, b'0');
+clientSocket.send(response_packet); # need to tell server that client knows the file-size as server will not send any packets until this to prevent re-ordering
+
+expected_seqnum = 0;
+while (True):
+	if (expected_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= filesize):
+		print("=== ALL DATA RECEIVED. EXITING...... ===");
+		break;
+
+	seqnum, checksum, data_payload_length = get_packet_header(clientSocket);
+
+	packet_data = get_message_until_size_reached(clientSocket, data_payload_length);
+	padding_size = SERVER_PACKET_SIZE - data_payload_length - TOTAL_PACKET_HEADER_SIZE;
+	remove_excess_padding(clientSocket, padding_size);
+
+	if (seqnum != expected_seqnum):
+		print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
+		buffer_packet(seqnum, packet_data);
+	else:
+		output_fd.write(packet_data);
+		print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
+
+		if (len(buffered_packets) == 0):
+			expected_seqnum = expected_seqnum + 1;
 		else:
-			output_fd.write(packet_data);
-			print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
+			highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
+			expected_seqnum = highest_received_seqnum + 1;
+			print_buffer();
+"""
 
-			if (len(buffered_packets) == 0):
-				expected_seqnum = expected_seqnum + 1;
+# ================ for error-channel only ================================
+
+highest_contiguous_seqnum = 0;
+
+seqnums_of_successfully_received_packets = set();
+
+while (True):
+	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
+
+	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= 724000):
+		write_buffered_packets(highest_contiguous_seqnum, output_fd);
+		send_ack(clientSocket, highest_contiguous_seqnum);
+		print("=== ALL DATA RECEIVED. EXITING...... ===");
+		break;
+
+	if (packet_status == Status.IS_CORRUPTED):
+		send_ack(clientSocket, highest_contiguous_seqnum);
+
+	if (packet_status == Status.OK):
+		send_ack(clientSocket, seqnum);
+
+		if (seqnum in seqnums_of_successfully_received_packets):
+			continue;
+
+		seqnums_of_successfully_received_packets.add(seqnum);
+		if (seqnum == highest_contiguous_seqnum):
+			output_fd.write(packet_data);
+
+			if (len(buffered_packets) > 0):
+				highest_received_seqnum = write_buffered_packets(highest_contiguous_seqnum, output_fd);
+				highest_contiguous_seqnum = highest_received_seqnum + 1;
 			else:
-				highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
-				expected_seqnum = highest_received_seqnum + 1;
-				print_buffer();
+				highest_contiguous_seqnum = highest_contiguous_seqnum + 1;
+		else:
+			buffer_packet(seqnum, packet_data);
+
+		print_buffer();
+
+# while (True):
+# 	packet_data = clientSocket.recv(1024);
+# 	print(packet_data);
+# 	print("=====");
 
 output_fd.close();
 clientSocket.close();

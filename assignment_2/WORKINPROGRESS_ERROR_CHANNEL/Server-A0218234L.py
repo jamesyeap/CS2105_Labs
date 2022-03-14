@@ -198,69 +198,198 @@ print("====== STARTING NOW =======");
 """ open the file to be sent """
 input_fd = open(input_file_name, 'rb');
 
-if (mode == 0):
-	# ================ for reliable-channel only ================================
-	while (True):
-	packet = input_fd.read(1024);
+# curr_seqnum = 0;
+# while (True):
+# 	data_payload = input_fd.read(MAX_PACKET_DATA_SIZE);
+# 	data_payload_length = len(data_payload);
 
-	if (len(packet) == 0):
-		break;
+# 	seqnum_header = generate_seqnum_header(curr_seqnum);
+# 	checksum_header = generate_checksum_header(data_payload);
+# 	length_header = generate_length_header(data_payload_length);
 
-	clientSocket.send(packet);
+# 	packet = generate_packet(seqnum_header, checksum_header, length_header, data_payload);
+# 	padded_packet = generate_padded_packet(packet, SERVER_PACKET_SIZE);
 
-if (mode == 1):
-	# ================ for error-channel only ================================
+# 	clientSocket.send(padded_packet);
+# 	buffer_packet(curr_seqnum, padded_packet);
 
-	""" ⚠️ just a placeholder for now """
-	while (True):
-	packet = input_fd.read(1024);
+# 	curr_seqnum = curr_seqnum + 1;
+# 	# print("[sent]: ({}, {}, {})".format(seqnum_header, checksum_header, length_header));
 
-	if (len(packet) == 0):
-		break;
+# 	ack, packet_status = get_packet(clientSocket);
+# 	if (packet_status == Status.IS_CORRUPTED):
+# 		print("<== ACK PACKET IS CORRUPTED ==>");
+# 	if (packet_status == Status.OK):
+# 		print("[RECEIVED ACK]: ", str(ack));
+# 		remove_acked_packet(ack);
 
-	clientSocket.send(packet);
+# 	if (data_payload_length == 0):
+# 		print("====== ALL DATA SENT ======");
+# 		break;
 
-if (mode == 2):
-	# ================ for reordering-channel only =======================================
 
-	# send file-size to client
-	PACKET_HEADER_FILESIZE_SIZE = 9;
+"""
+WINDOW_SIZE = 1000;
+NEGATIVE_ACK = 999998;
+ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
 
-	size = os.path.getsize(input_file_name);
-	filesize_header = str(size).encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
-	filesize_packet = filesize_header.ljust(SERVER_PACKET_SIZE, b'0');
+next_seqnum = 0;
+stop_transmitting = False;
+end_of_file = False;
 
-	clientSocket.send(filesize_packet);
-	get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
+while (True):
 
-	next_seqnum = 0;
-	while (True):
-		packet, file_status = generate_packet(input_fd, next_seqnum);
+	# SENDING PACKETS
+	if (end_of_file == False):
+		print("====== [[INITIAL]]: SENDING ALL PACKETS IN THIS WINDOW ======");
 
-		if (file_status == FILE_EOF):
-			print("====== NO MORE DATA TO BE READ FROM FILE =======");
-			clientSocket.send(packet);
+		for i in range(WINDOW_SIZE):
+			packet, file_status = generate_packet(input_fd, next_seqnum);
+
+			if (file_status == FILE_EOF):
+				print("====== NO MORE DATA TO BE READ FROM FILE =======");
+				clientSocket.send(packet);
+				end_of_file = True;
+
+				break;
+			else:
+				buffer_packet(next_seqnum, packet);
+				clientSocket.send(packet);
+				next_seqnum = next_seqnum + 1;
+
+	# RECEIVING ACKs
+	print("====== RECEIVING ACKS FROM CLIENT ======");
+
+	for i in range(WINDOW_SIZE):
+		ack, packet_status = get_packet(clientSocket);
+
+		if (packet_status == Status.OK and ack == ALL_DATA_SUCCESSFULLY_RECEIVED_ACK):
+			print("====== CLIENT SAYS ALL DATA SUCCESSFULLY RECEIVED ======");
+			stop_transmitting = True;
 			break;
 
+		if (packet_status == Status.OK and ack != NEGATIVE_ACK):
+			print("[ACK RECEIVED]: "+ str(ack));
+			remove_acked_packet(ack);
+		if (packet_status == Status.IS_CORRUPTED):
+				print("[ACK CORRUPTED]:" + "xxxxxxxxxxx");
+
+	if (stop_transmitting == True):
+		print("====== EXITING NOW ====== ");
+		break;
+
+	# RESEND ANY UNACKED PACKETS IN THIS WINDOW
+	num_unacked_packets = len(buffered_packets);
+	print(num_unacked_packets);
+
+	while (True):
+
+		# print_buffer();
+
+		if (num_unacked_packets == 0):
+			break;			
+		
+		print("====== [[RESEND]]: SENDING ALL PACKETS IN THIS WINDOW ======");
+		send_buffered_packets(clientSocket);
+
+		for j in range(num_unacked_packets):
+			ack, packet_status = get_packet(clientSocket);
+
+			if (packet_status == Status.OK and ack != NEGATIVE_ACK):
+				print("[ACK RECEIVED]: "+ str(ack));
+				remove_acked_packet(ack);
+			if (packet_status == Status.IS_CORRUPTED):
+				print("[ACK CORRUPTED]:" + "xxxxxxxxxxx");
+
+		num_unacked_packets = len(buffered_packets);
+"""
+
+# ================ for reordering-channel only =======================================
+"""
+
+# send file-size to client
+PACKET_HEADER_FILESIZE_SIZE = 9;
+
+size = os.path.getsize(input_file_name);
+filesize_header = str(size).encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
+filesize_packet = filesize_header.ljust(SERVER_PACKET_SIZE, b'0');
+
+clientSocket.send(filesize_packet);
+get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
+
+next_seqnum = 0;
+while (True):
+	packet, file_status = generate_packet(input_fd, next_seqnum);
+
+	if (file_status == FILE_EOF):
+		print("====== NO MORE DATA TO BE READ FROM FILE =======");
 		clientSocket.send(packet);
-		next_seqnum = next_seqnum + 1;
+		break;
 
-
-
-
+	clientSocket.send(packet);
+	next_seqnum = next_seqnum + 1;
 
 clientSocket.close();
 
+"""
+
+# ================ for error-channel only ================================
+
+def resend_any_unacked_packets(socket):
+	for i in range(len(buffered_packets)):
+		ack, packet_status = get_packet(socket);
+
+		if ((packet_status == Status.OK) and (ack in buffered_packets)):
+			print("[RECEIVED ACK]: " + str(ack));
+			del(buffered_packets[ack]);
+
+	for unacked_packet in buffered_packets.values():
+		socket.send(unacked_packet);
+
+	num_resent_packets = len(buffered_packets);
+
+	return num_resent_packets;
 
 
+# send file-size to client
+# PACKET_HEADER_FILESIZE_SIZE = 9;
+
+# size = os.path.getsize(input_file_name);
+# filesize_header = str(size).encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
+# filesize_packet = filesize_header.ljust(SERVER_PACKET_SIZE, b'0');
+
+# client_knows_filesize = False;
+# while (client_knows_filesize == False):
+# 	clientSocket.send(filesize_packet);
+# 	expected_clientconfirmation_inbytes = b'1'.rjust(CLIENT_PACKET_SIZE, b'1');
+# 	clientconfirmation_inbytes = get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
+
+# 	if (clientconfirmation_inbytes == expected_clientconfirmation_inbytes):
+# 		i
+# 		client_knows_filesize = True;
 
 
+WINDOW_SIZE = 100;
+end_of_file = False;
+curr_seqnum = 0;
+while (True):
+	if (not end_of_file):
+		for i in range(WINDOW_SIZE):
+			packet, file_status = generate_packet(input_fd, curr_seqnum);
+			clientSocket.send(packet);
+			buffer_packet(curr_seqnum, packet);
+			curr_seqnum = curr_seqnum + 1;
 
+			if (file_status == FILE_EOF):
+				print("====== NO MORE DATA TO BE READ FROM FILE =======");
+				end_of_file = True;
+				break;
 
+	num_resent_packets = resend_any_unacked_packets(clientSocket);
 
-
-
-
+	while(num_resent_packets != 0):
+		print_buffer();
+		num_resent_packets = resend_any_unacked_packets(clientSocket);
 
 
 
