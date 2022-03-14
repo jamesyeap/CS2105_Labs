@@ -83,7 +83,7 @@ def get_packet_seqnum(socket):
 		print("[seqnum]: " + str(seqnum));
 		return seqnum;
 	except ValueError:
-		print("[seqnum]: " + "IS CORRUPTED");
+		# print("[seqnum]: " + "IS CORRUPTED");
 		return None;
 
 def get_packet_checksum(socket):
@@ -91,10 +91,10 @@ def get_packet_checksum(socket):
 
 	try:
 		checksum = int(checksum_inbytes.decode());
-		print("[checksum]: " + str(checksum));
+		# print("[checksum]: " + str(checksum));
 		return checksum;
 	except ValueError:
-		print("[checksum]: " + "IS CORRUPTED");
+		# print("[checksum]: " + "IS CORRUPTED");
 		return None;
 
 def get_data_payload_length(socket):
@@ -102,10 +102,10 @@ def get_data_payload_length(socket):
 
 	try:
 		data_payload_length = int(data_payload_length_inbytes.decode());
-		print("[data_payload_length] " + str(data_payload_length));
+		# print("[data_payload_length] " + str(data_payload_length));
 		return data_payload_length;
 	except ValueError:
-		print("[data_payload_length]: " + "IS CORRUPTED");
+		# print("[data_payload_length]: " + "IS CORRUPTED");
 		return None;
 
 def get_packet_header(socket):
