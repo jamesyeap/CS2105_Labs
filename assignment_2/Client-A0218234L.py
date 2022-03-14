@@ -357,7 +357,7 @@ while (True):
 			output_fd.write(packet_data);
 
 			if (len(buffered_packets) > 0):
-				highest_received_seqnum = write_buffered_packets(highest_contiguous_seqnum, output_fd);
+				highest_received_seqnum = write_buffered_packets(highest_contiguous_seqnum+1, output_fd);
 				highest_contiguous_seqnum = highest_received_seqnum + 1;
 			else:
 				highest_contiguous_seqnum = highest_contiguous_seqnum + 1;
