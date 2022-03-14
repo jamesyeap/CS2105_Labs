@@ -342,6 +342,7 @@ while (True):
 
 	print("highest_contiguous_seqnum: " + str(highest_contiguous_seqnum));
 	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= 724000):
+		write_buffered_packets(highest_contiguous_seqnum, output_fd);
 		send_ack(clientSocket, highest_contiguous_seqnum);
 		print("=== ALL DATA RECEIVED. EXITING...... ===");
 		break;
