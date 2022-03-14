@@ -298,7 +298,7 @@ while (True):
 		if (len(buffered_packets) == 0):
 			expected_seqnum = expected_seqnum + 1;
 		else:
-			highest_received_seqnum = write_buffered_packets(fd);
+			highest_received_seqnum = write_buffered_packets(output_fd);
 			expected_seqnum = highest_received_seqnum + 1;
 
 
