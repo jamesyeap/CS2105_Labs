@@ -236,6 +236,8 @@ while (True):
 			write_buffered_packets(output_fd);
 			break;
 
+		print("YOU SHOULDNT BE HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
 		num_resent_packets = WINDOW_SIZE - num_buffered_packets;
 
 		for i in range(num_resent_packets):
