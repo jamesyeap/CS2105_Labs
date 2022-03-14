@@ -321,6 +321,7 @@ while (True):
 while (True):
 	packet_data = clientSocket.recv(1024);
 	print(packet_data);
+	print("=====");
 
 output_fd.close();
 clientSocket.close();
