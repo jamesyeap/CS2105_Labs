@@ -2,6 +2,7 @@ import sys
 from socket import *
 import hashlib
 import zlib
+import os
 from enum import Enum
 
 # request method codes
@@ -305,6 +306,12 @@ while (True):
 
 # for reordering-channel only
 next_seqnum = 0;
+
+# send file-size to client
+size = os.path.getsize(input_file_name);
+
+print(size);
+
 while (True):
 	packet, file_status = generate_packet(input_fd, next_seqnum);
 
