@@ -341,6 +341,7 @@ while (True):
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
 	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= 724000):
+		send_ack(clientSocket, highest_contiguous_seqnum);
 		print("=== ALL DATA RECEIVED. EXITING...... ===");
 		break;
 
