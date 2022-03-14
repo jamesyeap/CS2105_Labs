@@ -310,7 +310,7 @@ while (True):
 PACKET_HEADER_FILESIZE_SIZE = 9;
 
 size = os.path.getsize(input_file_name);
-filesize_header = size.encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
+filesize_header = str(size).encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
 filesize_packet = filesize_header.ljust(SERVER_PACKET_SIZE, b'0');
 
 clientSocket.send(filesize_packet);
