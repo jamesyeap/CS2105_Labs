@@ -104,8 +104,6 @@ def get_message_until_size_reached(socket, total_length):
 def get_packet_ack_inbytes(socket):
 	ack_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
 
-	print("[ack]: " + ack_inbytes.decode());
-
 	return ack_inbytes;
 
 def get_packet_checksum(socket):
@@ -243,6 +241,8 @@ while (True):
 
 	# SENDING PACKETS
 	if (end_of_file == False):
+		print("====== [[INITIAL]]: SENDING ALL PACKETS IN THIS WINDOW ======");
+
 		for i in range(WINDOW_SIZE):
 			packet, file_status = generate_packet(input_fd, next_seqnum);
 
@@ -272,20 +272,22 @@ while (True):
 	num_unacked_packets = len(buffered_packets);
 	while (True):
 
-		print_buffer();
+		# print_buffer();
 
 		if (num_unacked_packets == 0):
 			break;			
 		
+		print("====== [[RESEND]]: SENDING ALL PACKETS IN THIS WINDOW ======");
 		send_buffered_packets(clientSocket);
 
 		for j in range(num_unacked_packets):
 			ack, packet_status = get_packet(clientSocket);
 
-			print("[ACK RECEIVED]: "+ str(ack));
-
 			if (packet_status == Status.OK and ack != NEGATIVE_ACK):
+				print("[ACK RECEIVED]: "+ str(ack));
 				remove_acked_packet(ack);
+			if (packet_statis == Status.IS_CORRUPTED):
+				print("[ACK CORRUPTED]:" + "xxxxxxxxxxx");
 
 		num_unacked_packets = len(buffered_packets);
 
