@@ -77,7 +77,7 @@ def generate_packet(fd, seqnum):
 	checksum_header = generate_checksum_header(data);
 	length_header = generate_length_header(data_length);
 
-	print("[SENDING]: " + seqnum_header + " | " + checksum_header + " | " + length_header);
+	print("[SENDING]: " + str(seqnum_header) + " | " + str(checksum_header) + " | " + str(length_header));
 
 	packet = seqnum_header + checksum_header + length_header + data;
 
