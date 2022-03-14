@@ -27,7 +27,7 @@ def wait_for_turn(socket):
 			
 		if (len(queue_len) != 0):
 			print("[POSITION IN QUEUE]: " + str(queue_len)); # TO REMOVE
-			
+
 		queue_len = get_response_message(socket);
 
 
@@ -264,7 +264,7 @@ while (init_successful == False):
 		if (server_confirmation_packet_1 == EXPECTED_SERVER_CONFIRMATION_PACKET):
 			while (True):
 				clientSocket.send(CLIENT_CONFIRMATION_PACKET);
-				server_confirmation_packet_2 = clientSocket.get_message_until_size_reached(clientSocket, SERVER_PACKET_SIZE);
+				server_confirmation_packet_2 = get_message_until_size_reached(clientSocket, SERVER_PACKET_SIZE);
 
 				if (server_confirmation_packet_2 == EXPECTED_SERVER_CONFIRMATION_PACKET):
 					init_successful = True;
