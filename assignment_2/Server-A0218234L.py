@@ -215,7 +215,7 @@ ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = -2;
 next_seqnum = 0;
 stop_transmitting = False;
 while (True):
-	if (stop_transmitting = True):
+	if (stop_transmitting == True):
 		print("====== ALL DATA SUCCESSFULLY RECEIVED BY CLIENT ====== ");
 		break;
 
