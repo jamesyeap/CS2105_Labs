@@ -340,6 +340,7 @@ def resend_any_unacked_packets(socket):
 		ack, packet_status = get_packet(socket);
 
 		if ((packet_status == Status.OK) and (ack in buffered_packets)):
+			print("[RECEIVED ACK]: " + str(ack));
 			del(buffered_packets[ack]);
 
 	for unacked_packet in buffered_packets.values():
