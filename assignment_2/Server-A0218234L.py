@@ -210,9 +210,15 @@ input_fd = open(input_file_name, 'rb');
 
 WINDOW_SIZE = 10;
 NEGATIVE_ACK = -1;
+ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = -2;
 
 next_seqnum = 0;
+stop_transmitting = False;
 while (True):
+	if (stop_transmitting = True):
+		print("====== ALL DATA SUCCESSFULLY RECEIVED BY CLIENT ====== ");
+		break;
+
 	# SENDING PACKETS
 	for i in range(WINDOW_SIZE):
 		packet = generate_packet(input_fd, next_seqnum);
@@ -227,6 +233,10 @@ while (True):
 
 		if (packet_status == Status.OK and ack != NEGATIVE_ACK):
 			remove_acked_packet(ack);
+
+		if (packet_status == Status.OK and ack == ALL_DATA_SUCCESSFULLY_RECEIVED_ACK):
+			stop_transmitting = True;
+			break;
 
 	# RESEND ANY UNACKED PACKETS IN THIS WINDOW
 	num_unacked_packets = len(buffered_packets);

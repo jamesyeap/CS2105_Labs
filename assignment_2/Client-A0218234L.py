@@ -190,11 +190,13 @@ output_fd = open(output_file_name, 'wb');
 
 WINDOW_SIZE = 10;
 NEGATIVE_ACK = -1;
+ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = -2;
 
 expected_seqnum = 0;
 end_of_file = False;
 while (True):
 	if (end_of_file == True and len(buffer_packet) == 0):
+		send_ack(clientSocket, ALL_DATA_SUCCESSFULLY_RECEIVED_ACK);
 		print("===== ALL DATA SUCCESSFULLY RECEIVED =====");
 		break;
 
