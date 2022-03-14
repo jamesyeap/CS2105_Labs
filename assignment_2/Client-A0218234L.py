@@ -340,7 +340,7 @@ highest_contiguous_seqnum = 0;
 while (True):
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
-	print("FILESIZE RECEIVED: " + str(highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE));
+	print("highest_contiguous_seqnum: " + str(highest_contiguous_seqnum));
 	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= 724000):
 		send_ack(clientSocket, highest_contiguous_seqnum);
 		print("=== ALL DATA RECEIVED. EXITING...... ===");
