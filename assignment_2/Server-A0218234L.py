@@ -55,7 +55,7 @@ def generate_checksum_header(data):
 	return str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
 
 def generate_length_header(data_length):
-	print(str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0'));
+	# print(str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0'));
 
 	return str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0');
 
@@ -76,6 +76,8 @@ def generate_packet(fd, seqnum):
 	seqnum_header = generate_seqnum_header(seqnum);
 	checksum_header = generate_checksum_header(data);
 	length_header = generate_length_header(data_length);
+
+	print("[SENDING]: " + seqnum_header + " | " + checksum_header + " | " + length_header);
 
 	packet = seqnum_header + checksum_header + length_header + data;
 
