@@ -198,75 +198,73 @@ print("====== STARTING NOW =======");
 """ open the file to be sent """
 input_fd = open(input_file_name, 'rb');
 
-# ================ for error-channel only ================================
+if (mode == '0'):
+	# ================ for reliable-channel only ================================
+	print("<< RUNNING RELIABLE-CHANNEL PROTOCOL >>");
 
-def resend_any_unacked_packets(socket):
-	for i in range(len(buffered_packets)):
-		ack, packet_status = get_packet(socket);
+	while (True):
+		packet = input_fd.read(1024);
 
-		if ((packet_status == Status.OK) and (ack in buffered_packets)):
-			print("[RECEIVED ACK]: " + str(ack));
-			del(buffered_packets[ack]);
+		if (len(packet) == 0):
+			break;
+		
+		clientSocket.send(packet);
 
-	for unacked_packet in buffered_packets.values():
-		socket.send(unacked_packet);
+if (mode == '1'):
+	# ================ for error-channel only ================================
+	print("<< RUNNING ERROR-CHANNEL PROTOCOL >>");
 
-	num_resent_packets = len(buffered_packets);
+	""" ⚠️ just a placeholder for now """
+	while (True):
+		packet = input_fd.read(1024);
 
-	return num_resent_packets;
+		if (len(packet) == 0):
+			break;
 
+		clientSocket.send(packet);
 
-# send file-size to client
-PACKET_HEADER_FILESIZE_SIZE = 9;
+if (mode == '2'):
+	# ================ for reordering-channel only =======================================
+	print("<< RUNNING REORDERING-CHANNEL PROTOCOL >>");
 
-EXPECTED_CLIENT_CONFIRMATION_PACKET = b'1'.rjust(CLIENT_PACKET_SIZE, b'1');
+	# send file-size to client
+	PACKET_HEADER_FILESIZE_SIZE = 9;
 
-SERVER_CONFIRMATION_PACKET = b'1'.rjust(SERVER_PACKET_SIZE, b'1');
-SERVER_UNSUCCESSFUL_PACKET = b'2'.rjust(SERVER_PACKET_SIZE, b'2');
+	size = os.path.getsize(input_file_name);
+	filesize_header = str(size).encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
+	filesize_packet = filesize_header.ljust(SERVER_PACKET_SIZE, b'0');
 
-size = os.path.getsize(input_file_name);
-init_filesize_header = str(size).encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
-init_checksum = zlib.crc32(init_filesize_header);
-init_checksum_header = init_check.rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
-init_packet = (init_filesize_header + init_checksum_header).ljust(SERVER_PACKET_SIZE, b'0');
-
-init_successful = False;
-while (init_successful == False):
 	clientSocket.send(filesize_packet);
-	
-	client_confirmation_packet_1 = get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
+	get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
 
-	if (client_confirmation_packet_1 == EXPECTED_CLIENT_CONFIRMATION_PACKET):
-		while (True):
-			clientSocket.send(SERVER_CONFIRMATION_PACKET);
-			client_confirmation_packet_2 = get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
+	next_seqnum = 0;
+	while (True):
+		packet, file_status = generate_packet(input_fd, next_seqnum);
 
-			if (client_confirmation_packet_2 == EXPECTED_CLIENT_CONFIRMATION_PACKET):
-				init_successful = True;
-				break;
-
-
-WINDOW_SIZE = 100;
-end_of_file = False;
-curr_seqnum = 0;
-while (True):
-	if (not end_of_file):
-		for i in range(WINDOW_SIZE):
-			packet, file_status = generate_packet(input_fd, curr_seqnum);
+		if (file_status == FILE_EOF):
+			print("====== NO MORE DATA TO BE READ FROM FILE =======");
 			clientSocket.send(packet);
-			buffer_packet(curr_seqnum, packet);
-			curr_seqnum = curr_seqnum + 1;
+			break;
 
-			if (file_status == FILE_EOF):
-				print("====== NO MORE DATA TO BE READ FROM FILE =======");
-				end_of_file = True;
-				break;
+		clientSocket.send(packet);
+		next_seqnum = next_seqnum + 1;
 
-	num_resent_packets = resend_any_unacked_packets(clientSocket);
 
-	while(num_resent_packets != 0):
-		print_buffer();
-		num_resent_packets = resend_any_unacked_packets(clientSocket);
+
+
+
+clientSocket.close();
+
+
+
+
+
+
+
+
+
+
+
 
 
 
