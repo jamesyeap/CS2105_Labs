@@ -26,7 +26,8 @@ def wait_for_turn(socket):
 		if (queue_len == b'0_'):
 			break;
 
-		print("[POSITION IN QUEUE]: " + str(queue_len)); # TO REMOVE
+		if (len(queue_len) != 0):
+			print("[POSITION IN QUEUE]: " + str(queue_len)); # TO REMOVE
 		queue_len = get_response_message(socket);
 
 # ----- IMPORTANT INFO -------------------------------------------------------
@@ -234,8 +235,10 @@ init_successful = False;
 while (init_successful == False):
 	clientSocket.send(filesize_packet);
 	
+	# get confirmation that the client knows the filesize
 	client_confirmation_packet_1 = get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
 
+	# once the client knows the file-size, we can continue
 	if (client_confirmation_packet_1 == EXPECTED_CLIENT_CONFIRMATION_PACKET):
 		while (True):
 			clientSocket.send(SERVER_CONFIRMATION_PACKET);
