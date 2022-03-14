@@ -309,8 +309,13 @@ clientSocket.close();
 - my student-key is 651723
 - to test the code:
 	python3 Client-A0218234L.py 651723 0 137.132.92.111 4445 myownoutput.txt
-
 	python3 Server-A0218234L.py 651723 0 137.132.92.111 4445 myowninput.txt
+
+	python3 Client-A0218234L.py 651723 1 137.132.92.111 4445 myownoutput.txt
+	python3 Server-A0218234L.py 651723 1 137.132.92.111 4445 myowninput.txt
+
+	python3 Client-A0218234L.py 651723 2 137.132.92.111 4445 myownoutput.txt
+	python3 Server-A0218234L.py 651723 2 137.132.92.111 4445 myowninput.txt
 
 - to run the reliable channel:
 	On Terminal 1: (Client) ./test/FileTransfer.sh -i 651723 -n

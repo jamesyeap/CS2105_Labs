@@ -257,9 +257,9 @@ while (True):
 				clientSocket.send(packet);
 				next_seqnum = next_seqnum + 1;
 
-	print("hello");
 	# RECEIVING ACKs
 	for i in range(WINDOW_SIZE):
+		print("====== RECEIVING ACKS FROM CLIENT ======");
 		ack, packet_status = get_packet(clientSocket);
 
 		if (packet_status == Status.OK and ack == ALL_DATA_SUCCESSFULLY_RECEIVED_ACK):
