@@ -231,12 +231,12 @@ while (True):
 	for i in range(WINDOW_SIZE):
 		ack, packet_status = get_packet(clientSocket);
 
-		if (packet_status == Status.OK and ack != NEGATIVE_ACK):
-			remove_acked_packet(ack);
-
 		if (packet_status == Status.OK and ack == ALL_DATA_SUCCESSFULLY_RECEIVED_ACK):
 			stop_transmitting = True;
 			break;
+
+		if (packet_status == Status.OK and ack != NEGATIVE_ACK):
+			remove_acked_packet(ack);
 
 	# RESEND ANY UNACKED PACKETS IN THIS WINDOW
 	num_unacked_packets = len(buffered_packets);
