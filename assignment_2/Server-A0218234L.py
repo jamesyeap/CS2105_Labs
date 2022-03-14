@@ -310,7 +310,7 @@ next_seqnum = 0;
 # send file-size to client
 size = os.path.getsize(input_file_name);
 
-print(size);
+print("[DA SIZE] " + str(size));
 
 while (True):
 	packet, file_status = generate_packet(input_fd, next_seqnum);
