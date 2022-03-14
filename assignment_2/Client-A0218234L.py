@@ -224,11 +224,11 @@ output_fd = open(output_file_name, 'wb');
 if (mode == 0):
 	# ================ for reliable-channel only ================================
 	while (True):
-	packet = clientSocket.recv(1024);
-	output_fd.write(packet);
+		packet = clientSocket.recv(1024);
+		output_fd.write(packet);
 
-	if (len(packet) == 0):
-		break;
+		if (len(packet) == 0):
+			break;
 
 if (mode == 1):
 	# ================ for error-channel only ================================
