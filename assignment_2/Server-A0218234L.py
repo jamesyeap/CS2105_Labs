@@ -55,7 +55,7 @@ def generate_checksum_header(data):
 	return str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
 
 def generate_length_header(data_length):
-	# print(str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0'));
+	print(str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0'));
 
 	return str(data_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0');
 
@@ -216,7 +216,7 @@ while (True):
 		packet = generate_packet(input_fd, next_seqnum);
 		buffer_packet(next_seqnum, packet);
 		clientSocket.send(packet);
-
+		
 		next_seqnum = next_seqnum + 1;
 
 	# RECEIVING ACKs
