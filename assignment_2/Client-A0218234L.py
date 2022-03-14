@@ -221,9 +221,7 @@ print("====== STARTING NOW =======");
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb');
 
-print(mode == '0');
-
-if (mode == 0):
+if (mode == '0'):
 	# ================ for reliable-channel only ================================
 	print("<< RUNNING RELIABLE-CHANNEL PROTOCOL >>");
 
@@ -234,7 +232,7 @@ if (mode == 0):
 		if (len(packet) == 0):
 			break;
 
-if (mode == 1):
+if (mode == '1'):
 	# ================ for error-channel only ================================
 	print("<< RUNNING ERROR-CHANNEL PROTOCOL >>");
 
@@ -246,7 +244,7 @@ if (mode == 1):
 		if (len(packet) == 0):
 			break;
 
-if (mode == 2):
+if (mode == '2'):
 	# ================ for reordering-channel only ================================
 	print("<< RUNNING REORDERING-CHANNEL PROTOCOL >>");
 
