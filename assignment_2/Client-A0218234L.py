@@ -14,7 +14,7 @@ def create_request_message(method_code, data=''):
 	return (method_code + data).encode();
 
 def get_response_message(socket):
-	return socket.recv(32);
+	return socket.recv(4);
 
 # ---- CONNECTION FUNCTIONS -------------------------------------------------------
 
