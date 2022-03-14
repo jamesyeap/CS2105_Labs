@@ -306,7 +306,7 @@ while (True):
 # for reordering-channel only
 next_seqnum = 0;
 while (True):
-	packet, file_status generate_packet(input_fd, next_seqnum);
+	packet, file_status = generate_packet(input_fd, next_seqnum);
 
 	if (file_status == FILE_EOF):
 		print("====== NO MORE DATA TO BE READ FROM FILE =======");
