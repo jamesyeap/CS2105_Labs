@@ -188,31 +188,58 @@ print("====== STARTING NOW =======");
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb');
 
-expected_seqnum = 0;
-while (True):
-	packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
-	if (packet_status == Status.NO_MORE_DATA):
-		print("===== ALL DATA RECEIVED =====");
+WINDOW_SIZE = 10;
+NEGATIVE_ACK = -1;
+
+expected_seqnum = 0;
+end_of_file = False;
+while (True):
+	if (end_of_file == True and len(buffer_packet) == 0):
+		print("===== ALL DATA SUCCESSFULLY RECEIVED =====");
 		break;
 
-	if (packet_status == Status.OK):
-		if (packet_seqnum == expected_seqnum):
-			output_fd.write(packet_data);
+	# RECEIVE ALL PACKETS IN THE CURRENT WINDOW
+	for i in range(WINDOW_SIZE):
+		packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
-			if (len(buffered_packets) > 0):
-				latest_seqnum = write_buffered_packets(output_fd);
-				expected_seqnum = latest_seqnum + 1;
-			else:
-				expected_seqnum = expected_seqnum + 1;
+		if (packet_status == Status.NO_MORE_DATA):
+			end_of_file = True;
+			break;
 
-			send_ack(clientSocket, expected_seqnum);
-		else:
-			send_ack(clientSocket, expected_seqnum);
+		if (packet_status == Status.OK):
+			buffer_packet(packet_seqnum, packet_data);
+			send_ack(clientSocket, packet_seqnum);
+
+		if (packet_status == Status.IS_CORRUPTED):
+			print("===== IS CORRUPTED ======");
+			send_ack(clientSocket, NEGATIVE_ACK);
+
+	
+	num_buffered_packets = len(buffered_packets):
+	
+	while (True):
+
+		if (num_buffered_packets == WINDOW_SIZE):
+			write_buffered_packets(output_fd);
+			break;
+
+		num_resent_packets = WINDOW_SIZE - num_buffered_packets;
+
+		for i in num_resent_packets:
+			packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
+
+			if (packet_status == Status.OK):
+				buffer_packet(packet_seqnum, packet_data);
+				send_ack(clientSocket, packet_seqnum);
+
+			if (packet_status == Status.IS_CORRUPTED):
+				print("===== IS CORRUPTED ======");
+				send_ack(clientSocket, NEGATIVE_ACK);
+
+		
 
 
-	if (packet_status == Status.IS_CORRUPTED):
-		print("===== IS CORRUPTED ======");
 
 # while (True):
 # 	packet_data = clientSocket.recv(1024);

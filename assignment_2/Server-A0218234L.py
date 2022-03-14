@@ -207,7 +207,9 @@ input_fd = open(input_file_name, 'rb');
 # 		break;
 
 WINDOW_SIZE = 10;
+NEGATIVE_ACK = -1;
 
+next_seqnum = 0;
 while (True):
 	# SENDING PACKETS
 	for i in range(WINDOW_SIZE):
@@ -221,7 +223,7 @@ while (True):
 	for i in range(WINDOW_SIZE):
 		ack, packet_status = get_packet(clientSocket);
 
-		if (packet_status == Status.OK):
+		if (packet_status == Status.OK and ack != NEGATIVE_ACK):
 			remove_acked_packet(ack);
 
 	# RESEND ANY UNACKED PACKETS IN THIS WINDOW
@@ -235,7 +237,7 @@ while (True):
 		for j in range(num_unacked_packets):
 			ack, packet_status = get_packet(clientSocket);
 
-			if (packet_status == Status.OK):
+			if (packet_status == Status.OK and ack != NEGATIVE_ACK):
 				remove_acked_packet(ack);
 
 		num_unacked_packets = len(buffered_packets);
