@@ -92,7 +92,7 @@ def get_message_until_size_reached(socket, total_length):
 def get_packet_ack_inbytes(socket):
 	ack_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
 
-	# print("[ack]: " + ack_inbytes.decode());
+	print("[ack]: " + ack_inbytes.decode());
 
 	return ack_inbytes;
 
@@ -109,8 +109,6 @@ def remove_excess_padding(socket, padding_size):
 
 def is_corrupted(packet_data, packet_checksum):
 	generated_checksum = zlib.crc32(packet_data);
-
-	print(str(generated_checksum) + " VS " + str(packet_checksum));
 
 	return generated_checksum != packet_checksum;
 
