@@ -164,7 +164,7 @@ def write_buffered_packets(base_seqnum, fd):
 	highest_seqnum = sorted_seqnums[-1];
 
 	if (lowest_seqnum != base_seqnum + 1):
-		break;
+		return base_seqnum;
 
 	for i in range(len(sorted_seqnums)):
 		curr_seqnum = sorted_seqnums[i];
