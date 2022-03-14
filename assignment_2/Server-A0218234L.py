@@ -240,7 +240,10 @@ while (True):
 	num_unacked_packets = len(buffered_packets);
 	while (True):
 
-		print("[NUM UNACKED PACKETS]: "+ str(num_unacked_packets));
+		w = "[UNACKED PACKETS]: ";
+		for k in buffered_packets.keys():
+			w = w + "[" + str(k) "]";
+		print(w);
 
 		if (num_unacked_packets == 0):
 			break;			
