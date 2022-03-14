@@ -157,10 +157,14 @@ def buffer_packet(packet_seqnum, packet_data):
 	# print("====== [BUFFERED]: " + str(packet_seqnum) + "======");
 	buffered_packets[packet_seqnum] = packet_data;
 
-def write_buffered_packets(fd):
+def write_buffered_packets(base_seqnum, fd):
 	sorted_seqnums = sorted(buffered_packets.keys());
 
+	lowest_seqnum = sorted_seqnums[0];
 	highest_seqnum = sorted_seqnums[-1];
+
+	if (lowest_seqnum != base_seqnum + 1):
+		break;
 
 	for i in range(len(sorted_seqnums)):
 		curr_seqnum = sorted_seqnums[i];
@@ -300,7 +304,7 @@ while (True):
 
 	if (seqnum != expected_seqnum):
 		print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
-		buffer_packet(seqnum, packet_data);
+		buffer_packet(expected_seqnum, packet_data);
 	else:
 		output_fd.write(packet_data);
 		print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
@@ -308,7 +312,7 @@ while (True):
 		if (len(buffered_packets) == 0):
 			expected_seqnum = expected_seqnum + 1;
 		else:
-			highest_received_seqnum = write_buffered_packets(output_fd);
+			highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
 			expected_seqnum = highest_received_seqnum + 1;
 
 
