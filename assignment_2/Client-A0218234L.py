@@ -346,6 +346,9 @@ clientSocket.close();
 	./test/FileTransfer.sh -i 651723 -r
 	./test/FileTransfer.sh -s -i 651723 -r
 
+	./test/FileTransfer.sh -i 651723 -A
+	./test/FileTransfer.sh -s -i 651723 -A
+
 
 - link to faq:
 	https://docs.google.com/document/d/1biPpAvd8F7VPTqY2QDVU4XY4xfnWuTnRDM1VGq3usg8/edit#heading=h.65tkp2u5p4vz

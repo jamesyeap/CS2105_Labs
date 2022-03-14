@@ -207,8 +207,7 @@ if (mode == '0'):
 
 		if (len(packet) == 0):
 			break;
-
-		print("[SENDING]");
+		
 		clientSocket.send(packet);
 
 if (mode == '1'):
