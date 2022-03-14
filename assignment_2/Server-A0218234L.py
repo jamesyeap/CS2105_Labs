@@ -254,17 +254,24 @@ WINDOW_SIZE = 100;
 end_of_file = False;
 curr_seqnum = 0;
 while (True):
-	if (not end_of_file):
-		for i in range(WINDOW_SIZE):
-			packet, file_status = generate_packet(input_fd, curr_seqnum);
-			clientSocket.send(packet);
-			buffer_packet(curr_seqnum, packet);
-			curr_seqnum = curr_seqnum + 1;
+	if (end_of_file):
+		num_resent_packets = resend_any_unacked_packets(clientSocket);
+		while(num_resent_packets != 0):
+			num_resent_packets = resend_any_unacked_packets(clientSocket);
+			print_buffer();
 
-			if (file_status == FILE_EOF):
-				print("====== NO MORE DATA TO BE READ FROM FILE =======");
-				end_of_file = True;
-				break;
+		break;
+
+	for i in range(WINDOW_SIZE):
+		packet, file_status = generate_packet(input_fd, curr_seqnum);
+		clientSocket.send(packet);
+		buffer_packet(curr_seqnum, packet);
+		curr_seqnum = curr_seqnum + 1;
+
+		if (file_status == FILE_EOF):
+			print("====== NO MORE DATA TO BE READ FROM FILE =======");
+			end_of_file = True;
+			break;
 
 	num_resent_packets = resend_any_unacked_packets(clientSocket);
 
