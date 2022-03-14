@@ -264,6 +264,7 @@ while (True):
 		ack, packet_status = get_packet(clientSocket);
 
 		if (packet_status == Status.OK and ack == ALL_DATA_SUCCESSFULLY_RECEIVED_ACK):
+			print("====== CLIENT SAYS ALL DATA SUCCESSFULLY RECEIVED ======");
 			stop_transmitting = True;
 			break;
 
