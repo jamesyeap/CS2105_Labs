@@ -228,7 +228,7 @@ SERVER_UNSUCCESSFUL_PACKET = b'2'.rjust(SERVER_PACKET_SIZE, b'2');
 size = os.path.getsize(input_file_name);
 init_filesize_header = str(size).encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
 init_checksum = zlib.crc32(init_filesize_header);
-init_checksum_header = init_checksum.rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
+init_checksum_header = str(init_checksum).rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
 init_packet = (init_filesize_header + init_checksum_header).ljust(SERVER_PACKET_SIZE, b'0');
 
 init_successful = False;
