@@ -216,7 +216,7 @@ while (True):
 			send_ack(clientSocket, NEGATIVE_ACK);
 
 	
-	num_buffered_packets = len(buffered_packets):
+	num_buffered_packets = len(buffered_packets);
 	
 	while (True):
 
@@ -237,7 +237,7 @@ while (True):
 				print("===== IS CORRUPTED ======");
 				send_ack(clientSocket, NEGATIVE_ACK);
 
-		
+
 
 
 
