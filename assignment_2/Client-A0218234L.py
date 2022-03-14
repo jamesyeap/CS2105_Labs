@@ -290,8 +290,23 @@ while (True):
 
 
 # for reordering-channel only
+
+PACKET_HEADER_FILESIZE_SIZE = 9;
+
+filesize_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_FILESIZE_SIZE);
+remove_excess_padding(clientSocket, SERVER_PACKET_SIZE - PACKET_HEADER_FILESIZE_SIZE);
+
+filesize = int(filesize_inbytes.decode());
+
+response_packet = (b'0').rjust(CLIENT_PACKET_SIZE, b'0');
+clientSocket.send(response_packet);
+
 expected_seqnum = 0;
 while (True):
+	if (expected_seqnum * 1004 >= filesize):
+		print("=== ALL DATA RECEIVED. EXITING...... ===");
+		break;
+
 	seqnum, checksum, data_payload_length = get_packet_header(clientSocket);
 
 	# if (data_payload_length == 0):

@@ -305,13 +305,18 @@ while (True):
 """
 
 # for reordering-channel only
-next_seqnum = 0;
 
 # send file-size to client
+PACKET_HEADER_FILESIZE_SIZE = 9;
+
 size = os.path.getsize(input_file_name);
+filesize_header = size.encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
+filesize_packet = filesize_header.ljust(SERVER_PACKET_SIZE, b'0');
 
-print("[DA SIZE] " + str(size));
+clientSocket.send(filesize_packet);
+get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
 
+next_seqnum = 0;
 while (True):
 	packet, file_status = generate_packet(input_fd, next_seqnum);
 
