@@ -195,8 +195,15 @@ ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
 expected_seqnum = 0;
 end_of_file = False;
 while (True):
+
+	w = "[PACKETS IN BUFFER]: ";
+	for k in buffered_packets.keys():
+		w = w + "[" + str(k) + "]";
+	print(w);
+
 	if (end_of_file == True and len(buffer_packet) == 0):
 		print("===== ALL DATA SUCCESSFULLY RECEIVED =====");
+		send_ack(clientSocket, ALL_DATA_SUCCESSFULLY_RECEIVED_ACK);
 		break;
 
 	# RECEIVE ALL PACKETS IN THE CURRENT WINDOW
@@ -204,7 +211,6 @@ while (True):
 		packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
 		if (packet_status == Status.NO_MORE_DATA):
-			send_ack(clientSocket, ALL_DATA_SUCCESSFULLY_RECEIVED_ACK);
 			end_of_file = True;
 			break;
 
