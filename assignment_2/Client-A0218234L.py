@@ -221,6 +221,8 @@ print("====== STARTING NOW =======");
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb');
 
+print(mode == 0);
+
 if (mode == 0):
 	# ================ for reliable-channel only ================================
 	print("<< RUNNING RELIABLE-CHANNEL PROTOCOL >>");

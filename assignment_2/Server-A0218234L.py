@@ -198,6 +198,8 @@ print("====== STARTING NOW =======");
 """ open the file to be sent """
 input_fd = open(input_file_name, 'rb');
 
+print(mode == 0);
+
 if (mode == 0):
 	# ================ for reliable-channel only ================================
 	print("<< RUNNING RELIABLE-CHANNEL PROTOCOL >>");
@@ -227,7 +229,7 @@ if (mode == 1):
 if (mode == 2):
 	# ================ for reordering-channel only =======================================
 	print("<< RUNNING REORDERING-CHANNEL PROTOCOL >>");
-	
+
 	# send file-size to client
 	PACKET_HEADER_FILESIZE_SIZE = 9;
 
