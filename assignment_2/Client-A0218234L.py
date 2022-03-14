@@ -169,14 +169,14 @@ def write_buffered_packets(base_seqnum, fd):
 	for i in range(len(sorted_seqnums)):
 		curr_seqnum = sorted_seqnums[i];
 
-		if i != len(sorted_seqnums)-1:
-			adjacent_seqnum = sorted_seqnums[i+1];
-			if (curr_seqnum != adjacent_seqnum - 1):
-				return curr_seqnum;
-
 		fd.write(buffered_packets[curr_seqnum]);
 		print("===== [FROM BUFFER]: WRITING SEQNUM: " + str(curr_seqnum) + " ======");
 		del(buffered_packets[curr_seqnum]);
+
+		if (i != len(sorted_seqnums)-1):
+			adjacent_seqnum = sorted_seqnums[i+1];
+			if (curr_seqnum != adjacent_seqnum - 1):
+				return curr_seqnum;
 
 	return highest_seqnum;
 
