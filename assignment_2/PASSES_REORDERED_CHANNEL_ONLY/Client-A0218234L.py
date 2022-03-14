@@ -36,6 +36,7 @@ PACKET_HEADER_SEQNUM_SIZE = 6;
 PACKET_HEADER_CHECKSUM_SIZE = 10;
 PACKET_HEADER_LENGTH_SIZE = 4;
 TOTAL_PACKET_HEADER_SIZE = PACKET_HEADER_SEQNUM_SIZE + PACKET_HEADER_CHECKSUM_SIZE + PACKET_HEADER_LENGTH_SIZE;
+MAX_PACKET_DATA_PAYLOAD_SIZE = SERVER_PACKET_SIZE - TOTAL_PACKET_HEADER_SIZE;
 
 CLIENT_PACKET_SIZE = 64;
 
@@ -289,29 +290,24 @@ while (True):
 """
 
 
-# for reordering-channel only
+# ================ for reordering-channel only ================================
 
 PACKET_HEADER_FILESIZE_SIZE = 9;
 
+# get file-size from server first
 filesize_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_FILESIZE_SIZE);
 remove_excess_padding(clientSocket, SERVER_PACKET_SIZE - PACKET_HEADER_FILESIZE_SIZE);
-
 filesize = int(filesize_inbytes.decode());
-
 response_packet = (b'0').rjust(CLIENT_PACKET_SIZE, b'0');
-clientSocket.send(response_packet);
+clientSocket.send(response_packet); # need to tell server that client knows the file-size as server will not send any packets until this to prevent re-ordering
 
 expected_seqnum = 0;
 while (True):
-	if (expected_seqnum * 1004 >= filesize):
+	if (expected_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= filesize):
 		print("=== ALL DATA RECEIVED. EXITING...... ===");
 		break;
 
 	seqnum, checksum, data_payload_length = get_packet_header(clientSocket);
-
-	# if (data_payload_length == 0):
-	# 	write_buffered_packets(expected_seqnum, output_fd);
-	# 	break;
 
 	packet_data = get_message_until_size_reached(clientSocket, data_payload_length);
 	padding_size = SERVER_PACKET_SIZE - data_payload_length - TOTAL_PACKET_HEADER_SIZE;

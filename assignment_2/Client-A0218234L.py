@@ -135,10 +135,10 @@ def get_packet(socket):
 
 	if (seqnum == None or checksum == None or data_payload_length == None):
 		get_message_until_size_reached(socket, 1004); # ⚠️ just assume the packets are 1004 for now
-		return -1, None, Status.IS_CORRUPTED;
+		return -1, None, None, Status.IS_CORRUPTED;
 
 	if (data_payload_length == 0):
-		return seqnum, None, Status.NO_MORE_DATA;
+		return None, None, None, Status.NO_MORE_DATA;
 	else:
 		packet_data = get_message_until_size_reached(socket, data_payload_length);
 
@@ -146,7 +146,7 @@ def get_packet(socket):
 		remove_excess_padding(socket, padding_size);
 
 		if (is_corrupted(packet_data, checksum)):
-			return seqnum, None, Status.IS_CORRUPTED;
+			return None, None, None, Status.IS_CORRUPTED;
 		
 		return seqnum, data_payload_length, packet_data, Status.OK;
 
@@ -222,6 +222,8 @@ print("====== STARTING NOW =======");
 output_fd = open(output_file_name, 'wb');
 
 
+# ====== <OLD STUFF> ============================================================
+"""
 WINDOW_SIZE = 1000;
 NEGATIVE_ACK = 999998;
 ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
@@ -229,8 +231,6 @@ ALL_DATA_SUCCESSFULLY_RECEIVED_ACK = 999999;
 expected_seqnum = 0;
 end_of_file = False;
 
-
-"""
 while (True):
 
 	if (end_of_file == True):
@@ -291,6 +291,7 @@ while (True):
 
 
 # ================ for reordering-channel only ================================
+"""
 
 PACKET_HEADER_FILESIZE_SIZE = 9;
 
@@ -326,6 +327,63 @@ while (True):
 			highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
 			expected_seqnum = highest_received_seqnum + 1;
 			print_buffer();
+"""
+
+# ================ for error-channel only ================================
+
+PACKET_HEADER_FILESIZE_SIZE = 9;
+
+# get file-size from server first
+
+server_received_confirmation = False;
+while (server_received_confirmation == False):
+	filesize_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_FILESIZE_SIZE);
+	remove_excess_padding(clientSocket, SERVER_PACKET_SIZE - PACKET_HEADER_FILESIZE_SIZE);
+	try:
+		filesize = int(filesize_inbytes.decode());
+	except ValueError:
+		response_packet = (b'2').rjust(CLIENT_PACKET_SIZE, b'2');
+		clientSocket.send(response_packet); # need to tell server that client knows the file-size as server will not send any packets until it receives confirmation that client knows the filesize
+		continue;
+
+	response_packet = (b'1').rjust(CLIENT_PACKET_SIZE, b'1');
+	clientSocket.send(response_packet); # need to tell server that client knows the file-size as server will not send any packets until it receives confirmation that client knows the filesize
+
+	expected_serverconfirmation_inbytes = b'1'.rjust(SERVER_PACKET_SIZE, b'1');
+	serverconfirmation_inbytes = get_message_until_size_reached(clientSocket, SERVER_PACKET_SIZE);
+
+	if (serverconfirmation_inbytes == expected_serverconfirmation_inbytes):
+		server_received_confirmation = True;
+
+
+
+highest_contiguous_seqnum = 0;
+
+while (True):
+	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
+
+	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= filesize):
+		print("=== ALL DATA RECEIVED. EXITING...... ===");
+		break;
+
+	if (packet_status == Status.IS_CORRUPTED):
+		send_ack(clientSocket, highest_contiguous_seqnum);
+
+	if (packet_status == Status.OK):
+		send_ack(clientSocket, seqnum);
+
+		if (seqnum == highest_contiguous_seqnum):
+			output_fd.write(packet_data);
+
+			if (len(buffered_packets) > 0):
+				highest_received_seqnum = write_buffered_packets(output_fd);
+				highest_contiguous_seqnum = highest_received_seqnum + 1;
+			else:
+				highest_contiguous_seqnum = highest_contiguous_seqnum + 1;
+		else:
+			buffer_packet(seqnum, packet_data);
+
+
 
 # while (True):
 # 	packet_data = clientSocket.recv(1024);

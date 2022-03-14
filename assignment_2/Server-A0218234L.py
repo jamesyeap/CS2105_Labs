@@ -304,7 +304,8 @@ while (True):
 		num_unacked_packets = len(buffered_packets);
 """
 
-# for reordering-channel only
+# ================ for reordering-channel only =======================================
+"""
 
 # send file-size to client
 PACKET_HEADER_FILESIZE_SIZE = 9;
@@ -330,7 +331,61 @@ while (True):
 
 clientSocket.close();
 
+"""
 
+# ================ for error-channel only ================================
+
+def resend_any_unacked_packets(socket):
+	for i in range(len(buffered_packets)):
+		ack, packet_status = get_packet(socket);
+
+		if ((packet_status == Status.OK) and (ack in buffered_packets)):
+			del(buffered_packets[ack]);
+
+	for unacked_packet in buffered_packets.values():
+		socket.send(unacked_packet);
+
+	num_resent_packets = len(buffered_packets);
+
+	return num_resent_packets;
+
+
+# send file-size to client
+PACKET_HEADER_FILESIZE_SIZE = 9;
+
+size = os.path.getsize(input_file_name);
+filesize_header = str(size).encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
+filesize_packet = filesize_header.ljust(SERVER_PACKET_SIZE, b'0');
+
+client_knows_filesize = False;
+while (client_knows_filesize == False):
+	clientSocket.send(filesize_packet);
+	expected_clientconfirmation_inbytes = b'1'.rjust(CLIENT_PACKET_SIZE, b'1');
+	clientconfirmation_inbytes = get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
+
+	if (clientconfirmation_inbytes == expected_clientconfirmation_inbytes):
+		client_knows_filesize = True;
+
+
+
+
+WINDOW_SIZE = 100;
+end_of_file = False;
+curr_seqnum = 0;
+while (True):
+	for i in range(WINDOW_SIZE):
+		packet, file_status = generate_packet(input_fd, curr_seqnum);
+		clientSocket.send(packet);
+		curr_seqnum = curr_seqnum + 1;
+
+		if (file_status == FILE_EOF):
+			end_of_file = True;
+			break;
+
+	num_resent_packets = resend_any_unacked_packets(clientSocket);
+
+	while(num_resent_packets != 0):
+		num_resent_packets = resend_any_unacked_packets(num_unacked_packets);
 
 
 
