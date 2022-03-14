@@ -92,7 +92,7 @@ def get_message_until_size_reached(socket, total_length):
 def get_packet_ack_inbytes(socket):
 	ack_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
 
-	print("[ack]: " + ack_inbytes.decode());
+	# print("[ack]: " + ack_inbytes.decode());
 
 	return ack_inbytes;
 
@@ -100,7 +100,7 @@ def get_packet_checksum(socket):
 	checksum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_CHECKSUM_SIZE);
 	checksum = int(checksum_inbytes.decode());
 
-	print("[checksum]: " + str(checksum));
+	# print("[checksum]: " + str(checksum));
 
 	return checksum;
 
@@ -229,7 +229,7 @@ while (True):
 	# RESEND ANY UNACKED PACKETS IN THIS WINDOW
 	num_unacked_packets = len(buffered_packets);
 	while (True):
-		
+
 		print("[NUM UNACKED PACKETS]: "+ str(num_unacked_packets));
 
 		if (num_unacked_packets == 0):
@@ -239,6 +239,8 @@ while (True):
 
 		for j in range(num_unacked_packets):
 			ack, packet_status = get_packet(clientSocket);
+
+			print("[ACK RECEIVED]: "+ str(ack));
 
 			if (packet_status == Status.OK and ack != NEGATIVE_ACK):
 				remove_acked_packet(ack);
