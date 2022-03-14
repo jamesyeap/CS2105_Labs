@@ -166,6 +166,7 @@ def write_buffered_packets(fd):
 
 	for s in sorted_seqnums:
 		fd.write(buffered_packets[s]);
+		print("===== WRITING SEQNUM: " + str(s) + " ======");
 		del(buffered_packets[s]);
 
 	return highest_seqnum;
@@ -296,6 +297,7 @@ while (True):
 		buffer_packet(seqnum, packet_data);
 	else:
 		output_fd.write(packet_data);
+		print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
 
 		if (len(buffered_packets) == 0):
 			expected_seqnum = expected_seqnum + 1;
