@@ -223,6 +223,8 @@ output_fd = open(output_file_name, 'wb');
 
 if (mode == 0):
 	# ================ for reliable-channel only ================================
+	print("<< RUNNING RELIABLE-CHANNEL PROTOCOL >>");
+
 	while (True):
 		packet = clientSocket.recv(1024);
 		output_fd.write(packet);
@@ -232,6 +234,7 @@ if (mode == 0):
 
 if (mode == 1):
 	# ================ for error-channel only ================================
+	print("<< RUNNING ERROR-CHANNEL PROTOCOL >>");
 
 	""" ⚠️ just a placeholder for now """
 	while (True):
@@ -243,6 +246,8 @@ if (mode == 1):
 
 if (mode == 2):
 	# ================ for reordering-channel only ================================
+	print("<< RUNNING REORDERING-CHANNEL PROTOCOL >>");
+
 	PACKET_HEADER_FILESIZE_SIZE = 9;
 
 	# get file-size from server first
