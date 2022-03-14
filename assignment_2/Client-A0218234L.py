@@ -295,7 +295,7 @@ while (True):
 	seqnum, checksum, data_payload_length = get_packet_header(clientSocket);
 
 	if (data_payload_length == 0):
-		write_buffered_packets(output_fd);
+		write_buffered_packets(expected_seqnum, output_fd);
 		break;
 
 	packet_data = get_message_until_size_reached(clientSocket, data_payload_length);
