@@ -41,21 +41,18 @@ CLIENT_PACKET_SIZE = 64;
 
 # ----- GENERATE ACK PACKET FUNCTIONS ----------------------------------------
 
-def generate_padded_packet(packet, target_length):
-	return packet.ljust(target_length, b'0');
-
 def generate_ack_packet(seqnum):
 	encoded_seqnum = str(seqnum).encode();
-	checksum = zlib.crc32(encoded_seqnum);
-	encoded_checksum = str(checksum).encode();
-
 	ack_header = encoded_seqnum.rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
+
+	checksum = zlib.crc32(ack_header);
+	checksum_header = str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
 
 	packet = ack_header + encoded_checksum;
 
 	print("[sent ack packet] (seqnum) | (checksum): " + str(seqnum) + " | " + str(checksum));
 
-	return generate_padded_packet(packet, CLIENT_PACKET_SIZE);
+	return packet.ljust(CLIENT_PACKET_SIZE, b'0');
 
 def send_ack(socket, seqnum):
 	socket.send(generate_ack_packet(seqnum));
