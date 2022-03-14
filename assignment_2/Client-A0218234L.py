@@ -215,6 +215,7 @@ while (True):
 		packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
 		if (packet_status == Status.NO_MORE_DATA):
+			print("===== SERVER HAS SENT ALL DATA =====");
 			end_of_file = True;
 			break;
 
