@@ -286,7 +286,7 @@ while (True):
 			if (packet_status == Status.OK and ack != NEGATIVE_ACK):
 				print("[ACK RECEIVED]: "+ str(ack));
 				remove_acked_packet(ack);
-			if (packet_statis == Status.IS_CORRUPTED):
+			if (packet_status == Status.IS_CORRUPTED):
 				print("[ACK CORRUPTED]:" + "xxxxxxxxxxx");
 
 		num_unacked_packets = len(buffered_packets);
