@@ -216,7 +216,7 @@ while (True):
 		packet = generate_packet(input_fd, next_seqnum);
 		buffer_packet(next_seqnum, packet);
 		clientSocket.send(packet);
-		
+
 		next_seqnum = next_seqnum + 1;
 
 	# RECEIVING ACKs
@@ -229,6 +229,9 @@ while (True):
 	# RESEND ANY UNACKED PACKETS IN THIS WINDOW
 	num_unacked_packets = len(buffered_packets);
 	while (True):
+		
+		print("[NUM UNACKED PACKETS]: "+ str(num_unacked_packets));
+
 		if (num_unacked_packets == 0):
 			break;			
 		
