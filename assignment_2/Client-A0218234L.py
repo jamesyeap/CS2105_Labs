@@ -340,7 +340,7 @@ highest_contiguous_seqnum = 0;
 while (True):
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
-	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= 725116):
+	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= 724000):
 		print("=== ALL DATA RECEIVED. EXITING...... ===");
 		break;
 
