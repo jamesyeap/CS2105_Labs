@@ -314,6 +314,7 @@ while (True):
 		break;
 
 	clientSocket.send(packet);
+	next_seqnum = next_seqnum + 1;
 
 clientSocket.close();
 
