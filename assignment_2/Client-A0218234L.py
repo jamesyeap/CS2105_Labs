@@ -260,16 +260,13 @@ while (init_successful == False):
 
 	# get confirmation that the server knows that we know the filesize
 	while (True):
+		print("hello");
 		server_confirmation_packet_1 = get_message_until_size_reached(clientSocket, SERVER_PACKET_SIZE);
+		clientSocket.send(CLIENT_CONFIRMATION_PACKET); # tell the server that we know the filesize
 
 		if (server_confirmation_packet_1 == EXPECTED_SERVER_CONFIRMATION_PACKET):
-			while (True):
-				clientSocket.send(CLIENT_CONFIRMATION_PACKET);
-				server_confirmation_packet_2 = get_message_until_size_reached(clientSocket, SERVER_PACKET_SIZE);
-
-				if (server_confirmation_packet_2 == EXPECTED_SERVER_CONFIRMATION_PACKET):
-					init_successful = True;
-					break;
+			init_successful = True;
+			break;
 
 print("[FILESIZE]:" + str(filesize));
 
