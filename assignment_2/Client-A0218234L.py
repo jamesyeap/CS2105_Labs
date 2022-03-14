@@ -53,6 +53,8 @@ def generate_ack_packet(seqnum):
 
 	packet = ack_header + encoded_checksum;
 
+	print("[sent ack packet] (seqnum) | (checksum): " + str(seqnum) + " | " + str(checksum));
+
 	return generate_padded_packet(packet, CLIENT_PACKET_SIZE);
 
 def send_ack(socket, seqnum):
