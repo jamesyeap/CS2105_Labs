@@ -235,9 +235,6 @@ stop_transmitting = False;
 end_of_file = False;
 
 while (True):
-	if (stop_transmitting == True):
-		print("====== ALL DATA SUCCESSFULLY RECEIVED BY CLIENT ====== ");
-		break;
 
 	# SENDING PACKETS
 	if (end_of_file == False):
@@ -273,6 +270,10 @@ while (True):
 			remove_acked_packet(ack);
 		if (packet_status == Status.IS_CORRUPTED):
 				print("[ACK CORRUPTED]:" + "xxxxxxxxxxx");
+
+	if (stop_transmitting == True):
+		print("====== EXITING NOW ====== ");
+		break;
 
 	# RESEND ANY UNACKED PACKETS IN THIS WINDOW
 	num_unacked_packets = len(buffered_packets);
