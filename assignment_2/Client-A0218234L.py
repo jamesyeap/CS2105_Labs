@@ -196,7 +196,6 @@ expected_seqnum = 0;
 end_of_file = False;
 while (True):
 	if (end_of_file == True and len(buffer_packet) == 0):
-		send_ack(clientSocket, ALL_DATA_SUCCESSFULLY_RECEIVED_ACK);
 		print("===== ALL DATA SUCCESSFULLY RECEIVED =====");
 		break;
 
@@ -205,6 +204,7 @@ while (True):
 		packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
 		if (packet_status == Status.NO_MORE_DATA):
+			send_ack(clientSocket, ALL_DATA_SUCCESSFULLY_RECEIVED_ACK);
 			end_of_file = True;
 			break;
 
