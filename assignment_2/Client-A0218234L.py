@@ -77,27 +77,36 @@ def get_message_until_size_reached(socket, total_length):
 
 def get_packet_seqnum(socket):
 	seqnum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_SEQNUM_SIZE);
-	seqnum = int(seqnum_inbytes.decode());
 
-	print("[seqnum]: " + str(seqnum));
-
-	return seqnum;
+	try:
+		seqnum = int(seqnum_inbytes.decode());
+		print("[seqnum]: " + str(seqnum));
+		return seqnum;
+	except ValueError:
+		print("[seqnum]: " + "IS CORRUPTED");
+		return None;
 
 def get_packet_checksum(socket):
 	checksum_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_CHECKSUM_SIZE);
-	checksum = int(checksum_inbytes.decode());
 
-	print("[checksum]: " + str(checksum));
-
-	return checksum;
+	try:
+		checksum = int(checksum_inbytes.decode());
+		print("[checksum]: " + str(checksum));
+		return checksum;
+	except ValueError:
+		print("[checksum]: " + "IS CORRUPTED");
+		return None;
 
 def get_data_payload_length(socket):
 	data_payload_length_inbytes = get_message_until_size_reached(socket, PACKET_HEADER_LENGTH_SIZE);
-	data_payload_length = int(data_payload_length_inbytes.decode());
 
-	print("[data_payload_length] " + str(data_payload_length));
-
-	return data_payload_length;
+	try:
+		data_payload_length = int(data_payload_length_inbytes.decode());
+		print("[data_payload_length] " + str(data_payload_length));
+		return data_payload_length;
+	except ValueError:
+		print("[data_payload_length]: " + "IS CORRUPTED");
+		return None;
 
 def get_packet_header(socket):
 	seqnum = get_packet_seqnum(socket);
@@ -120,7 +129,12 @@ class Status(Enum):
 	NO_MORE_DATA = 2;
 
 def get_packet(socket):
+
 	seqnum, checksum, data_payload_length = get_packet_header(socket);
+
+	if (seqnum == None or checksum == None or data_payload_length == None):
+		get_message_until_size_reached(socket, 1004); # ⚠️ just assume the packets are 1004 for now
+		return -1, None, Status.IS_CORRUPTED;
 
 	if (data_payload_length == 0):
 		return seqnum, None, Status.NO_MORE_DATA;
@@ -237,8 +251,6 @@ while (True):
 			write_buffered_packets(output_fd);
 			break;
 
-		print("YOU SHOULDNT BE HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-
 		num_resent_packets = WINDOW_SIZE - num_buffered_packets;
 
 		for i in range(num_resent_packets):
@@ -251,9 +263,6 @@ while (True):
 			if (packet_status == Status.IS_CORRUPTED):
 				print("===== IS CORRUPTED ======");
 				send_ack(clientSocket, NEGATIVE_ACK);
-
-
-
 
 
 # while (True):
@@ -308,6 +317,17 @@ clientSocket.close();
 		-e  for error channel
 		-r   for reorder channel
 		-A  for running all three tests.
+
+	./test/FileTransfer.sh -i 651723 -n
+	./test/FileTransfer.sh -s -i 651723 -n
+
+	./test/FileTransfer.sh -i 651723 -e
+	./test/FileTransfer.sh -s -i 651723 -e
+
+	./test/FileTransfer.sh -i 651723 -r
+	./test/FileTransfer.sh -s -i 651723 -r
+
+
 - link to faq:
 	https://docs.google.com/document/d/1biPpAvd8F7VPTqY2QDVU4XY4xfnWuTnRDM1VGq3usg8/edit#heading=h.65tkp2u5p4vz
 	
