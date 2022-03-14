@@ -290,37 +290,37 @@ while (True):
 
 
 # for reordering-channel only
-expected_seqnum = 0;
-while (True):
-	seqnum, checksum, data_payload_length = get_packet_header(clientSocket);
-
-	if (data_payload_length == 0):
-		write_buffered_packets(expected_seqnum, output_fd);
-		break;
-
-	packet_data = get_message_until_size_reached(clientSocket, data_payload_length);
-	padding_size = SERVER_PACKET_SIZE - data_payload_length - TOTAL_PACKET_HEADER_SIZE;
-	remove_excess_padding(clientSocket, padding_size);
-
-	if (seqnum != expected_seqnum):
-		print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
-		buffer_packet(seqnum, packet_data);
-	else:
-		output_fd.write(packet_data);
-		print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
-
-		if (len(buffered_packets) == 0):
-			expected_seqnum = expected_seqnum + 1;
-		else:
-			highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
-			expected_seqnum = highest_received_seqnum + 1;
-
-
-
-
+# expected_seqnum = 0;
 # while (True):
-# 	packet_data = clientSocket.recv(1024);
-# 	print(packet_data);
+# 	seqnum, checksum, data_payload_length = get_packet_header(clientSocket);
+
+# 	if (data_payload_length == 0):
+# 		write_buffered_packets(expected_seqnum, output_fd);
+# 		break;
+
+# 	packet_data = get_message_until_size_reached(clientSocket, data_payload_length);
+# 	padding_size = SERVER_PACKET_SIZE - data_payload_length - TOTAL_PACKET_HEADER_SIZE;
+# 	remove_excess_padding(clientSocket, padding_size);
+
+# 	if (seqnum != expected_seqnum):
+# 		print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
+# 		buffer_packet(seqnum, packet_data);
+# 	else:
+# 		output_fd.write(packet_data);
+# 		print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
+
+# 		if (len(buffered_packets) == 0):
+# 			expected_seqnum = expected_seqnum + 1;
+# 		else:
+# 			highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
+# 			expected_seqnum = highest_received_seqnum + 1;
+
+
+
+
+while (True):
+	packet_data = clientSocket.recv(1024);
+	print(packet_data);
 
 output_fd.close();
 clientSocket.close();
