@@ -48,7 +48,7 @@ def generate_ack_packet(seqnum):
 	checksum = zlib.crc32(ack_header);
 	checksum_header = str(checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
 
-	packet = ack_header + encoded_checksum;
+	packet = ack_header + checksum_header;
 
 	print("[sent ack packet] (seqnum) | (checksum): " + str(seqnum) + " | " + str(checksum));
 
