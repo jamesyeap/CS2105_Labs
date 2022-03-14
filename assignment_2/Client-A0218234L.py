@@ -228,6 +228,8 @@ while (True):
 	for i in range(WINDOW_SIZE):
 		packet_seqnum, packet_data, packet_status = get_packet(clientSocket);
 
+		print("[PACKET STATUS]: "+ str(packet_status));
+
 		if (packet_status == Status.NO_MORE_DATA):
 			print("===== SERVER HAS SENT ALL DATA =====");
 			end_of_file = True;
