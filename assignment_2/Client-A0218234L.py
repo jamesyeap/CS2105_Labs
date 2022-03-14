@@ -331,16 +331,13 @@ while (True):
 
 # ================ for error-channel only ================================
 
-PACKET_HEADER_FILESIZE_SIZE = 9;
-
-# get file-size from server first
-
 highest_contiguous_seqnum = 0;
+
+seqnums_of_successfully_received_packets = set();
 
 while (True):
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
-	print("highest_contiguous_seqnum: " + str(highest_contiguous_seqnum));
 	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= 724000):
 		write_buffered_packets(highest_contiguous_seqnum, output_fd);
 		send_ack(clientSocket, highest_contiguous_seqnum);
@@ -353,11 +350,15 @@ while (True):
 	if (packet_status == Status.OK):
 		send_ack(clientSocket, seqnum);
 
+		if (seqnum in seqnums_of_successfully_received_packets):
+			continue;
+
+		seqnums_of_successfully_received_packets.add(seqnum);
 		if (seqnum == highest_contiguous_seqnum):
 			output_fd.write(packet_data);
 
 			if (len(buffered_packets) > 0):
-				highest_received_seqnum = write_buffered_packets(highest_contiguous_seqnum+1, output_fd);
+				highest_received_seqnum = write_buffered_packets(highest_contiguous_seqnum, output_fd);
 				highest_contiguous_seqnum = highest_received_seqnum + 1;
 			else:
 				highest_contiguous_seqnum = highest_contiguous_seqnum + 1;
