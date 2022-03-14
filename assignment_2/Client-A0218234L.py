@@ -240,7 +240,6 @@ while (init_successful == False):
 	filesize_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_FILESIZE_SIZE);
 	checksum_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_CHECKSUM_SIZE);
 	remove_excess_padding(clientSocket, SERVER_PACKET_SIZE - PACKET_HEADER_FILESIZE_SIZE - PACKET_HEADER_CHECKSUM_SIZE);
-
 	checksum = -1;
 	try:
 		checksum = int(checksum_inbytes.decode());
@@ -255,6 +254,8 @@ while (init_successful == False):
 		continue;
 
 	filesize = int(filesize_inbytes.decode());
+
+	print("[FILESIZE]:" + str(filesize));
 	clientSocket.send(CLIENT_CONFIRMATION_PACKET); # tell the server that we know the filesize
 
 	# get confirmation that the server knows that we know the filesize
