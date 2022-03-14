@@ -158,7 +158,7 @@ def buffer_packet(packet_seqnum, packet_data):
 	buffered_packets[packet_seqnum] = packet_data;
 
 def write_buffered_packets(fd):
-	# print("====== [WRITING PACKETS FROM BUFFER]: " + str(packet_seqnum) + "======");
+	print("====== [WRITING PACKETS FROM BUFFER] ======");
 
 	sorted_seqnums = sorted(buffered_packets.keys());
 
@@ -242,9 +242,6 @@ while (True):
 		if (packet_status == Status.IS_CORRUPTED):
 			print("===== IS CORRUPTED ======");
 			send_ack(clientSocket, NEGATIVE_ACK);
-
-	if (end_of_file == True):
-		break;
 	
 	num_buffered_packets = len(buffered_packets);
 	
