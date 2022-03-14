@@ -338,9 +338,12 @@ PACKET_HEADER_FILESIZE_SIZE = 9;
 server_received_confirmation = False;
 while (server_received_confirmation == False):
 	filesize_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_FILESIZE_SIZE);
+	print(filesize_inbytes);
 	remove_excess_padding(clientSocket, SERVER_PACKET_SIZE - PACKET_HEADER_FILESIZE_SIZE);
+
 	try:
 		filesize = int(filesize_inbytes.decode());
+		print(str(filesize));
 	except ValueError:
 		response_packet = (b'2').rjust(CLIENT_PACKET_SIZE, b'2');
 		clientSocket.send(response_packet); # need to tell server that client knows the file-size as server will not send any packets until it receives confirmation that client knows the filesize

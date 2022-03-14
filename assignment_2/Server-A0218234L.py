@@ -367,8 +367,6 @@ while (client_knows_filesize == False):
 		client_knows_filesize = True;
 
 
-
-
 WINDOW_SIZE = 100;
 end_of_file = False;
 curr_seqnum = 0;
