@@ -247,11 +247,12 @@ expected_seqnum = 1;
 
 while (True):
 	output_filesize = os.path.getsize(output_file_name);
+
+	print("[TOTAL BYTES RECEIVED]: " + str(output_filesize));
 	if (output_filesize == filesize):
 		# send_ack(clientSocket, 999998);
 		print("=== ALL DATA RECEIVED. EXITING...... ===");
 		break;
-
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
 	if (packet_status == Status.IS_CORRUPTED):
