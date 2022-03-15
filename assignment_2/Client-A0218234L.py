@@ -178,7 +178,7 @@ def write_buffered_packets(base_seqnum, fd):
 		fd.write(data);
 		print("===== [FROM BUFFER]: WRITING SEQNUM: " + str(curr_seqnum) + " ======");
 		total_bytes_received = total_bytes_received + len(data);
-		
+
 		del(buffered_packets[curr_seqnum]);
 
 		if (i != len(sorted_seqnums)-1):
@@ -249,12 +249,14 @@ print("[FILESIZE RECEIVED]:" + str(filesize));
 seqnums_of_successfully_received_packets = set();
 expected_seqnum = 1;
 
+ALL_FILES_SUCCESSFULLY_RECEIVED_SEQNUM = 999998;
+
 while (True):
 
 	print("[TOTAL BYTES RECEIVED]: " + str(total_bytes_received));
 
 	if (total_bytes_received == filesize):
-		# send_ack(clientSocket, 999998);
+		send_ack(clientSocket, 999998);
 		print("=== ALL DATA RECEIVED. EXITING...... ===");
 		break;
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);

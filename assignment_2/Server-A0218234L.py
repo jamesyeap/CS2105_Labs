@@ -201,11 +201,21 @@ input_fd = open(input_file_name, 'rb');
 
 # ================ for error-channel only ================================
 
+ALL_FILES_SUCCESSFULLY_RECEIVED_SEQNUM = 999998;
+stop_and_exit = False;
+
 def resend_any_unacked_packets(socket):
 	for i in range(len(buffered_packets)):
 		ack, packet_status = get_packet(socket);
 
-		if ((packet_status == Status.OK) and (ack in buffered_packets)):
+		if (packet_status != Status.OK):
+			continue;
+
+		if (ack == ALL_FILES_SUCCESSFULLY_RECEIVED_SEQNUM):
+			stop_and_exit == True;
+			return -1;
+
+		if (ack in buffered_packets):
 			print("[RECEIVED ACK]: " + str(ack));
 			del(buffered_packets[ack]);
 
@@ -262,6 +272,11 @@ while (True):
 		break;
 
 	num_resent_packets = resend_any_unacked_packets(clientSocket);
+
+	if (stop_and_exit == True):
+		print("=== CLIENT HAS RECEIVED ALL DATA! EXITING... ===");
+		break;
+		
 	while(num_resent_packets != 0):
 		print_buffer();
 		num_resent_packets = resend_any_unacked_packets(clientSocket);
