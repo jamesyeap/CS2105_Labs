@@ -155,6 +155,8 @@ def get_packet(socket):
 
 # ----- BUFFER PACKET FUNCTIONS ----------------------------------------------
 
+total_bytes_received = 0;
+
 buffered_packets = dict();
 
 def buffer_packet(packet_seqnum, packet_data):
@@ -172,9 +174,11 @@ def write_buffered_packets(base_seqnum, fd):
 
 	for i in range(len(sorted_seqnums)):
 		curr_seqnum = sorted_seqnums[i];
-
-		fd.write(buffered_packets[curr_seqnum]);
+		data = buffered_packets[curr_seqnum];
+		fd.write(data);
 		print("===== [FROM BUFFER]: WRITING SEQNUM: " + str(curr_seqnum) + " ======");
+		total_bytes_received = total_bytes_received + len(data);
+		
 		del(buffered_packets[curr_seqnum]);
 
 		if (i != len(sorted_seqnums)-1):
@@ -246,10 +250,10 @@ seqnums_of_successfully_received_packets = set();
 expected_seqnum = 1;
 
 while (True):
-	output_filesize = os.path.getsize(output_file_name);
 
-	print("[TOTAL BYTES RECEIVED]: " + str(output_filesize));
-	if (output_filesize == filesize):
+	print("[TOTAL BYTES RECEIVED]: " + str(total_bytes_received));
+
+	if (total_bytes_received == filesize):
 		# send_ack(clientSocket, 999998);
 		print("=== ALL DATA RECEIVED. EXITING...... ===");
 		break;
@@ -277,6 +281,7 @@ while (True):
 		if (seqnum == expected_seqnum):
 			print("==> WRITING PACKET");
 			output_fd.write(packet_data);
+			total_bytes_received = total_bytes_received + data_payload_length;
 
 			if (len(buffered_packets) > 0):
 				highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
