@@ -137,6 +137,7 @@ def get_packet(socket):
 	seqnum, checksum, data_payload_length = get_packet_header(socket);
 
 	if (seqnum == None or checksum == None or data_payload_length == None):
+		print("!!!!!!! here");
 		get_message_until_size_reached(socket, 1004); # ⚠️ just assume the packets are 1004 for now
 		return -1, None, None, Status.IS_CORRUPTED;
 
@@ -149,7 +150,6 @@ def get_packet(socket):
 		remove_excess_padding(socket, padding_size);
 
 		if (is_corrupted(packet_data, checksum)):
-			print("here");
 			return None, None, None, Status.IS_CORRUPTED;
 		
 		return seqnum, data_payload_length, packet_data, Status.OK;
