@@ -218,41 +218,33 @@ def resend_any_unacked_packets(socket):
 
 
 # send file-size to client
-PACKET_HEADER_FILESIZE_SIZE = 9;
 
 EXPECTED_CLIENT_CONFIRMATION_PACKET = b'1'.rjust(CLIENT_PACKET_SIZE, b'1');
 
-SERVER_CONFIRMATION_PACKET = b'1'.rjust(SERVER_PACKET_SIZE, b'1');
-SERVER_UNSUCCESSFUL_PACKET = b'2'.rjust(SERVER_PACKET_SIZE, b'2');
-
 size = os.path.getsize(input_file_name);
-init_filesize_header = str(size).encode().rjust(PACKET_HEADER_FILESIZE_SIZE, b'0');
-init_checksum = zlib.crc32(init_filesize_header);
+
+init_seqnum_header = b'0'.rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
+init_data_payload = str(size).encode();
+init_length = len(init_data_payload);
+init_length_header = str(init_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0');
+init_checksum = zlib.crc32(init_data_payload);
 init_checksum_header = str(init_checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
-init_packet = (init_filesize_header + init_checksum_header).ljust(SERVER_PACKET_SIZE, b'0');
 
-init_successful = False;
-while (init_successful == False):
+init_packet = (init_seqnum_header + init_checksum_header + init_length_header + init_data_payload).ljust(SERVER_PACKET_SIZE, b'0');
+
+while (True):
 	clientSocket.send(init_packet);
-	
-	# get confirmation that the client knows the filesize
-	client_confirmation_packet_1 = get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
 
-	# once the client knows the file-size, we can continue
-	if (client_confirmation_packet_1 == EXPECTED_CLIENT_CONFIRMATION_PACKET):
-		print("[CLIENT KNOWS!]");
-		while (True):
-			clientSocket.send(SERVER_CONFIRMATION_PACKET);
-			client_confirmation_packet_2 = get_message_until_size_reached(clientSocket, CLIENT_PACKET_SIZE);
+	ack, packet_status = get_packet(clientSocket);
 
-			if (client_confirmation_packet_2 == EXPECTED_CLIENT_CONFIRMATION_PACKET):
-				init_successful = True;
-				break;
-
+	if (packet_status == Status.OK):
+		if (ack == 0):
+			print("=== CLIENT HAS RECEIVED FILESIZE ===");
+			break;
 
 WINDOW_SIZE = 500;
 end_of_file = False;
-curr_seqnum = 0;
+curr_seqnum = 1;
 while (True):
 	if (end_of_file):
 		num_resent_packets = resend_any_unacked_packets(clientSocket);

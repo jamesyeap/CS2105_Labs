@@ -183,8 +183,6 @@ def write_buffered_packets(base_seqnum, fd):
 
 	return highest_seqnum;
 
-# ----- MISC ------
-
 def print_buffer():
 	w = "[PACKETS IN BUFFER]: ";
 
@@ -225,64 +223,43 @@ output_fd = open(output_file_name, 'wb');
 
 # ================ for error-channel only ================================
 
-# get file-size from server
-PACKET_HEADER_FILESIZE_SIZE = 9;
-
-EXPECTED_SERVER_CONFIRMATION_PACKET = b'1'.rjust(SERVER_PACKET_SIZE, b'1');
-
-CLIENT_CONFIRMATION_PACKET = b'1'.rjust(CLIENT_PACKET_SIZE, b'1');
-CLIENT_UNSUCCESSFUL_PACKET = b'2'.rjust(CLIENT_PACKET_SIZE, b'2');
+NEGATIVE_ACK_SEQNUM = 999999;
 
 filesize = -1;
 
-init_successful = False;
-while (init_successful == False):
-	filesize_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_FILESIZE_SIZE);
-	checksum_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_CHECKSUM_SIZE);
-	remove_excess_padding(clientSocket, SERVER_PACKET_SIZE - PACKET_HEADER_FILESIZE_SIZE - PACKET_HEADER_CHECKSUM_SIZE);
-	checksum = -1;
-	try:
-		checksum = int(checksum_inbytes.decode());
-	except ValueError:
-		print("[CHECKSUM] is corrupted");
-		clientSocket.send(CLIENT_UNSUCCESSFUL_PACKET);
-		continue;
-
-	if (zlib.crc32(filesize_inbytes) != checksum):
-		print("[FILESIZE] is corrupted");
-		clientSocket.send(CLIENT_UNSUCCESSFUL_PACKET);
-		continue;
-
-	filesize = int(filesize_inbytes.decode());
-
-	clientSocket.send(CLIENT_CONFIRMATION_PACKET); # tell the server that we know the filesize
-
-	# get confirmation that the server knows that we know the filesize
-	while (True):
-		server_confirmation_packet_1 = get_message_until_size_reached(clientSocket, SERVER_PACKET_SIZE);
-		clientSocket.send(CLIENT_CONFIRMATION_PACKET); # tell the server that we know the filesize
-
-		if (server_confirmation_packet_1 == EXPECTED_SERVER_CONFIRMATION_PACKET):
-			init_successful = True;
-			break;
-
-print("[FILESIZE RECEIVED]:" + str(filesize));
-
-highest_contiguous_seqnum = 0;
-seqnums_of_successfully_received_packets = set();
-
+# get file-size from server
 while (True):
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
-	if (highest_contiguous_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= filesize):
-		if (len(buffered_packets) > 0):
-			write_buffered_packets(highest_contiguous_seqnum, output_fd);
-		send_ack(clientSocket, highest_contiguous_seqnum);
+	if (packet_status == Status.IS_CORRUPTED):
+		send_ackc(clientSocket, NEGATIVE_ACK_SEQNUM);
+	else:
+		filesize = int(packet_data.decode());
+		send_ack(clientSocket, 0);
+		break;
+
+
+print("[FILESIZE RECEIVED]:" + str(filesize));
+
+seqnums_of_successfully_received_packets = set();
+expected_seqnum = 1;
+
+while (True):
+	output_filesize = os.path.getsize(output_file_name);
+	if (output_filesize == filesize):
+		# send_ack(clientSocket, 999998);
 		print("=== ALL DATA RECEIVED. EXITING...... ===");
 		break;
 
-	if (packet_status == Status.IS_CORRUPTED):
-		send_ack(clientSocket, highest_contiguous_seqnum);
+	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
+
+	if (packet_status.IS_CORRUPTED):
+		send_ack(clientSocket, NEGATIVE_ACK_SEQNUM);
+		continue;
+
+	if (seqnum == 0):
+		send_ack(clientSocket, 0);
+		continue;
 
 	if (packet_status == Status.OK):
 		send_ack(clientSocket, seqnum);
@@ -291,18 +268,19 @@ while (True):
 			continue;
 
 		seqnums_of_successfully_received_packets.add(seqnum);
-		if (seqnum == highest_contiguous_seqnum):
+
+		if (seqnum == expected_seqnum):
 			output_fd.write(packet_data);
 
 			if (len(buffered_packets) > 0):
-				highest_received_seqnum = write_buffered_packets(highest_contiguous_seqnum, output_fd);
-				highest_contiguous_seqnum = highest_received_seqnum + 1;
+				highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
+				expected_seqnum = highest_received_seqnum + 1;
 			else:
-				highest_contiguous_seqnum = highest_contiguous_seqnum + 1;
+				expected_seqnum = expected_seqnum + 1;
 		else:
 			buffer_packet(seqnum, packet_data);
 
-		print_buffer();
+		# print_buffer();
 
 # while (True):
 # 	packet_data = clientSocket.recv(1024);
