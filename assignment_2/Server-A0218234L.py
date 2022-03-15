@@ -252,7 +252,7 @@ while (True):
 			print("=== CLIENT HAS RECEIVED FILESIZE ===");
 			break;
 
-WINDOW_SIZE = 500;
+WINDOW_SIZE = 1000;
 end_of_file = False;
 curr_seqnum = 1;
 while (True):
