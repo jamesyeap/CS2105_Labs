@@ -282,7 +282,8 @@ while (True):
 		# print_buffer();
 		num_resent_packets = resend_any_unacked_packets(clientSocket);
 
-
+# new addition
+clientSocket.close();
 
 
 

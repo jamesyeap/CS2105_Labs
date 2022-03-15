@@ -3,7 +3,6 @@ from socket import *
 import hashlib
 import zlib
 from enum import Enum
-import os;
 
 # request method codes
 REQUEST_CONNECTION = 'STID_';
@@ -15,7 +14,7 @@ def create_request_message(method_code, data=''):
 	return (method_code + data).encode();
 
 def get_response_message(socket):
-	return socket.recv(32);
+	return socket.recv(4);
 
 # ---- CONNECTION FUNCTIONS -------------------------------------------------------
 
@@ -26,9 +25,7 @@ def wait_for_turn(socket):
 		if (queue_len == b'0_'):
 			break;
 			
-		if (len(queue_len) != 0):
-			print("[POSITION IN QUEUE]: " + str(queue_len)); # TO REMOVE
-
+		print("[POSITION IN QUEUE]: " + str(queue_len)); # TO REMOVE
 		queue_len = get_response_message(socket);
 
 
@@ -54,7 +51,7 @@ def generate_ack_packet(seqnum):
 
 	packet = ack_header + checksum_header;
 
-	# print("[SENT ACK PACKET]: " + str(seqnum) + " | " + str(checksum));
+	print("[sent ack packet] (seqnum) | (checksum): " + str(seqnum) + " | " + str(checksum));
 
 	return packet.ljust(CLIENT_PACKET_SIZE, b'0');
 
@@ -84,7 +81,7 @@ def get_packet_seqnum(socket):
 
 	try:
 		seqnum = int(seqnum_inbytes.decode());
-		# print("[seqnum]: " + str(seqnum));
+		print("[seqnum]: " + str(seqnum));
 		return seqnum;
 	except ValueError:
 		# print("[seqnum]: " + "IS CORRUPTED");
@@ -156,7 +153,6 @@ def get_packet(socket):
 # ----- BUFFER PACKET FUNCTIONS ----------------------------------------------
 
 total_bytes_received = 0;
-
 buffered_packets = dict();
 
 def buffer_packet(packet_seqnum, packet_data):
@@ -198,6 +194,16 @@ def print_buffer():
 
 	print(w);
 
+# ----- MISC ------
+
+def print_buffer():
+	w = "[PACKETS IN BUFFER]: ";
+
+	for k in buffered_packets.keys():
+		w = w + "[" + str(k) + "]";
+
+	print(w);
+
 # ----- MAIN -----------------------------------------------------------------
 
 """ readin input params """
@@ -228,84 +234,129 @@ print("====== STARTING NOW =======");
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb');
 
-# ================ for error-channel only ================================
+if (mode == '0'):
+	# ================ for reliable-channel only ================================
+	print("<< RUNNING RELIABLE-CHANNEL PROTOCOL >>");
 
-NEGATIVE_ACK_SEQNUM = 999999;
+	while (True):
+		packet = clientSocket.recv(1024);
+		output_fd.write(packet);
 
-filesize = -1;
+		if (len(packet) == 0):
+			break;
 
-# get file-size from server
-while (True):
-	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
+if (mode == '1'):
+	# ================ for error-channel only ================================
+	print("<< RUNNING ERROR-CHANNEL PROTOCOL >>");
 
-	if (packet_status == Status.IS_CORRUPTED):
-		send_ackc(clientSocket, NEGATIVE_ACK_SEQNUM);
-	else:
-		filesize = int(packet_data.decode());
-		send_ack(clientSocket, 0);
-		break;
+	NEGATIVE_ACK_SEQNUM = 999999;
+
+	filesize = -1;
+
+	# get file-size from server
+	while (True):
+		seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
+
+		if (packet_status == Status.IS_CORRUPTED):
+			send_ackc(clientSocket, NEGATIVE_ACK_SEQNUM);
+		else:
+			filesize = int(packet_data.decode());
+			send_ack(clientSocket, 0);
+			break;
 
 
-print("[FILESIZE RECEIVED]:" + str(filesize));
+	print("[FILESIZE RECEIVED]:" + str(filesize));
 
-seqnums_of_successfully_received_packets = set();
-expected_seqnum = 1;
+	seqnums_of_successfully_received_packets = set();
+	expected_seqnum = 1;
 
-ALL_FILES_SUCCESSFULLY_RECEIVED_SEQNUM = 999998;
+	ALL_FILES_SUCCESSFULLY_RECEIVED_SEQNUM = 999998;
 
-while (True):
+	while (True):
 
-	# print("[TOTAL BYTES RECEIVED]: " + str(total_bytes_received));
+		# print("[TOTAL BYTES RECEIVED]: " + str(total_bytes_received));
 
-	if (total_bytes_received == filesize):
-		send_ack(clientSocket, 999998);
-		print("=== ALL DATA RECEIVED. EXITING...... ===");
-		break;
-	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
+		if (total_bytes_received == filesize):
+			send_ack(clientSocket, 999998);
+			print("=== ALL DATA RECEIVED. EXITING...... ===");
+			break;
+		seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
-	if (packet_status == Status.IS_CORRUPTED):
-		# print("==> PACKET IS CORRUPTED");
-		send_ack(clientSocket, NEGATIVE_ACK_SEQNUM);
-		continue;
-
-	if (seqnum == 0):
-		# print("==> IGNORING DUPLICATE INIT PACKET");
-		send_ack(clientSocket, 0);
-		continue;
-
-	if (packet_status == Status.OK):
-		send_ack(clientSocket, seqnum);
-
-		if (seqnum in seqnums_of_successfully_received_packets):
-			# print("==> IGNORING DUPLICATE PACKET");
+		if (packet_status == Status.IS_CORRUPTED):
+			# print("==> PACKET IS CORRUPTED");
+			send_ack(clientSocket, NEGATIVE_ACK_SEQNUM);
 			continue;
 
-		seqnums_of_successfully_received_packets.add(seqnum);
+		if (seqnum == 0):
+			# print("==> IGNORING DUPLICATE INIT PACKET");
+			send_ack(clientSocket, 0);
+			continue;
 
-		if (seqnum == expected_seqnum):
-			# print("==> WRITING PACKET");
-			output_fd.write(packet_data);
-			total_bytes_received = total_bytes_received + data_payload_length;
+		if (packet_status == Status.OK):
+			send_ack(clientSocket, seqnum);
 
-			if (len(buffered_packets) > 0):
-				highest_received_seqnum, total_bytes_read = write_buffered_packets(expected_seqnum, output_fd);
-				expected_seqnum = highest_received_seqnum + 1;
-				total_bytes_received = total_bytes_received + total_bytes_read;
+			if (seqnum in seqnums_of_successfully_received_packets):
+				# print("==> IGNORING DUPLICATE PACKET");
+				continue;
+
+			seqnums_of_successfully_received_packets.add(seqnum);
+
+			if (seqnum == expected_seqnum):
+				# print("==> WRITING PACKET");
+				output_fd.write(packet_data);
+				total_bytes_received = total_bytes_received + data_payload_length;
+
+				if (len(buffered_packets) > 0):
+					highest_received_seqnum, total_bytes_read = write_buffered_packets(expected_seqnum, output_fd);
+					expected_seqnum = highest_received_seqnum + 1;
+					total_bytes_received = total_bytes_received + total_bytes_read;
+				else:
+					expected_seqnum = expected_seqnum + 1;
 			else:
-				expected_seqnum = expected_seqnum + 1;
-		else:
-			# print("==> BUFFERING PACKET");
+				# print("==> BUFFERING PACKET");
+				buffer_packet(seqnum, packet_data);
+
+		if (packet_status == Status.NO_MORE_DATA):
+			send_ack(clientSocket, 999998);
+
+if (mode == '2'):
+	# ================ for reordering-channel only ================================
+	print("<< RUNNING REORDERING-CHANNEL PROTOCOL >>");
+
+	PACKET_HEADER_FILESIZE_SIZE = 9;
+
+	# get file-size from server first
+	filesize_inbytes = get_message_until_size_reached(clientSocket, PACKET_HEADER_FILESIZE_SIZE);
+	remove_excess_padding(clientSocket, SERVER_PACKET_SIZE - PACKET_HEADER_FILESIZE_SIZE);
+	filesize = int(filesize_inbytes.decode());
+	response_packet = (b'0').rjust(CLIENT_PACKET_SIZE, b'0');
+	clientSocket.send(response_packet); # need to tell server that client knows the file-size as server will not send any packets until this to prevent re-ordering
+
+	expected_seqnum = 0;
+	while (True):
+		if (expected_seqnum * MAX_PACKET_DATA_PAYLOAD_SIZE >= filesize):
+			print("=== ALL DATA RECEIVED. EXITING...... ===");
+			break;
+
+		seqnum, checksum, data_payload_length = get_packet_header(clientSocket);
+
+		packet_data = get_message_until_size_reached(clientSocket, data_payload_length);
+		padding_size = SERVER_PACKET_SIZE - data_payload_length - TOTAL_PACKET_HEADER_SIZE;
+		remove_excess_padding(clientSocket, padding_size);
+
+		if (seqnum != expected_seqnum):
+			print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
 			buffer_packet(seqnum, packet_data);
+		else:
+			output_fd.write(packet_data);
+			print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
 
-	if (packet_status == Status.NO_MORE_DATA):
-		send_ack(clientSocket, 999998);
-
-		# print_buffer();
-
-# while (True):
-# 	packet_data = clientSocket.recv(1024);
-# 	print(packet_data);
-# 	print("=====");
+			if (len(buffered_packets) == 0):
+				expected_seqnum = expected_seqnum + 1;
+			else:
+				highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
+				expected_seqnum = highest_received_seqnum + 1;
+				print_buffer();
 
 output_fd.close();
 clientSocket.close();
@@ -369,6 +420,9 @@ clientSocket.close();
 
 	./test/FileTransfer.sh -i 651723 -r
 	./test/FileTransfer.sh -s -i 651723 -r
+
+	./test/FileTransfer.sh -i 651723 -A
+	./test/FileTransfer.sh -s -i 651723 -A
 
 
 - link to faq:
