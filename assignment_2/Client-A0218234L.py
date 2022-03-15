@@ -343,7 +343,8 @@ if (mode == '2'):
 			if (len(buffered_packets) == 0):
 				expected_seqnum = expected_seqnum + 1;
 			else:
-				highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
+				# ignore total_bytes_read in reordering-channel mode
+				highest_received_seqnum, total_bytes_read = write_buffered_packets(expected_seqnum, output_fd);
 				expected_seqnum = highest_received_seqnum + 1;
 				print_buffer();
 
