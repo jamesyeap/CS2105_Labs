@@ -25,7 +25,9 @@ def wait_for_turn(socket):
 		if (queue_len == b'0_'):
 			break;
 			
-		print("[POSITION IN QUEUE]: " + str(queue_len)); # TO REMOVE
+		if (len(queue_len) != 0):
+			print("[POSITION IN QUEUE]: " + str(queue_len)); # TO REMOVE
+
 		queue_len = get_response_message(socket);
 
 
@@ -51,7 +53,7 @@ def generate_ack_packet(seqnum):
 
 	packet = ack_header + checksum_header;
 
-	print("[sent ack packet] (seqnum) | (checksum): " + str(seqnum) + " | " + str(checksum));
+	# print("[sent ack packet] (seqnum) | (checksum): " + str(seqnum) + " | " + str(checksum));
 
 	return packet.ljust(CLIENT_PACKET_SIZE, b'0');
 
@@ -81,7 +83,7 @@ def get_packet_seqnum(socket):
 
 	try:
 		seqnum = int(seqnum_inbytes.decode());
-		print("[seqnum]: " + str(seqnum));
+		# print("[seqnum]: " + str(seqnum));
 		return seqnum;
 	except ValueError:
 		# print("[seqnum]: " + "IS CORRUPTED");
@@ -152,6 +154,7 @@ def get_packet(socket):
 
 # ----- BUFFER PACKET FUNCTIONS ----------------------------------------------
 
+total_bytes_received = 0;
 buffered_packets = dict();
 
 def buffer_packet(packet_seqnum, packet_data):
@@ -164,24 +167,26 @@ def write_buffered_packets(base_seqnum, fd):
 	lowest_seqnum = sorted_seqnums[0];
 	highest_seqnum = sorted_seqnums[-1];
 
+	total_bytes_read = 0;
+
 	if (lowest_seqnum != base_seqnum + 1):
-		return base_seqnum;
+		return base_seqnum, total_bytes_read;
 
 	for i in range(len(sorted_seqnums)):
 		curr_seqnum = sorted_seqnums[i];
+		data = buffered_packets[curr_seqnum];
+		fd.write(data);
+		# print("===== [FROM BUFFER]: WRITING SEQNUM: " + str(curr_seqnum) + " ======");
+		total_bytes_read = total_bytes_read + len(data);
 
-		fd.write(buffered_packets[curr_seqnum]);
-		print("===== [FROM BUFFER]: WRITING SEQNUM: " + str(curr_seqnum) + " ======");
 		del(buffered_packets[curr_seqnum]);
 
 		if (i != len(sorted_seqnums)-1):
 			adjacent_seqnum = sorted_seqnums[i+1];
 			if (curr_seqnum != adjacent_seqnum - 1):
-				return curr_seqnum;
+				return curr_seqnum, total_bytes_read;
 
-	return highest_seqnum;
-
-# ----- MISC ------
+	return highest_seqnum, total_bytes_read;
 
 def print_buffer():
 	w = "[PACKETS IN BUFFER]: ";
@@ -232,17 +237,80 @@ if (mode == '0'):
 		if (len(packet) == 0):
 			break;
 
+	print("=== ALL DATA RECEIVED. EXITING...... ===");
+
 if (mode == '1'):
 	# ================ for error-channel only ================================
 	print("<< RUNNING ERROR-CHANNEL PROTOCOL >>");
 
-	""" ⚠️ just a placeholder for now """
-	while (True):
-		packet = clientSocket.recv(1024);
-		output_fd.write(packet);
+	NEGATIVE_ACK_SEQNUM = 999999;
 
-		if (len(packet) == 0):
+	filesize = -1;
+
+	# get file-size from server
+	while (True):
+		seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
+
+		if (packet_status == Status.IS_CORRUPTED):
+			send_ackc(clientSocket, NEGATIVE_ACK_SEQNUM);
+		else:
+			filesize = int(packet_data.decode());
+			send_ack(clientSocket, 0);
 			break;
+
+	# print("[FILESIZE RECEIVED]:" + str(filesize));
+
+	seqnums_of_successfully_received_packets = set();
+	expected_seqnum = 1;
+
+	ALL_FILES_SUCCESSFULLY_RECEIVED_SEQNUM = 999998;
+
+	while (True):
+
+		# print("[TOTAL BYTES RECEIVED]: " + str(total_bytes_received));
+
+		if (total_bytes_received == filesize):
+			send_ack(clientSocket, 999998);
+			print("=== ALL DATA RECEIVED. EXITING...... ===");
+			break;
+		seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
+
+		if (packet_status == Status.IS_CORRUPTED):
+			# print("==> PACKET IS CORRUPTED");
+			send_ack(clientSocket, NEGATIVE_ACK_SEQNUM);
+			continue;
+
+		if (seqnum == 0):
+			# print("==> IGNORING DUPLICATE INIT PACKET");
+			send_ack(clientSocket, 0);
+			continue;
+
+		if (packet_status == Status.OK):
+			send_ack(clientSocket, seqnum);
+
+			if (seqnum in seqnums_of_successfully_received_packets):
+				# print("==> IGNORING DUPLICATE PACKET");
+				continue;
+
+			seqnums_of_successfully_received_packets.add(seqnum);
+
+			if (seqnum == expected_seqnum):
+				# print("==> WRITING PACKET");
+				output_fd.write(packet_data);
+				total_bytes_received = total_bytes_received + data_payload_length;
+
+				if (len(buffered_packets) > 0):
+					highest_received_seqnum, total_bytes_read = write_buffered_packets(expected_seqnum, output_fd);
+					expected_seqnum = highest_received_seqnum + 1;
+					total_bytes_received = total_bytes_received + total_bytes_read;
+				else:
+					expected_seqnum = expected_seqnum + 1;
+			else:
+				# print("==> BUFFERING PACKET");
+				buffer_packet(seqnum, packet_data);
+
+		if (packet_status == Status.NO_MORE_DATA):
+			send_ack(clientSocket, 999998);
 
 if (mode == '2'):
 	# ================ for reordering-channel only ================================
@@ -270,18 +338,19 @@ if (mode == '2'):
 		remove_excess_padding(clientSocket, padding_size);
 
 		if (seqnum != expected_seqnum):
-			print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
+			# print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
 			buffer_packet(seqnum, packet_data);
 		else:
 			output_fd.write(packet_data);
-			print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
+			# print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
 
 			if (len(buffered_packets) == 0):
 				expected_seqnum = expected_seqnum + 1;
 			else:
-				highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
+				# ignore total_bytes_read in reordering-channel mode
+				highest_received_seqnum, total_bytes_read = write_buffered_packets(expected_seqnum, output_fd);
 				expected_seqnum = highest_received_seqnum + 1;
-				print_buffer();
+				# print_buffer();
 
 output_fd.close();
 clientSocket.close();

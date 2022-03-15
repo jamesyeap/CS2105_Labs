@@ -26,7 +26,8 @@ def wait_for_turn(socket):
 		if (queue_len == b'0_'):
 			break;
 
-		print("[POSITION IN QUEUE]: " + str(queue_len)); # TO REMOVE
+		if (len(queue_len) != 0):
+			print("[POSITION IN QUEUE]: " + str(queue_len)); # TO REMOVE
 		queue_len = get_response_message(socket);
 
 # ----- IMPORTANT INFO -------------------------------------------------------
@@ -78,7 +79,7 @@ def generate_packet(fd, seqnum):
 	checksum_header = generate_checksum_header(data);
 	length_header = generate_length_header(data_length);
 
-	print("[SENDING]: " + str(seqnum_header) + " | " + str(checksum_header) + " | " + str(length_header));
+	# print("[SENDING]: " + str(seqnum_header) + " | " + str(checksum_header) + " | " + str(length_header));
 
 	packet = seqnum_header + checksum_header + length_header + data;
 
@@ -210,18 +211,92 @@ if (mode == '0'):
 		
 		clientSocket.send(packet);
 
+	print("====== NO MORE DATA TO BE READ FROM FILE =======");
+
 if (mode == '1'):
 	# ================ for error-channel only ================================
 	print("<< RUNNING ERROR-CHANNEL PROTOCOL >>");
 
-	""" ⚠️ just a placeholder for now """
-	while (True):
-		packet = input_fd.read(1024);
+	ALL_FILES_SUCCESSFULLY_RECEIVED_SEQNUM = 999998;
+	stop_and_exit = False;
 
-		if (len(packet) == 0):
+	def resend_any_unacked_packets(socket):
+		for i in range(len(buffered_packets)):
+			ack, packet_status = get_packet(socket);
+
+			if (packet_status != Status.OK):
+				continue;
+
+			if (ack == ALL_FILES_SUCCESSFULLY_RECEIVED_SEQNUM):
+				stop_and_exit == True;
+				return -1;
+
+			if (ack in buffered_packets):
+				# print("[RECEIVED ACK]: " + str(ack));
+				del(buffered_packets[ack]);
+
+		for unacked_packet in buffered_packets.values():
+			socket.send(unacked_packet);
+
+		num_resent_packets = len(buffered_packets);
+
+		return num_resent_packets;
+
+
+	# send file-size to client
+
+	EXPECTED_CLIENT_CONFIRMATION_PACKET = b'1'.rjust(CLIENT_PACKET_SIZE, b'1');
+
+	size = os.path.getsize(input_file_name);
+
+	init_seqnum_header = b'0'.rjust(PACKET_HEADER_SEQNUM_SIZE, b'0');
+	init_data_payload = str(size).encode();
+	init_length = len(init_data_payload);
+	init_length_header = str(init_length).encode().rjust(PACKET_HEADER_LENGTH_SIZE, b'0');
+	init_checksum = zlib.crc32(init_data_payload);
+	init_checksum_header = str(init_checksum).encode().rjust(PACKET_HEADER_CHECKSUM_SIZE, b'0');
+
+	init_packet = (init_seqnum_header + init_checksum_header + init_length_header + init_data_payload).ljust(SERVER_PACKET_SIZE, b'0');
+
+	while (True):
+		clientSocket.send(init_packet);
+
+		ack, packet_status = get_packet(clientSocket);
+
+		if (packet_status == Status.OK):
+			if (ack == 0):
+				print("=== CLIENT HAS RECEIVED FILESIZE ===");
+				break;
+
+	WINDOW_SIZE = 3000;
+	end_of_file = False;
+	curr_seqnum = 1;
+	while (True):
+		if (end_of_file == False):
+			for i in range(WINDOW_SIZE):
+				packet, file_status = generate_packet(input_fd, curr_seqnum);
+
+				if (file_status == FILE_EOF):
+					print("====== NO MORE DATA TO BE READ FROM FILE =======");
+					end_of_file = True;
+					break;
+
+				clientSocket.send(packet);
+				buffer_packet(curr_seqnum, packet);
+				curr_seqnum = curr_seqnum + 1;
+
+		if (end_of_file == True and len(buffered_packets) == 0):
 			break;
 
-		clientSocket.send(packet);
+		num_resent_packets = resend_any_unacked_packets(clientSocket);
+
+		if (stop_and_exit == True):
+			print("=== CLIENT HAS RECEIVED ALL DATA! EXITING... ===");
+			break;
+
+		while(num_resent_packets != 0):
+			# print_buffer();
+			num_resent_packets = resend_any_unacked_packets(clientSocket);
 
 if (mode == '2'):
 	# ================ for reordering-channel only =======================================
@@ -248,10 +323,6 @@ if (mode == '2'):
 
 		clientSocket.send(packet);
 		next_seqnum = next_seqnum + 1;
-
-
-
-
 
 clientSocket.close();
 
