@@ -149,6 +149,7 @@ def get_packet(socket):
 		remove_excess_padding(socket, padding_size);
 
 		if (is_corrupted(packet_data, checksum)):
+			print("here");
 			return None, None, None, Status.IS_CORRUPTED;
 		
 		return seqnum, data_payload_length, packet_data, Status.OK;
