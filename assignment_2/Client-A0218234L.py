@@ -84,10 +84,10 @@ def get_packet_seqnum(socket):
 
 	try:
 		seqnum = int(seqnum_inbytes.decode());
-		print("[seqnum]: " + str(seqnum));
+		# print("[seqnum]: " + str(seqnum));
 		return seqnum;
 	except ValueError:
-		print("[seqnum]: " + "IS CORRUPTED");
+		# print("[seqnum]: " + "IS CORRUPTED");
 		return None;
 
 def get_packet_checksum(socket):
@@ -95,10 +95,10 @@ def get_packet_checksum(socket):
 
 	try:
 		checksum = int(checksum_inbytes.decode());
-		print("[checksum]: " + str(checksum));
+		# print("[checksum]: " + str(checksum));
 		return checksum;
 	except ValueError:
-		print("[checksum]: " + "IS CORRUPTED");
+		# print("[checksum]: " + "IS CORRUPTED");
 		return None;
 
 def get_data_payload_length(socket):
@@ -106,10 +106,10 @@ def get_data_payload_length(socket):
 
 	try:
 		data_payload_length = int(data_payload_length_inbytes.decode());
-		print("[data_payload_length] " + str(data_payload_length));
+		# print("[data_payload_length] " + str(data_payload_length));
 		return data_payload_length;
 	except ValueError:
-		print("[data_payload_length]: " + "IS CORRUPTED");
+		# print("[data_payload_length]: " + "IS CORRUPTED");
 		return None;
 
 def get_packet_header(socket):
@@ -178,7 +178,7 @@ def write_buffered_packets(base_seqnum, fd):
 		curr_seqnum = sorted_seqnums[i];
 		data = buffered_packets[curr_seqnum];
 		fd.write(data);
-		print("===== [FROM BUFFER]: WRITING SEQNUM: " + str(curr_seqnum) + " ======");
+		# print("===== [FROM BUFFER]: WRITING SEQNUM: " + str(curr_seqnum) + " ======");
 		total_bytes_read = total_bytes_read + len(data);
 
 		del(buffered_packets[curr_seqnum]);
@@ -264,12 +264,12 @@ while (True):
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
 	if (packet_status == Status.IS_CORRUPTED):
-		print("==> PACKET IS CORRUPTED");
+		# print("==> PACKET IS CORRUPTED");
 		send_ack(clientSocket, NEGATIVE_ACK_SEQNUM);
 		continue;
 
 	if (seqnum == 0):
-		print("==> IGNORING DUPLICATE INIT PACKET");
+		# print("==> IGNORING DUPLICATE INIT PACKET");
 		send_ack(clientSocket, 0);
 		continue;
 
@@ -277,13 +277,13 @@ while (True):
 		send_ack(clientSocket, seqnum);
 
 		if (seqnum in seqnums_of_successfully_received_packets):
-			print("==> IGNORING DUPLICATE PACKET");
+			# print("==> IGNORING DUPLICATE PACKET");
 			continue;
 
 		seqnums_of_successfully_received_packets.add(seqnum);
 
 		if (seqnum == expected_seqnum):
-			print("==> WRITING PACKET");
+			# print("==> WRITING PACKET");
 			output_fd.write(packet_data);
 			total_bytes_received = total_bytes_received + data_payload_length;
 

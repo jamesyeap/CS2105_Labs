@@ -79,7 +79,7 @@ def generate_packet(fd, seqnum):
 	checksum_header = generate_checksum_header(data);
 	length_header = generate_length_header(data_length);
 
-	print("[SENDING]: " + str(seqnum_header) + " | " + str(checksum_header) + " | " + str(length_header));
+	# print("[SENDING]: " + str(seqnum_header) + " | " + str(checksum_header) + " | " + str(length_header));
 
 	packet = seqnum_header + checksum_header + length_header + data;
 
@@ -216,7 +216,7 @@ def resend_any_unacked_packets(socket):
 			return -1;
 
 		if (ack in buffered_packets):
-			print("[RECEIVED ACK]: " + str(ack));
+			# print("[RECEIVED ACK]: " + str(ack));
 			del(buffered_packets[ack]);
 
 	for unacked_packet in buffered_packets.values():
@@ -279,7 +279,7 @@ while (True):
 		break;
 
 	while(num_resent_packets != 0):
-		print_buffer();
+		# print_buffer();
 		num_resent_packets = resend_any_unacked_packets(clientSocket);
 
 
