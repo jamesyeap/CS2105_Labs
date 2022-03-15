@@ -87,7 +87,7 @@ def get_packet_seqnum(socket):
 		print("[seqnum]: " + str(seqnum));
 		return seqnum;
 	except ValueError:
-		# print("[seqnum]: " + "IS CORRUPTED");
+		print("[seqnum]: " + "IS CORRUPTED");
 		return None;
 
 def get_packet_checksum(socket):
@@ -95,10 +95,10 @@ def get_packet_checksum(socket):
 
 	try:
 		checksum = int(checksum_inbytes.decode());
-		# print("[checksum]: " + str(checksum));
+		print("[checksum]: " + str(checksum));
 		return checksum;
 	except ValueError:
-		# print("[checksum]: " + "IS CORRUPTED");
+		print("[checksum]: " + "IS CORRUPTED");
 		return None;
 
 def get_data_payload_length(socket):
@@ -106,10 +106,10 @@ def get_data_payload_length(socket):
 
 	try:
 		data_payload_length = int(data_payload_length_inbytes.decode());
-		# print("[data_payload_length] " + str(data_payload_length));
+		print("[data_payload_length] " + str(data_payload_length));
 		return data_payload_length;
 	except ValueError:
-		# print("[data_payload_length]: " + "IS CORRUPTED");
+		print("[data_payload_length]: " + "IS CORRUPTED");
 		return None;
 
 def get_packet_header(socket):
@@ -255,10 +255,12 @@ while (True):
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
 	if (packet_status.IS_CORRUPTED):
+		print("==> PACKET IS CORRUPTED");
 		send_ack(clientSocket, NEGATIVE_ACK_SEQNUM);
 		continue;
 
 	if (seqnum == 0):
+		print("==> IGNORING DUPLICATE INIT PACKET");
 		send_ack(clientSocket, 0);
 		continue;
 
@@ -266,11 +268,13 @@ while (True):
 		send_ack(clientSocket, seqnum);
 
 		if (seqnum in seqnums_of_successfully_received_packets):
+			print("==> IGNORING DUPLICATE PACKET");
 			continue;
 
 		seqnums_of_successfully_received_packets.add(seqnum);
 
 		if (seqnum == expected_seqnum):
+			print("==> WRITING PACKET");
 			output_fd.write(packet_data);
 
 			if (len(buffered_packets) > 0):
@@ -279,6 +283,7 @@ while (True):
 			else:
 				expected_seqnum = expected_seqnum + 1;
 		else:
+			print("==> BUFFERING PACKET");
 			buffer_packet(seqnum, packet_data);
 
 		# print_buffer();
