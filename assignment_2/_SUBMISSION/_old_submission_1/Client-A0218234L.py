@@ -224,7 +224,7 @@ wait_for_turn(clientSocket);
 print("====== STARTING NOW =======");
 
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
-output_fd = open(output_file_name, 'wb', buffering = 30120);
+output_fd = open(output_file_name, 'wb');
 
 if (mode == '0'):
 	# ================ for reliable-channel only ================================
@@ -252,7 +252,7 @@ if (mode == '1'):
 		seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
 		if (packet_status == Status.IS_CORRUPTED):
-			send_ack(clientSocket, NEGATIVE_ACK_SEQNUM);
+			send_ackc(clientSocket, NEGATIVE_ACK_SEQNUM);
 		else:
 			filesize = int(packet_data.decode());
 			send_ack(clientSocket, 0);
@@ -352,7 +352,6 @@ if (mode == '2'):
 				expected_seqnum = highest_received_seqnum + 1;
 				# print_buffer();
 
-# output_fd.flush();
 output_fd.close();
 clientSocket.close();
 
