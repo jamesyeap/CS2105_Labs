@@ -197,7 +197,7 @@ wait_for_turn(clientSocket);
 print("====== STARTING NOW =======");
 
 """ open the file to be sent """
-input_fd = open(input_file_name, 'rb');
+input_fd = open(input_file_name, 'rb', buffering=30120);
 
 if (mode == '0'):
 	# ================ for reliable-channel only ================================
