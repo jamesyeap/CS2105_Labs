@@ -287,7 +287,7 @@ while (True):
 			buffer_packet(seqnum, packet_data);
 
 	if (packet_status == Status.NO_MORE_DATA):
-		send_ack(clientSocket, seqnum);
+		send_ack(clientSocket, 999998);
 
 		# print_buffer();
 
