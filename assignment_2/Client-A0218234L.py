@@ -252,7 +252,7 @@ if (mode == '1'):
 		seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
 		if (packet_status == Status.IS_CORRUPTED):
-			send_ackc(clientSocket, NEGATIVE_ACK_SEQNUM);
+			send_ack(clientSocket, NEGATIVE_ACK_SEQNUM);
 		else:
 			filesize = int(packet_data.decode());
 			send_ack(clientSocket, 0);
