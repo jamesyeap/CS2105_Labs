@@ -169,24 +169,26 @@ def write_buffered_packets(base_seqnum, fd):
 	lowest_seqnum = sorted_seqnums[0];
 	highest_seqnum = sorted_seqnums[-1];
 
+	total_bytes_read = 0;
+
 	if (lowest_seqnum != base_seqnum + 1):
-		return base_seqnum;
+		return base_seqnum, total_bytes_read;
 
 	for i in range(len(sorted_seqnums)):
 		curr_seqnum = sorted_seqnums[i];
 		data = buffered_packets[curr_seqnum];
 		fd.write(data);
 		print("===== [FROM BUFFER]: WRITING SEQNUM: " + str(curr_seqnum) + " ======");
-		total_bytes_received = total_bytes_received + len(data);
+		total_bytes_read = total_bytes_read + len(data);
 
 		del(buffered_packets[curr_seqnum]);
 
 		if (i != len(sorted_seqnums)-1):
 			adjacent_seqnum = sorted_seqnums[i+1];
 			if (curr_seqnum != adjacent_seqnum - 1):
-				return curr_seqnum;
+				return curr_seqnum, total_bytes_read;
 
-	return highest_seqnum;
+	return highest_seqnum, total_bytes_read;
 
 def print_buffer():
 	w = "[PACKETS IN BUFFER]: ";
@@ -286,8 +288,9 @@ while (True):
 			total_bytes_received = total_bytes_received + data_payload_length;
 
 			if (len(buffered_packets) > 0):
-				highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
+				highest_received_seqnum, total_bytes_read = write_buffered_packets(expected_seqnum, output_fd);
 				expected_seqnum = highest_received_seqnum + 1;
+				total_bytes_received = total_bytes_received + total_bytes_read;
 			else:
 				expected_seqnum = expected_seqnum + 1;
 		else:
