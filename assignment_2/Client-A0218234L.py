@@ -3,6 +3,7 @@ from socket import *
 import hashlib
 import zlib
 from enum import Enum
+import os;
 
 # request method codes
 REQUEST_CONNECTION = 'STID_';
