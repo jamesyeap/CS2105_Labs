@@ -51,7 +51,7 @@ def generate_ack_packet(seqnum):
 
 	packet = ack_header + checksum_header;
 
-	print("[sent ack packet] (seqnum) | (checksum): " + str(seqnum) + " | " + str(checksum));
+	# print("[sent ack packet] (seqnum) | (checksum): " + str(seqnum) + " | " + str(checksum));
 
 	return packet.ljust(CLIENT_PACKET_SIZE, b'0');
 
@@ -81,7 +81,7 @@ def get_packet_seqnum(socket):
 
 	try:
 		seqnum = int(seqnum_inbytes.decode());
-		print("[seqnum]: " + str(seqnum));
+		# print("[seqnum]: " + str(seqnum));
 		return seqnum;
 	except ValueError:
 		# print("[seqnum]: " + "IS CORRUPTED");
@@ -194,16 +194,6 @@ def print_buffer():
 
 	print(w);
 
-# ----- MISC ------
-
-def print_buffer():
-	w = "[PACKETS IN BUFFER]: ";
-
-	for k in buffered_packets.keys():
-		w = w + "[" + str(k) + "]";
-
-	print(w);
-
 # ----- MAIN -----------------------------------------------------------------
 
 """ readin input params """
@@ -264,8 +254,7 @@ if (mode == '1'):
 			send_ack(clientSocket, 0);
 			break;
 
-
-	print("[FILESIZE RECEIVED]:" + str(filesize));
+	# print("[FILESIZE RECEIVED]:" + str(filesize));
 
 	seqnums_of_successfully_received_packets = set();
 	expected_seqnum = 1;
