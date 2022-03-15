@@ -141,7 +141,6 @@ def get_packet(socket):
 		return -1, None, None, Status.IS_CORRUPTED;
 
 	if (data_payload_length == 0):
-		print("!!!!!!! here");
 		return None, None, None, Status.NO_MORE_DATA;
 	else:
 		packet_data = get_message_until_size_reached(socket, data_payload_length);
@@ -255,7 +254,7 @@ while (True):
 
 	seqnum, data_payload_length, packet_data, packet_status = get_packet(clientSocket);
 
-	if (packet_status.IS_CORRUPTED):
+	if (packet_status == Status.IS_CORRUPTED):
 		print("==> PACKET IS CORRUPTED");
 		send_ack(clientSocket, NEGATIVE_ACK_SEQNUM);
 		continue;
