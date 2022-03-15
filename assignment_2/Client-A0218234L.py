@@ -224,7 +224,7 @@ wait_for_turn(clientSocket);
 print("====== STARTING NOW =======");
 
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
-output_fd = open(output_file_name, 'wb');
+output_fd = open(output_file_name, 'wb', buffering = 32768);
 
 if (mode == '0'):
 	# ================ for reliable-channel only ================================
