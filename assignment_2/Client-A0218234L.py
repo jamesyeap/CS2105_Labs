@@ -237,6 +237,8 @@ if (mode == '0'):
 		if (len(packet) == 0):
 			break;
 
+	print("=== ALL DATA RECEIVED. EXITING...... ===");
+
 if (mode == '1'):
 	# ================ for error-channel only ================================
 	print("<< RUNNING ERROR-CHANNEL PROTOCOL >>");

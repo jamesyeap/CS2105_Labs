@@ -211,6 +211,8 @@ if (mode == '0'):
 		
 		clientSocket.send(packet);
 
+	print("====== NO MORE DATA TO BE READ FROM FILE =======");
+
 if (mode == '1'):
 	# ================ for error-channel only ================================
 	print("<< RUNNING ERROR-CHANNEL PROTOCOL >>");
