@@ -334,11 +334,11 @@ if (mode == '2'):
 		remove_excess_padding(clientSocket, padding_size);
 
 		if (seqnum != expected_seqnum):
-			print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
+			# print("===== BUFFERING SEQNUM: " + str(seqnum) + " =====");
 			buffer_packet(seqnum, packet_data);
 		else:
 			output_fd.write(packet_data);
-			print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
+			# print("===== WRITING SEQNUM: " + str(seqnum) + " ======");
 
 			if (len(buffered_packets) == 0):
 				expected_seqnum = expected_seqnum + 1;
@@ -346,7 +346,7 @@ if (mode == '2'):
 				# ignore total_bytes_read in reordering-channel mode
 				highest_received_seqnum, total_bytes_read = write_buffered_packets(expected_seqnum, output_fd);
 				expected_seqnum = highest_received_seqnum + 1;
-				print_buffer();
+				# print_buffer();
 
 output_fd.close();
 clientSocket.close();
