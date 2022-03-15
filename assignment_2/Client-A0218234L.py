@@ -264,27 +264,28 @@ while (True):
 		send_ack(clientSocket, 0);
 		continue;
 
-	if (packet_status == Status.OK):
-		send_ack(clientSocket, seqnum);
 
-		if (seqnum in seqnums_of_successfully_received_packets):
-			print("==> IGNORING DUPLICATE PACKET");
-			continue;
 
-		seqnums_of_successfully_received_packets.add(seqnum);
+	send_ack(clientSocket, seqnum);
 
-		if (seqnum == expected_seqnum):
-			print("==> WRITING PACKET");
-			output_fd.write(packet_data);
+	if (seqnum in seqnums_of_successfully_received_packets):
+		print("==> IGNORING DUPLICATE PACKET");
+		continue;
 
-			if (len(buffered_packets) > 0):
-				highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
-				expected_seqnum = highest_received_seqnum + 1;
-			else:
-				expected_seqnum = expected_seqnum + 1;
+	seqnums_of_successfully_received_packets.add(seqnum);
+
+	if (seqnum == expected_seqnum):
+		print("==> WRITING PACKET");
+		output_fd.write(packet_data);
+
+		if (len(buffered_packets) > 0):
+			highest_received_seqnum = write_buffered_packets(expected_seqnum, output_fd);
+			expected_seqnum = highest_received_seqnum + 1;
 		else:
-			print("==> BUFFERING PACKET");
-			buffer_packet(seqnum, packet_data);
+			expected_seqnum = expected_seqnum + 1;
+	else:
+		print("==> BUFFERING PACKET");
+		buffer_packet(seqnum, packet_data);
 
 		# print_buffer();
 
