@@ -352,6 +352,7 @@ if (mode == '2'):
 				expected_seqnum = highest_received_seqnum + 1;
 				# print_buffer();
 
+output_fd.flush();
 output_fd.close();
 clientSocket.close();
 
