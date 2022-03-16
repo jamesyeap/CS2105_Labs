@@ -3,6 +3,7 @@ from socket import *
 import hashlib
 import zlib
 from enum import Enum
+import time;
 
 # request method codes
 REQUEST_CONNECTION = 'STID_';
@@ -222,6 +223,7 @@ clientSocket.send(create_request_message(REQUEST_CONNECTION, student_key + '_C')
 wait_for_turn(clientSocket);
 
 print("====== STARTING NOW =======");
+start_time = time.time();
 
 """ open the file where the hash is to be written to, if the file doesn't exist, create it """
 output_fd = open(output_file_name, 'wb', buffering = 30120);
@@ -353,6 +355,7 @@ if (mode == '2'):
 				# print_buffer();
 
 # output_fd.flush();
+print("--- %s seconds ---" % (time.time() - start_time));
 output_fd.close();
 clientSocket.close();
 
